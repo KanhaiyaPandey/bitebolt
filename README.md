@@ -291,3 +291,9 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for full system design, API reference, au
 **`OTP not sending`** — Check your Twilio credentials and that the destination number is verified on your trial account.
 
 **Mobile can't reach API on device** — Replace `localhost` with your machine's local network IP in the mobile API client.
+
+---
+
+## License
+
+MIT — see `LICENSE`.

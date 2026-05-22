@@ -1,0 +1,32 @@
+{
+  "name": "bitebolt",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:api": "turbo run dev --filter=@bitebolt/api",
+    "dev:mobile": "turbo run dev --filter=@bitebolt/mobile",
+    "dev:admin": "turbo run dev --filter=@bitebolt/admin",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:generate": "turbo run db:generate --filter=@bitebolt/api",
+    "db:migrate": "turbo run db:migrate --filter=@bitebolt/api",
+    "db:push": "turbo run db:push --filter=@bitebolt/api",
+    "db:studio": "turbo run db:studio --filter=@bitebolt/api",
+    "db:seed": "turbo run db:seed --filter=@bitebolt/api"
+  },
+  "devDependencies": {
+    "@bitebolt/eslint-config": "workspace:*",
+    "prettier": "^3.2.5",
+    "turbo": "^2.0.6",
+    "typescript": "^5.4.5"
+  },
+  "packageManager": "pnpm@9.1.4",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

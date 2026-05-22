@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "BiteBolt",
+    "slug": "bitebolt",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF5722"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "in.bitebolt.customer",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "BiteBolt needs your location to deliver food to your address.",
+        "NSCameraUsageDescription": "BiteBolt needs camera access for profile pictures."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FF5722"
+      },
+      "package": "in.bitebolt.customer",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#FF5722"
+        }
+      ]
+    ],
+    "scheme": "bitebolt",
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      },
+      "API_URL": "http://localhost:3001/api/v1",
+      "RAZORPAY_KEY_ID": "rzp_test_xxxxxxxxxx"
+    }
+  }
+}

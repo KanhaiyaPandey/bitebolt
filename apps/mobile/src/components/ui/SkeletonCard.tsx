@@ -1,26 +1,26 @@
-import { View } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  useEffect,
-} from 'react-native-reanimated';
+import { useEffect, useRef } from 'react';
+import { Animated, View } from 'react-native';
 
 function Shimmer({ className }: { className: string }) {
-  const opacity = useSharedValue(0.3);
+  const opacity = useRef(new Animated.Value(0.35)).current;
 
   useEffect(() => {
-    opacity.value = withRepeat(
-      withSequence(withTiming(1, { duration: 800 }), withTiming(0.3, { duration: 800 })),
-      -1,
-      false,
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.35, duration: 800, useNativeDriver: true }),
+      ]),
     );
+    loop.start();
+    return () => loop.stop();
   }, []);
 
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
-  return <Animated.View style={style} className={`bg-gray-200 dark:bg-gray-700 rounded ${className}`} />;
+  return (
+    <Animated.View
+      style={{ opacity }}
+      className={`bg-gray-200 dark:bg-gray-700 rounded ${className}`}
+    />
+  );
 }
 
 export function SkeletonCard() {

@@ -2,7 +2,6 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ordersApi } from '../../src/api';
 import { formatCurrency, formatDateTime, getOrderStatusLabel, getOrderStatusColor } from '@bitebolt/utils';
 import type { Order } from '@bitebolt/types';
@@ -48,7 +47,7 @@ export default function OrdersScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
         renderItem={({ item, index }) => (
-          <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
+          <View>
             <TouchableOpacity
               onPress={() => router.push(`/order/${item.id}`)}
               activeOpacity={0.85}
@@ -83,7 +82,7 @@ export default function OrdersScreen() {
                 </Text>
               </View>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         )}
       />
     </SafeAreaView>

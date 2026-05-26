@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useRef } from 'react';
 import Toast from 'react-native-toast-message';
 import { cartApi } from '../../api';
 import { formatCurrency } from '@bitebolt/utils';
@@ -13,11 +13,7 @@ interface FoodCardProps {
 
 export function FoodCard({ item, onPress }: FoodCardProps) {
   const queryClient = useQueryClient();
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const addMutation = useMutation({
     mutationFn: () => cartApi.addItem({ foodItemId: item.id, quantity: 1 }),
@@ -29,7 +25,10 @@ export function FoodCard({ item, onPress }: FoodCardProps) {
   });
 
   const handleAdd = () => {
-    scale.value = withSpring(0.95, {}, () => { scale.value = withSpring(1); });
+    Animated.sequence([
+      Animated.spring(scaleAnim, { toValue: 0.95, useNativeDriver: true }),
+      Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }),
+    ]).start();
     addMutation.mutate();
   };
 
@@ -89,7 +88,7 @@ export function FoodCard({ item, onPress }: FoodCardProps) {
               )}
             </View>
 
-            <Animated.View style={animatedStyle}>
+            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
               <TouchableOpacity
                 onPress={handleAdd}
                 disabled={addMutation.isPending}

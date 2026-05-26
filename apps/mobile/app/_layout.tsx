@@ -2,7 +2,13 @@ import '../src/styles/global.css';
 import { useEffect } from 'react';
 import { SplashScreen, Stack, useRouter, useSegments } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useFonts } from 'expo-font';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  useFonts,
+} from '@expo-google-fonts/inter';
 import Toast from 'react-native-toast-message';
 import { StatusBar } from 'expo-status-bar';
 
@@ -48,10 +54,10 @@ function AuthGuard() {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    'Inter': require('../assets/fonts/Inter-Regular.ttf'),
-    'Inter-Medium': require('../assets/fonts/Inter-Medium.ttf'),
-    'Inter-SemiBold': require('../assets/fonts/Inter-SemiBold.ttf'),
-    'Inter-Bold': require('../assets/fonts/Inter-Bold.ttf'),
+    Inter: Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
   });
 
   useEffect(() => {
@@ -69,18 +75,6 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="food/[slug]"
-          options={{ headerShown: true, title: '', presentation: 'card' }}
-        />
-        <Stack.Screen
-          name="order/[id]"
-          options={{ headerShown: true, title: 'Order Details', presentation: 'card' }}
-        />
-        <Stack.Screen
-          name="checkout"
-          options={{ headerShown: true, title: 'Checkout', presentation: 'modal' }}
-        />
       </Stack>
       <Toast />
     </QueryClientProvider>

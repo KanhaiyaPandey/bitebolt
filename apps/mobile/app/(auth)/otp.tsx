@@ -7,9 +7,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { authApi } from '../../src/api/auth';
 import { useAuthStore } from '../../src/store/auth.store';
@@ -20,10 +20,15 @@ export default function OtpScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
   const { setAuth } = useAuthStore();
 
+  const enterAnim = useRef(new Animated.Value(0)).current;
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
   const inputs = useRef<(TextInput | null)[]>([]);
+
+  useEffect(() => {
+    Animated.spring(enterAnim, { toValue: 1, useNativeDriver: true }).start();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -103,7 +108,19 @@ export default function OtpScreen() {
         <Text className="text-2xl">←</Text>
       </TouchableOpacity>
 
-      <Animated.View entering={FadeInDown.springify()}>
+      <Animated.View
+        style={{
+          opacity: enterAnim,
+          transform: [
+            {
+              translateY: enterAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [18, 0],
+              }),
+            },
+          ],
+        }}
+      >
         <Text className="text-2xl font-bold text-text-primary dark:text-text-primary-dark mb-2">
           Enter OTP
         </Text>

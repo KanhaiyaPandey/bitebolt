@@ -5,12 +5,10 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  Image,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { categoriesApi, foodsApi } from '../../src/api';
 import { useAuthStore } from '../../src/store/auth.store';
 import { FoodCard } from '../../src/components/food/FoodCard';
@@ -50,17 +48,17 @@ export default function HomeScreen() {
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} colors={['#FF5722']} />}
       >
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).springify()} className="px-5 pt-4 pb-2">
+        <View className="px-5 pt-4 pb-2">
           <Text className="text-text-secondary dark:text-text-secondary-dark text-sm">
             {greeting()}, {user?.name?.split(' ')[0] ?? 'Foodie'} 👋
           </Text>
           <Text className="text-text-primary dark:text-text-primary-dark text-2xl font-bold mt-0.5">
             What are you craving?
           </Text>
-        </Animated.View>
+        </View>
 
         {/* Search bar */}
-        <Animated.View entering={FadeInDown.delay(100).springify()} className="px-5 mb-5">
+        <View className="px-5 mb-5">
           <TouchableOpacity
             onPress={() => router.push('/(tabs)/search')}
             activeOpacity={0.8}
@@ -71,10 +69,10 @@ export default function HomeScreen() {
               Search for dishes, cuisines...
             </Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
 
         {/* Categories */}
-        <Animated.View entering={FadeInDown.delay(150).springify()}>
+        <View>
           <Text className="px-5 text-lg font-bold text-text-primary dark:text-text-primary-dark mb-3">
             Categories
           </Text>
@@ -91,10 +89,10 @@ export default function HomeScreen() {
                   />
                 ))}
           </ScrollView>
-        </Animated.View>
+        </View>
 
         {/* Promo Banner */}
-        <Animated.View entering={FadeInDown.delay(200).springify()} className="px-5 mt-6 mb-6">
+        <View className="px-5 mt-6 mb-6">
           <View className="bg-brand rounded-card p-5 flex-row items-center">
             <View className="flex-1">
               <Text className="text-white font-bold text-lg">50% OFF</Text>
@@ -105,10 +103,10 @@ export default function HomeScreen() {
             </View>
             <Text className="text-6xl">🎉</Text>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Featured / Bestsellers */}
-        <Animated.View entering={FadeInDown.delay(250).springify()} className="px-5">
+        <View className="px-5">
           <Text className="text-lg font-bold text-text-primary dark:text-text-primary-dark mb-3">
             🔥 Bestsellers
           </Text>
@@ -119,16 +117,16 @@ export default function HomeScreen() {
           ) : (
             <View className="gap-4">
               {(featuredData as FoodItem[] | undefined)?.map((item, idx) => (
-                <Animated.View key={item.id} entering={FadeInDown.delay(idx * 50).springify()}>
+                <View key={item.id}>
                   <FoodCard
                     item={item}
                     onPress={() => router.push(`/food/${item.slug}`)}
                   />
-                </Animated.View>
+                </View>
               ))}
             </View>
           )}
-        </Animated.View>
+        </View>
 
         <View className="h-8" />
       </ScrollView>

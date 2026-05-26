@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,25 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { authApi } from '../../src/api/auth';
 import { isValidIndianPhone } from '@bitebolt/utils';
 
 export default function PhoneScreen() {
   const router = useRouter();
+  const heroEnter = useRef(new Animated.Value(0)).current;
+  const formEnter = useRef(new Animated.Value(0)).current;
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    Animated.spring(heroEnter, { toValue: 1, useNativeDriver: true }).start();
+    Animated.spring(formEnter, { toValue: 1, useNativeDriver: true, delay: 120 }).start();
+  }, []);
 
   const handleSendOtp = async () => {
     if (!isValidIndianPhone(phone)) {
@@ -51,7 +58,19 @@ export default function PhoneScreen() {
         colors={['#FF5722', '#FF8A65']}
         className="h-72 items-center justify-center"
       >
-        <Animated.View entering={FadeInDown.delay(100).springify()}>
+        <Animated.View
+          style={{
+            opacity: heroEnter,
+            transform: [
+              {
+                translateY: heroEnter.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [18, 0],
+                }),
+              },
+            ],
+          }}
+        >
           <Text className="text-5xl">🍔</Text>
           <Text className="text-white text-3xl font-bold text-center mt-3">BiteBolt</Text>
           <Text className="text-white/80 text-base text-center mt-1">
@@ -62,7 +81,17 @@ export default function PhoneScreen() {
 
       {/* Form */}
       <Animated.View
-        entering={FadeInUp.delay(200).springify()}
+        style={{
+          opacity: formEnter,
+          transform: [
+            {
+              translateY: formEnter.interpolate({
+                inputRange: [0, 1],
+                outputRange: [18, 0],
+              }),
+            },
+          ],
+        }}
         className="flex-1 bg-white dark:bg-surface-dark rounded-t-3xl -mt-6 px-6 pt-8"
       >
         <Text className="text-2xl font-bold text-text-primary dark:text-text-primary-dark mb-1">

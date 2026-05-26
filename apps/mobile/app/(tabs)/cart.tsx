@@ -2,7 +2,6 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'rea
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { cartApi } from '../../src/api';
 import { useCartStore } from '../../src/store/cart.store';
@@ -68,13 +67,13 @@ export default function CartScreen() {
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 20 }}>
         {cart.items.map((item, idx) => (
-          <Animated.View key={item.id} entering={FadeInDown.delay(idx * 40).springify()}>
+          <View key={item.id}>
             <CartItemRow
               item={item}
               onIncrement={() => updateMutation.mutate({ id: item.id, quantity: item.quantity + 1 })}
               onDecrement={() => updateMutation.mutate({ id: item.id, quantity: item.quantity - 1 })}
             />
-          </Animated.View>
+          </View>
         ))}
 
         {/* Bill Summary */}

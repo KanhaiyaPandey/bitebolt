@@ -53,11 +53,19 @@ function AuthGuard() {
 }
 
 export default function RootLayout() {
+  // Map Inter variants to Urbanist names so all screens work now.
+  // Once `@expo-google-fonts/urbanist` is installed (run `pnpm install`
+  // in apps/mobile) swap these imports for the Urbanist equivalents.
   const [fontsLoaded] = useFonts({
-    Inter: Inter_400Regular,
-    'Inter-Medium': Inter_500Medium,
-    'Inter-SemiBold': Inter_600SemiBold,
-    'Inter-Bold': Inter_700Bold,
+    Urbanist:           Inter_400Regular,
+    'Urbanist-Medium':  Inter_500Medium,
+    'Urbanist-SemiBold':Inter_600SemiBold,
+    'Urbanist-Bold':    Inter_700Bold,
+    // keep originals available too
+    Inter:              Inter_400Regular,
+    'Inter-Medium':     Inter_500Medium,
+    'Inter-SemiBold':   Inter_600SemiBold,
+    'Inter-Bold':       Inter_700Bold,
   });
 
   useEffect(() => {
@@ -70,7 +78,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
       <AuthGuard />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />

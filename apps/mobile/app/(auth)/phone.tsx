@@ -28,16 +28,22 @@ export default function PhoneScreen() {
   }, []);
 
   const handleSendOtp = async () => {
+    console.log('[OTP] Button pressed, phone:', phone);
+
     if (!isValidIndianPhone(phone)) {
+      console.log('[OTP] Validation failed — not a valid 10-digit Indian number');
       Toast.show({ type: 'error', text1: 'Invalid number', text2: 'Enter a valid 10-digit mobile number' });
       return;
     }
 
+    console.log('[OTP] Validation passed, calling sendOtp API...');
     setLoading(true);
     try {
-      await authApi.sendOtp({ phone });
+      const res = await authApi.sendOtp({ phone });
+      console.log('[OTP] sendOtp success:', res);
       router.push({ pathname: '/(auth)/otp', params: { phone } });
     } catch (err: unknown) {
+      console.error('[OTP] sendOtp error:', err);
       Toast.show({
         type: 'error',
         text1: 'Error',

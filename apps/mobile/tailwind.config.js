@@ -5,47 +5,84 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // ── BiteBolt Design System ──────────────────────────
         primary: {
-          50: '#FFF3E0',
-          100: '#FFE0B2',
-          200: '#FFCC80',
-          300: '#FFB74D',
-          400: '#FFA726',
-          500: '#FF9800',
-          600: '#FB8C00',
-          700: '#F57C00',
-          800: '#EF6C00',
-          900: '#E65100',
-          DEFAULT: '#FF5722',
+          50:  '#FFF3EE',
+          100: '#FFE4D5',
+          200: '#FFC9AB',
+          300: '#FFA577',
+          400: '#FA8D52',
+          500: '#FA7938', // ← brand orange
+          600: '#E8641E',
+          700: '#C84F12',
+          800: '#A63C0A',
+          900: '#872E06',
+          DEFAULT: '#FA7938',
         },
-        brand: '#FF5722',
+        brand:   '#FA7938',
+
+        // Dark navy text / secondary
+        secondary: {
+          DEFAULT: '#414158',
+          light:   '#D3D6DE',
+        },
+
+        // Tertiary palette
+        tertiary: {
+          purple:   '#808AFF',
+          lavender: '#CE7ECE',
+          pink:     '#D59096',
+        },
+
+        // Accent
+        accent: {
+          orange: '#F67F58',
+          teal:   '#04AFAE',
+        },
+
+        // App background – soft lavender
+        background: '#EEEEF5',
+
+        // Surfaces
         surface: {
-          DEFAULT: '#FFFFFF',
-          dark: '#1A1A1A',
-          card: '#F8F9FA',
-          'card-dark': '#2A2A2A',
+          DEFAULT:    '#FFFFFF',
+          dark:       '#1A1A2E',
+          card:       '#FFFFFF',
+          'card-dark':'#252535',
         },
+
+        // Text
         text: {
-          primary: '#1A1A1A',
-          secondary: '#6B7280',
-          muted: '#9CA3AF',
-          'primary-dark': '#FFFFFF',
-          'secondary-dark': '#A1A1AA',
+          primary:          '#414158',
+          secondary:        '#9098B1',
+          muted:            '#C4C9D4',
+          'primary-dark':   '#FFFFFF',
+          'secondary-dark': '#A1A1BB',
         },
+
+        // Semantic
         success: '#10B981',
         warning: '#F59E0B',
-        error: '#EF4444',
-        info: '#3B82F6',
+        error:   '#EF4444',
+        info:    '#3B82F6',
       },
+
       fontFamily: {
-        sans: ['Inter', 'System'],
-        heading: ['Inter-Bold', 'System'],
+        sans:    ['Urbanist', 'Inter', 'System'],
+        heading: ['Urbanist-SemiBold', 'Inter-Bold', 'System'],
       },
+
       borderRadius: {
-        card: '16px',
-        button: '12px',
-        input: '10px',
-        pill: '9999px',
+        card:   '16px',
+        button: '14px',
+        input:  '12px',
+        pill:   '9999px',
+        xl2:    '20px',
+      },
+
+      boxShadow: {
+        card:  '0 4px 20px rgba(0,0,0,0.06)',
+        float: '0 8px 32px rgba(0,0,0,0.10)',
       },
     },
   },

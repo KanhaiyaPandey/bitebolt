@@ -52,7 +52,7 @@
       "eas": {
         "projectId": "your-eas-project-id"
       },
-      "API_URL": "http://10.75.101.138:3001/api/v1",
+      "API_URL": "http://10.25.93.138:3001/api/v1",
       "RAZORPAY_KEY_ID": "rzp_test_xxxxxxxxxx"
     }
   }

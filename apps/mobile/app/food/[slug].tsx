@@ -243,8 +243,8 @@ export default function FoodDetailsScreen() {
           </Text>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {[
-              { emoji: '🍊', price: '$3.00' },
-              { emoji: '🍔', price: '$5.50' },
+              { emoji: '🍊', price: '₹3.00' },
+              { emoji: '🍔', price: '₹5.50' },
             ].map((suggestion, i) => (
               <View
                 key={i}

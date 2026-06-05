@@ -174,13 +174,13 @@ export default function CheckoutScreen() {
               shadowColor: '#1A1A2E', shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
             }}>
-              <SummaryRow label="Subtotal" value={`$${Number(cart.subtotal).toFixed(2)}`} />
-              <SummaryRow label="Shipping" value={`$${Number(cart.deliveryFee).toFixed(2)}`} />
-              <SummaryRow label="Tax (5%)" value={`$${Number(cart.taxes).toFixed(2)}`} />
+              <SummaryRow label="Subtotal" value={`₹${Number(cart.subtotal).toFixed(2)}`} />
+              <SummaryRow label="Shipping" value={`₹${Number(cart.deliveryFee).toFixed(2)}`} />
+              <SummaryRow label="Tax (5%)" value={`₹${Number(cart.taxes).toFixed(2)}`} />
               <View style={{ height: 1, backgroundColor: '#EEEEF5', marginVertical: 10 }} />
               <SummaryRow
                 label="Total"
-                value={`$${Number(cart.total).toFixed(2)}`}
+                value={`₹${Number(cart.total).toFixed(2)}`}
                 bold
                 valueColor="#FA7938"
               />
@@ -203,7 +203,7 @@ export default function CheckoutScreen() {
           <View>
             <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1' }}>Total</Text>
             <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158' }}>
-              ${Number(cart.total).toFixed(2)}
+              ₹{Number(cart.total).toFixed(2)}
             </Text>
           </View>
         )}

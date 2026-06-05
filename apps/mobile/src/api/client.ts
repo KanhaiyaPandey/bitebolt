@@ -24,7 +24,7 @@ apiClient.interceptors.request.use(async (config) => {
 
 // ── Response interceptor: handle token refresh ────────────────────────────────
 apiClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => response.data?.data ?? response.data,
   async (error: AxiosError) => {
     const originalRequest = error.config as typeof error.config & { _retry?: boolean };
 

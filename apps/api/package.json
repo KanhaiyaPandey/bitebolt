@@ -22,6 +22,7 @@
   "dependencies": {
     "@bitebolt/types": "workspace:*",
     "@bitebolt/utils": "workspace:*",
+    "@nestjs/cache-manager": "^2.2.2",
     "@nestjs/common": "^10.3.9",
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.3.9",

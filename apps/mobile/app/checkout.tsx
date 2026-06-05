@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { cartApi } from '../src/api';
 import type { Cart } from '@bitebolt/types';
+import { useAuthStore } from '../src/store/auth.store';
 
 type DeliveryMode = 'delivery' | 'pickup';
 
@@ -19,6 +20,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function CheckoutScreen() {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
 
   const { data: cart } = useQuery({
@@ -200,6 +202,11 @@ export default function CheckoutScreen() {
           </View>
         )}
         <TouchableOpacity
+          onPress={() => {
+            if (!isAuthenticated) {
+              router.push('/(auth)/phone');
+            }
+          }}
           style={{
             flex: 1, backgroundColor: '#FA7938', borderRadius: 14,
             paddingVertical: 16, alignItems: 'center',

@@ -15,7 +15,42 @@ interface MenuItem {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, isAuthenticated, isLoading } = useAuthStore();
+
+  if (!isLoading && !isAuthenticated) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+          <View style={{
+            width: 80, height: 80, borderRadius: 40,
+            backgroundColor: '#FA793820', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 20,
+          }}>
+            <Ionicons name="person-outline" size={36} color="#FA7938" />
+          </View>
+          <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158', marginBottom: 8, textAlign: 'center' }}>
+            Sign in to view your profile
+          </Text>
+          <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', textAlign: 'center', marginBottom: 32 }}>
+            Log in to manage your account, orders, and preferences.
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push('/(auth)/phone')}
+            style={{
+              backgroundColor: '#FA7938', borderRadius: 14,
+              paddingVertical: 16, paddingHorizontal: 40, alignItems: 'center',
+              shadowColor: '#FA7938', shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
+            }}
+          >
+            <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>
+              Sign In
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // Order status steps
   const ORDER_STEPS = [

@@ -40,9 +40,7 @@ function AuthGuard() {
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/(auth)/phone');
-    } else if (isAuthenticated && !isRegistered) {
+    if (isAuthenticated && !isRegistered) {
       router.replace('/(auth)/register');
     } else if (isAuthenticated && isRegistered && inAuthGroup) {
       router.replace('/(tabs)');

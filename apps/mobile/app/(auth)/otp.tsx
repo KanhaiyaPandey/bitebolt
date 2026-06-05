@@ -9,7 +9,9 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { authApi } from '../../src/api/auth';
 import { useAuthStore } from '../../src/store/auth.store';
@@ -48,7 +50,6 @@ export default function OtpScreen() {
       inputs.current[index + 1]?.focus();
     }
 
-    // Auto-submit when all filled
     if (newOtp.every(Boolean) && value) {
       handleVerify(newOtp.join(''));
     }
@@ -99,83 +100,133 @@ export default function OtpScreen() {
     }
   };
 
+  const allFilled = otp.every(Boolean);
+
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white dark:bg-surface-dark px-6"
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <TouchableOpacity onPress={() => router.back()} className="mt-14 mb-8">
-        <Text className="text-2xl">←</Text>
-      </TouchableOpacity>
-
-      <Animated.View
-        style={{
-          opacity: enterAnim,
-          transform: [
-            {
-              translateY: enterAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [18, 0],
-              }),
-            },
-          ],
-        }}
-      >
-        <Text className="text-2xl font-bold text-text-primary dark:text-text-primary-dark mb-2">
-          Enter OTP
-        </Text>
-        <Text className="text-text-secondary dark:text-text-secondary-dark mb-8">
-          We sent a 6-digit code to{'\n'}
-          <Text className="font-semibold text-text-primary dark:text-text-primary-dark">
-            +91 {maskPhone(phone)}
-          </Text>
-        </Text>
-
-        {/* OTP Boxes */}
-        <View className="flex-row justify-between mb-8">
-          {otp.map((digit, i) => (
-            <TextInput
-              key={i}
-              ref={(ref) => { inputs.current[i] = ref; }}
-              className={`w-12 h-14 border-2 rounded-xl text-center text-xl font-bold text-text-primary dark:text-text-primary-dark ${
-                digit ? 'border-brand' : 'border-gray-200'
-              } bg-surface-card dark:bg-surface-card-dark`}
-              value={digit}
-              onChangeText={(v) => handleOtpChange(v, i)}
-              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
-              keyboardType="number-pad"
-              maxLength={1}
-              selectTextOnFocus
-            />
-          ))}
-        </View>
-
-        <TouchableOpacity
-          onPress={() => handleVerify()}
-          disabled={loading || otp.some((d) => !d)}
-          activeOpacity={0.85}
-          className={`rounded-button py-4 items-center mb-6 ${
-            otp.every(Boolean) ? 'bg-brand' : 'bg-gray-200'
-          }`}
+    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <KeyboardAvoidingView
+          style={{ flex: 1, paddingHorizontal: 20 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className={`text-base font-semibold ${otp.every(Boolean) ? 'text-white' : 'text-gray-400'}`}>
-              Verify OTP
-            </Text>
-          )}
-        </TouchableOpacity>
+          {/* Back button */}
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={{
+              marginTop: 8,
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              backgroundColor: '#FFFFFF',
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: '#1A1A2E',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.06,
+              shadowRadius: 6,
+              elevation: 2,
+            }}
+          >
+            <Ionicons name="arrow-back" size={20} color="#414158" />
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0} className="items-center">
-          <Text className="text-text-secondary dark:text-text-secondary-dark">
-            Didn't receive OTP?{' '}
-            <Text className={`font-semibold ${resendTimer === 0 ? 'text-brand' : 'text-text-muted'}`}>
-              {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend'}
+          <Animated.View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              opacity: enterAnim,
+              transform: [
+                {
+                  translateY: enterAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 26, color: '#414158', marginBottom: 10 }}>
+              Enter OTP
             </Text>
-          </Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </KeyboardAvoidingView>
+            <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', marginBottom: 36, lineHeight: 22 }}>
+              We sent a 6-digit code to{'\n'}
+              <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#414158' }}>
+                +91 {maskPhone(phone)}
+              </Text>
+            </Text>
+
+            {/* OTP boxes */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 36 }}>
+              {otp.map((digit, i) => (
+                <TextInput
+                  key={i}
+                  ref={(ref) => { inputs.current[i] = ref; }}
+                  style={{
+                    width: 48,
+                    height: 56,
+                    borderRadius: 14,
+                    borderWidth: 2,
+                    borderColor: digit ? '#FA7938' : '#E2E4EA',
+                    backgroundColor: '#FFFFFF',
+                    textAlign: 'center',
+                    fontSize: 20,
+                    fontFamily: 'Urbanist-Bold',
+                    color: '#414158',
+                  }}
+                  value={digit}
+                  onChangeText={(v) => handleOtpChange(v, i)}
+                  onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
+                  keyboardType="number-pad"
+                  maxLength={1}
+                  selectTextOnFocus
+                />
+              ))}
+            </View>
+
+            <TouchableOpacity
+              onPress={() => handleVerify()}
+              disabled={loading || !allFilled}
+              activeOpacity={0.85}
+              style={{
+                backgroundColor: allFilled ? '#FA7938' : '#EEEEF5',
+                borderRadius: 14,
+                paddingVertical: 16,
+                alignItems: 'center',
+                marginBottom: 24,
+                shadowColor: allFilled ? '#FA7938' : 'transparent',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.28,
+                shadowRadius: 10,
+                elevation: allFilled ? 5 : 0,
+              }}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={{
+                  fontFamily: 'Urbanist-SemiBold',
+                  fontSize: 16,
+                  color: allFilled ? '#FFFFFF' : '#9098B1',
+                }}>
+                  Verify OTP
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0} style={{ alignItems: 'center' }}>
+              <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1' }}>
+                Didn't receive OTP?{' '}
+                <Text style={{
+                  fontFamily: 'Urbanist-SemiBold',
+                  color: resendTimer === 0 ? '#FA7938' : '#C4C9D4',
+                }}>
+                  {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend'}
+                </Text>
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }

@@ -276,7 +276,7 @@ export default function FoodDetailsScreen() {
         <View>
           <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1' }}>Price</Text>
           <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158' }}>
-            ${effectivePrice.toFixed(2)}
+            ₹{effectivePrice.toFixed(2)}
           </Text>
         </View>
         <TouchableOpacity

@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { authApi } from '../../src/api/auth';
@@ -52,78 +53,142 @@ export default function RegisterScreen() {
     }
   };
 
+  const isReady = name.trim().length > 0;
+
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white dark:bg-surface-dark px-6"
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <Animated.View
-        className="flex-1 justify-center"
-        style={{
-          opacity: enterAnim,
-          transform: [
-            {
-              translateY: enterAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [24, 0],
-              }),
-            },
-          ],
-        }}
-      >
-        <Text className="text-4xl mb-4">👋</Text>
-        <Text className="text-2xl font-bold text-text-primary dark:text-text-primary-dark mb-2">
-          Welcome to BiteBolt!
-        </Text>
-        <Text className="text-text-secondary dark:text-text-secondary-dark mb-10">
-          Just a few details to get you started.
-        </Text>
-
-        <Text className="text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-          Your name *
-        </Text>
-        <TextInput
-          className="bg-surface-card dark:bg-surface-card-dark rounded-input px-4 py-4 text-base text-text-primary dark:text-text-primary-dark mb-4"
-          placeholder="e.g. Rahul Sharma"
-          placeholderTextColor="#9CA3AF"
-          value={name}
-          onChangeText={setName}
-          returnKeyType="next"
-          autoCapitalize="words"
-        />
-
-        <Text className="text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-          Email (optional)
-        </Text>
-        <TextInput
-          className="bg-surface-card dark:bg-surface-card-dark rounded-input px-4 py-4 text-base text-text-primary dark:text-text-primary-dark mb-8"
-          placeholder="you@example.com"
-          placeholderTextColor="#9CA3AF"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          returnKeyType="done"
-          onSubmitEditing={handleRegister}
-        />
-
-        <TouchableOpacity
-          onPress={handleRegister}
-          disabled={loading || !name.trim()}
-          activeOpacity={0.85}
-          className={`rounded-button py-4 items-center ${
-            name.trim() ? 'bg-brand' : 'bg-gray-200'
-          }`}
+    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <KeyboardAvoidingView
+          style={{ flex: 1, paddingHorizontal: 20 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className={`text-base font-semibold ${name.trim() ? 'text-white' : 'text-gray-400'}`}>
-              Let's go!
-            </Text>
-          )}
-        </TouchableOpacity>
-      </Animated.View>
-    </KeyboardAvoidingView>
+          <Animated.View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              opacity: enterAnim,
+              transform: [
+                {
+                  translateY: enterAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [24, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            {/* Header */}
+            <View style={{ marginBottom: 36 }}>
+              <View style={{
+                width: 56,
+                height: 56,
+                borderRadius: 16,
+                backgroundColor: '#FA793820',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 20,
+              }}>
+                <Text style={{ fontSize: 26 }}>👋</Text>
+              </View>
+              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 26, color: '#414158', marginBottom: 8 }}>
+                Welcome to BiteBolt!
+              </Text>
+              <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', lineHeight: 22 }}>
+                Just a couple of details and you're all set.
+              </Text>
+            </View>
+
+            {/* Form card */}
+            <View style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 20,
+              padding: 20,
+              shadowColor: '#1A1A2E',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 10,
+              elevation: 3,
+              marginBottom: 20,
+            }}>
+              {/* Name */}
+              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#9098B1', marginBottom: 8 }}>
+                YOUR NAME *
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#EEEEF5',
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 14,
+                  fontFamily: 'Urbanist',
+                  fontSize: 15,
+                  color: '#414158',
+                  marginBottom: 16,
+                }}
+                placeholder="e.g. Rahul Sharma"
+                placeholderTextColor="#C4C9D4"
+                value={name}
+                onChangeText={setName}
+                returnKeyType="next"
+                autoCapitalize="words"
+              />
+
+              {/* Email */}
+              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#9098B1', marginBottom: 8 }}>
+                EMAIL  <Text style={{ fontFamily: 'Urbanist', color: '#C4C9D4' }}>(optional)</Text>
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#EEEEF5',
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 14,
+                  fontFamily: 'Urbanist',
+                  fontSize: 15,
+                  color: '#414158',
+                }}
+                placeholder="you@example.com"
+                placeholderTextColor="#C4C9D4"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                returnKeyType="done"
+                onSubmitEditing={handleRegister}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={handleRegister}
+              disabled={loading || !isReady}
+              activeOpacity={0.85}
+              style={{
+                backgroundColor: isReady ? '#FA7938' : '#EEEEF5',
+                borderRadius: 14,
+                paddingVertical: 16,
+                alignItems: 'center',
+                shadowColor: isReady ? '#FA7938' : 'transparent',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.28,
+                shadowRadius: 10,
+                elevation: isReady ? 5 : 0,
+              }}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={{
+                  fontFamily: 'Urbanist-SemiBold',
+                  fontSize: 16,
+                  color: isReady ? '#FFFFFF' : '#9098B1',
+                }}>
+                  Let's go!
+                </Text>
+              )}
+            </TouchableOpacity>
+          </Animated.View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }

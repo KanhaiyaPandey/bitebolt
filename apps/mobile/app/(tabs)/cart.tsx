@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { cartApi } from '../../src/api';
 import { useCartStore } from '../../src/store/cart.store';
+import { useAuthStore } from '../../src/store/auth.store';
 import { formatCurrency } from '@bitebolt/utils';
 import type { Cart } from '@bitebolt/types';
 
@@ -21,6 +22,7 @@ export default function CartScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const setCart = useCartStore((s) => s.setCart);
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
 
   const { data: cart, isLoading } = useQuery({
     queryKey: ['cart'],
@@ -29,7 +31,41 @@ export default function CartScreen() {
       setCart(data);
       return data;
     },
+    enabled: isAuthenticated,
   });
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+          <View style={{
+            width: 80, height: 80, borderRadius: 40,
+            backgroundColor: '#FA793820', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 20,
+          }}>
+            <Ionicons name="cart-outline" size={36} color="#FA7938" />
+          </View>
+          <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158', marginBottom: 8, textAlign: 'center' }}>
+            Sign in to view your cart
+          </Text>
+          <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', textAlign: 'center', marginBottom: 32 }}>
+            Log in to add items and place orders.
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push('/(auth)/phone')}
+            style={{
+              backgroundColor: '#FA7938', borderRadius: 14,
+              paddingVertical: 16, paddingHorizontal: 40, alignItems: 'center',
+              shadowColor: '#FA7938', shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
+            }}
+          >
+            <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const updateMutation = useMutation({
     mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>

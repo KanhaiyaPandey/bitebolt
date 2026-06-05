@@ -20,13 +20,19 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function CheckoutScreen() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
 
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartApi.getCart() as Promise<Cart>,
+    enabled: isAuthenticated,
   });
+
+  if (!authLoading && !isAuthenticated) {
+    router.replace('/(auth)/phone');
+    return null;
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
@@ -203,9 +209,7 @@ export default function CheckoutScreen() {
         )}
         <TouchableOpacity
           onPress={() => {
-            if (!isAuthenticated) {
-              router.push('/(auth)/phone');
-            }
+            // TODO: submit order
           }}
           style={{
             flex: 1, backgroundColor: '#FA7938', borderRadius: 14,

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { ordersApi } from '../../src/api';
+import { useAuthStore } from '../../src/store/auth.store';
 import { formatCurrency, formatDateTime, getOrderStatusLabel, getOrderStatusColor } from '@bitebolt/utils';
 import type { Order } from '@bitebolt/types';
 
@@ -18,11 +19,46 @@ const STATUS_ICONS: Record<string, React.ComponentProps<typeof Ionicons>['name']
 
 export default function OrdersScreen() {
   const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
 
   const { data, isLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: () => ordersApi.getOrders({ page: 1, limit: 20 }) as Promise<{ orders: Order[] }>,
+    enabled: isAuthenticated,
   });
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+          <View style={{
+            width: 80, height: 80, borderRadius: 40,
+            backgroundColor: '#FA793820', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 20,
+          }}>
+            <Ionicons name="receipt-outline" size={36} color="#FA7938" />
+          </View>
+          <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158', marginBottom: 8, textAlign: 'center' }}>
+            Sign in to view your orders
+          </Text>
+          <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', textAlign: 'center', marginBottom: 32 }}>
+            Track your current orders and view order history.
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push('/(auth)/phone')}
+            style={{
+              backgroundColor: '#FA7938', borderRadius: 14,
+              paddingVertical: 16, paddingHorizontal: 40, alignItems: 'center',
+              shadowColor: '#FA7938', shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
+            }}
+          >
+            <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -59,7 +95,6 @@ export default function OrdersScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
-      {/* Header */}
       <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 }}>
         <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158' }}>
           My Orders
@@ -67,7 +102,7 @@ export default function OrdersScreen() {
       </View>
 
       <FlatList
-        data={data.orders}
+        data={data!.orders}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20, gap: 12 }}
         showsVerticalScrollIndicator={false}

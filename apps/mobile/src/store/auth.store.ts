@@ -32,6 +32,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await SecureStore.setItemAsync('accessToken', accessToken);
     await SecureStore.setItemAsync('refreshToken', refreshToken);
     await SecureStore.setItemAsync('userId', user.id);
+    await SecureStore.setItemAsync('isRegistered', user.name ? '1' : '0');
 
     set({
       user,
@@ -48,12 +49,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       user: updated,
       isRegistered: !!updated.name,
     });
+    if (updated.name) {
+      SecureStore.setItemAsync('isRegistered', '1');
+    }
   },
 
   logout: async () => {
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
     await SecureStore.deleteItemAsync('userId');
+    await SecureStore.deleteItemAsync('isRegistered');
     set({ user: null, isAuthenticated: false, isRegistered: false });
   },
 
@@ -65,8 +70,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      // Token exists — profile will be fetched by the app layer
-      set({ isAuthenticated: true, isLoading: false });
+      const registered = await SecureStore.getItemAsync('isRegistered');
+      set({ isAuthenticated: true, isRegistered: registered === '1', isLoading: false });
     } catch {
       set({ isLoading: false });
     }

@@ -97,8 +97,8 @@ export default function TabsLayout() {
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon
-              icon="chatbubble-ellipses-outline"
-              iconFocused="chatbubble-ellipses"
+              icon="home-outline"
+              iconFocused="home"
               focused={focused}
               isHome
             />
@@ -106,19 +106,8 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* Search / Filter */}
-      <Tabs.Screen
-        name="search"
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              icon="options-outline"
-              iconFocused="options"
-              focused={focused}
-            />
-          ),
-        }}
-      />
+      {/* Hide search — now a modal on the home screen */}
+      <Tabs.Screen name="search" options={{ href: null }} />
 
       {/* Cart */}
       <Tabs.Screen

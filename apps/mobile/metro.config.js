@@ -7,9 +7,8 @@ const workspaceRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Required for pnpm monorepos: watch all workspace packages and
-// resolve modules from both the app's and the workspace root's node_modules
-// so that Metro always picks up a single copy of shared packages like React.
+// Required for pnpm monorepos: watch all workspace packages and resolve
+// modules from both the app's and the workspace root's node_modules.
 config.watchFolders = [workspaceRoot];
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),

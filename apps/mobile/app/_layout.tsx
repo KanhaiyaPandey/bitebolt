@@ -7,8 +7,8 @@ import {
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
-  useFonts,
 } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 import Toast from 'react-native-toast-message';
 import { StatusBar } from 'expo-status-bar';
 

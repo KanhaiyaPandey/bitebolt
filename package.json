@@ -18,6 +18,10 @@
     "db:studio": "turbo run db:studio --filter=@bitebolt/api",
     "db:seed": "turbo run db:seed --filter=@bitebolt/api"
   },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
   "devDependencies": {
     "@bitebolt/eslint-config": "workspace:*",
     "prettier": "^3.2.5",

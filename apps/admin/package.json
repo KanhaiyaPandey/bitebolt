@@ -16,8 +16,8 @@
     "@tanstack/react-query": "^5.40.0",
     "axios": "^1.7.2",
     "next": "14.2.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "workspace:*",
+    "react-dom": "workspace:*",
     "sonner": "^1.5.0"
   },
   "devDependencies": {

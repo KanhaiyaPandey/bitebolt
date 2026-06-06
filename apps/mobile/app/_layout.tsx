@@ -1,5 +1,5 @@
 import '../src/styles/global.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SplashScreen, Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -13,6 +13,7 @@ import Toast from 'react-native-toast-message';
 import { StatusBar } from 'expo-status-bar';
 
 import { useAuthStore } from '../src/store/auth.store';
+import AnimatedSplash from '../src/components/AnimatedSplash';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,6 +34,8 @@ function InitAuth() {
 }
 
 export default function RootLayout() {
+  const [splashDone, setSplashDone] = useState(false);
+
   // Map Inter variants to Urbanist names so all screens work now.
   // Once `@expo-google-fonts/urbanist` is installed (run `pnpm install`
   // in apps/mobile) swap these imports for the Urbanist equivalents.
@@ -58,7 +61,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar style="dark" />
+      <StatusBar style={splashDone ? 'dark' : 'light'} />
       <InitAuth />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -66,6 +69,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       </Stack>
       <Toast />
+      {!splashDone && <AnimatedSplash onFinish={() => setSplashDone(true)} />}
     </QueryClientProvider>
   );
 }

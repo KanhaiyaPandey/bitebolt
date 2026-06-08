@@ -91,7 +91,7 @@ describe('AuthService', () => {
 
     it('inserts OTP and returns success message in dev mode', async () => {
       mockDb.db.query.otpVerifications.findFirst.mockResolvedValueOnce(null);
-      mockDb.db.returning.mockResolvedValueOnce([]);
+      // insert(otpVerifications).values(...) does NOT call .returning()
 
       const result = await service.sendOtp({ phone: '9999999999' });
 
@@ -105,7 +105,7 @@ describe('AuthService', () => {
   describe('verifyOtp', () => {
     it('throws UnauthorizedException for invalid OTP', async () => {
       mockDb.db.query.otpVerifications.findFirst.mockResolvedValueOnce(null);
-      mockDb.db.returning.mockResolvedValueOnce([]);
+      // update(otpVerifications).set().where() does NOT call .returning()
 
       await expect(service.verifyOtp({ phone: '9999999999', otp: '000000' })).rejects.toThrow(
         UnauthorizedException,
@@ -115,14 +115,10 @@ describe('AuthService', () => {
     it('returns tokens and user for a new user', async () => {
       const user = makeUser();
       mockDb.db.query.otpVerifications.findFirst.mockResolvedValueOnce({ id: 'otp-1' });
-      // mark OTP used
-      mockDb.db.returning.mockResolvedValueOnce([]);
-      // select existing user → empty (new user)
+      // select existing user → empty (new user); update(otpVerifications) does NOT call returning()
       mockDb.db.from.mockReturnValueOnce({ where: jest.fn().mockResolvedValueOnce([]) });
-      // insert user
+      // insert user → returning() returns the new user row
       mockDb.db.returning.mockResolvedValueOnce([user]);
-      // insert wallet
-      mockDb.db.returning.mockResolvedValueOnce([]);
 
       const result = await service.verifyOtp({ phone: '9999999999', otp: '123456' });
 
@@ -136,7 +132,7 @@ describe('AuthService', () => {
     it('throws UnauthorizedException for a suspended user', async () => {
       const suspendedUser = makeUser({ isActive: false });
       mockDb.db.query.otpVerifications.findFirst.mockResolvedValueOnce({ id: 'otp-1' });
-      mockDb.db.returning.mockResolvedValueOnce([]);
+      // update(otpVerifications).set().where() does NOT call .returning()
       mockDb.db.from.mockReturnValueOnce({
         where: jest.fn().mockResolvedValueOnce([suspendedUser]),
       });

@@ -4,13 +4,13 @@ module.exports = {
   rootDir: 'src',
   testRegex: '.*\\.spec\\.ts$',
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
+    '^.+\\.ts$': 'ts-jest',
   },
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
   moduleNameMapper: {
-    '^@bitebolt/types$': '<rootDir>/../../packages/types/src',
-    '^@bitebolt/utils$': '<rootDir>/../../packages/utils/src',
+    '^@bitebolt/types$': '<rootDir>/../../../packages/types/src',
+    '^@bitebolt/utils$': '<rootDir>/../../../packages/utils/src',
   },
 };

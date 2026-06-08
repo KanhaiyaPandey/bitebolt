@@ -1,3 +1,4 @@
+import type { CartItem } from '@bitebolt/types';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
 
@@ -5,19 +6,20 @@ import { CartItemRow } from './CartItemRow';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const makeCartItem = (overrides = {}) => ({
-  id: 'cart-1',
-  quantity: 2,
-  specialInstructions: null,
-  foodItem: {
-    id: 'food-1',
-    name: 'Masala Dosa',
-    price: '120',
-    discountedPrice: null,
-    imageUrl: null,
-  },
-  ...overrides,
-});
+const makeCartItem = (overrides = {}): CartItem =>
+  ({
+    id: 'cart-1',
+    quantity: 2,
+    specialInstructions: null,
+    foodItem: {
+      id: 'food-1',
+      name: 'Masala Dosa',
+      price: 120,
+      discountedPrice: null,
+      imageUrl: null,
+    },
+    ...overrides,
+  }) as unknown as CartItem;
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -87,8 +89,8 @@ describe('CartItemRow', () => {
       foodItem: {
         id: 'food-1',
         name: 'Masala Dosa',
-        price: '120',
-        discountedPrice: '100',
+        price: 120,
+        discountedPrice: 100,
         imageUrl: null,
       },
     });

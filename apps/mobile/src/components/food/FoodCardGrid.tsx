@@ -111,7 +111,7 @@ export function FoodCardGrid({ item, width, onPress }: FoodCardGridProps) {
               marginTop: 2,
             }}
           >
-            By {item.restaurantName ?? item.categoryName ?? 'BiteBolt'}
+            By {item.category?.name ?? 'BiteBolt'}
           </Text>
 
           {/* Price row */}

@@ -129,7 +129,7 @@ export default function FoodDetailsScreen() {
                 {item.name}
               </Text>
               <Text style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1', marginTop: 2 }}>
-                By {item.restaurantName ?? 'BiteBolt'}
+                By {item.category?.name ?? 'BiteBolt'}
               </Text>
             </View>
             {/* Qty control */}
@@ -192,7 +192,7 @@ export default function FoodDetailsScreen() {
             <View style={{ width: 1, height: 36, backgroundColor: '#EEEEF5' }} />
             <View style={{ alignItems: 'center' }}>
               <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 16, color: '#414158' }}>
-                {item.reviewCount ?? '298'}
+                {item.totalRatings ?? '298'}
               </Text>
               <Text style={{ fontFamily: 'Urbanist-Medium', fontSize: 11, color: '#9098B1', marginTop: 2 }}>
                 Reviews

@@ -1,3 +1,4 @@
+import type { FoodItem } from '@bitebolt/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import React from 'react';
@@ -14,18 +15,19 @@ jest.mock('../../api', () => ({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const makeFoodItem = (overrides = {}) => ({
-  id: 'food-1',
-  name: 'Paneer Butter Masala',
-  description: 'Rich and creamy paneer curry',
-  price: '250',
-  discountedPrice: null,
-  imageUrl: null,
-  isVeg: true,
-  isAvailable: true,
-  categoryId: 'cat-1',
-  ...overrides,
-});
+const makeFoodItem = (overrides = {}): FoodItem =>
+  ({
+    id: 'food-1',
+    name: 'Paneer Butter Masala',
+    description: 'Rich and creamy paneer curry',
+    price: 250,
+    discountedPrice: null,
+    imageUrl: null,
+    isVeg: true,
+    isAvailable: true,
+    categoryId: 'cat-1',
+    ...overrides,
+  }) as unknown as FoodItem;
 
 function wrapper({ children }: { children: React.ReactNode }) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -53,7 +55,7 @@ describe('FoodCard', () => {
   });
 
   it('shows discounted price and strikes through original price when a discount applies', () => {
-    const item = makeFoodItem({ price: '250', discountedPrice: '200' });
+    const item = makeFoodItem({ price: 250, discountedPrice: 200 });
     render(<FoodCard item={item} onPress={onPress} />, { wrapper });
 
     expect(screen.getByText(/₹200/)).toBeTruthy();

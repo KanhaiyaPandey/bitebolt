@@ -31,7 +31,7 @@ export default function HomeScreen() {
   // ── Search state ────────────────────────────────────────
   const [searchText, setSearchText] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleSearchChange = useCallback((text: string) => {
     setSearchText(text);

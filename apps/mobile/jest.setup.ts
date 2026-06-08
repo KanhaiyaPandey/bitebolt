@@ -1,8 +1,5 @@
 import '@testing-library/jest-native/extend-expect';
 
-// Silence non-actionable React Native warnings in test output
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
-
 // Mock expo-router so components that import it don't crash in tests
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(() => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn() })),

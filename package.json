@@ -11,6 +11,8 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "test:cov": "turbo run test:cov",
     "clean": "turbo run clean && rm -rf node_modules",
     "db:generate": "turbo run db:generate --filter=@bitebolt/api",
     "db:migrate": "turbo run db:migrate --filter=@bitebolt/api",

@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
 import type { Category } from '@bitebolt/types';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 
 interface CategoryChipProps {
   category: Category;

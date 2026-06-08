@@ -1,3 +1,5 @@
+import type { Category } from '@bitebolt/types';
+import { BlurView } from 'expo-blur';
 import { useEffect, useRef, useState } from 'react';
 import {
   View,
@@ -10,9 +12,6 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { Ionicons } from '@expo/vector-icons';
-import type { Category } from '@bitebolt/types';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -82,11 +81,20 @@ export function FilterModal({ visible, onClose, onApply, categories, initialFilt
     animateOut(onClose);
   };
 
-  const activeCount = [local.categoryId, local.isVeg !== null ? true : null, local.minRating]
-    .filter(Boolean).length;
+  const activeCount = [
+    local.categoryId,
+    local.isVeg !== null ? true : null,
+    local.minRating,
+  ].filter(Boolean).length;
 
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={handleClose} statusBarTranslucent>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={handleClose}
+      statusBarTranslucent
+    >
       {/* Blurred backdrop */}
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: backdropAnim }]}>
         <Pressable style={{ flex: 1 }} onPress={handleClose}>
@@ -108,8 +116,7 @@ export function FilterModal({ visible, onClose, onApply, categories, initialFilt
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>
-              Filters{' '}
-              {activeCount > 0 && <Text style={{ color: '#FA7938' }}>({activeCount})</Text>}
+              Filters {activeCount > 0 && <Text style={{ color: '#FA7938' }}>({activeCount})</Text>}
             </Text>
             <TouchableOpacity
               onPress={() => setLocal(EMPTY_FILTERS)}
@@ -119,7 +126,10 @@ export function FilterModal({ visible, onClose, onApply, categories, initialFilt
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 110 }}
+          >
             {/* Categories */}
             {categories.length > 0 && (
               <Section title="Category">
@@ -131,7 +141,7 @@ export function FilterModal({ visible, onClose, onApply, categories, initialFilt
                         key={cat.id}
                         label={cat.name}
                         selected={sel}
-                        onPress={() => setLocal(f => ({ ...f, categoryId: sel ? null : cat.id }))}
+                        onPress={() => setLocal((f) => ({ ...f, categoryId: sel ? null : cat.id }))}
                       />
                     );
                   })}
@@ -145,12 +155,14 @@ export function FilterModal({ visible, onClose, onApply, categories, initialFilt
                 <Chip
                   label="🌱 Veg"
                   selected={local.isVeg === true}
-                  onPress={() => setLocal(f => ({ ...f, isVeg: f.isVeg === true ? null : true }))}
+                  onPress={() => setLocal((f) => ({ ...f, isVeg: f.isVeg === true ? null : true }))}
                 />
                 <Chip
                   label="🍖 Non-Veg"
                   selected={local.isVeg === false}
-                  onPress={() => setLocal(f => ({ ...f, isVeg: f.isVeg === false ? null : false }))}
+                  onPress={() =>
+                    setLocal((f) => ({ ...f, isVeg: f.isVeg === false ? null : false }))
+                  }
                 />
               </View>
             </Section>
@@ -163,7 +175,9 @@ export function FilterModal({ visible, onClose, onApply, categories, initialFilt
                     key={r}
                     label={`★ ${r}+`}
                     selected={local.minRating === r}
-                    onPress={() => setLocal(f => ({ ...f, minRating: f.minRating === r ? null : r }))}
+                    onPress={() =>
+                      setLocal((f) => ({ ...f, minRating: f.minRating === r ? null : r }))
+                    }
                   />
                 ))}
               </View>

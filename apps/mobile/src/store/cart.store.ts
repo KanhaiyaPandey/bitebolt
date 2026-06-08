@@ -1,5 +1,5 @@
-import { create } from 'zustand';
 import type { CartItem } from '@bitebolt/types';
+import { create } from 'zustand';
 
 interface CartState {
   items: CartItem[];

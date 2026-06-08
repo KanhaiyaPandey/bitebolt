@@ -1,17 +1,11 @@
-import { useRef } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Animated,
-} from 'react-native';
+import type { FoodItem } from '@bitebolt/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
+import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
 import Toast from 'react-native-toast-message';
+
 import { cartApi } from '../../api';
-import { formatCurrency } from '@bitebolt/utils';
-import type { FoodItem } from '@bitebolt/types';
 
 interface FoodCardGridProps {
   item: FoodItem;
@@ -45,20 +39,13 @@ export function FoodCardGrid({ item, width, onPress }: FoodCardGridProps) {
     addMutation.mutate();
   };
 
-  const effectivePrice = item.discountedPrice
-    ? Number(item.discountedPrice)
-    : Number(item.price);
-  const hasDiscount =
-    item.discountedPrice && Number(item.discountedPrice) < Number(item.price);
+  const effectivePrice = item.discountedPrice ? Number(item.discountedPrice) : Number(item.price);
+  const hasDiscount = item.discountedPrice && Number(item.discountedPrice) < Number(item.price);
 
   const imageHeight = width * 0.78;
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.9}
-      style={{ width }}
-    >
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={{ width }}>
       <View
         style={{
           width,
@@ -75,7 +62,9 @@ export function FoodCardGrid({ item, width, onPress }: FoodCardGridProps) {
         {/* ── Product image ──────────────────────────── */}
         <View style={{ height: imageHeight, position: 'relative' }}>
           <Image
-            source={{ uri: item.imageUrl ?? 'https://placehold.co/200x160/EEEEF5/9098B1?text=Food' }}
+            source={{
+              uri: item.imageUrl ?? 'https://placehold.co/200x160/EEEEF5/9098B1?text=Food',
+            }}
             style={{ width: '100%', height: '100%' }}
             resizeMode="cover"
           />

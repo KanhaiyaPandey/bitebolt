@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { and, asc, eq } from 'drizzle-orm';
 import { calculateCartTotals } from '@bitebolt/utils';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
-import { cartItems, foodItems } from '../../db/schema';
+import { cartItems } from '../../db/schema';
 
 @Injectable()
 export class CartService {
@@ -50,8 +50,7 @@ export class CartService {
     }
 
     const existing = await this.db.db.query.cartItems.findFirst({
-      where: (t, { and, eq }) =>
-        and(eq(t.userId, userId), eq(t.foodItemId, data.foodItemId)),
+      where: (t, { and, eq }) => and(eq(t.userId, userId), eq(t.foodItemId, data.foodItemId)),
     });
 
     if (existing) {

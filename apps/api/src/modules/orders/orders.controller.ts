@@ -1,17 +1,11 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
 import { UserRole } from '@bitebolt/types';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+
 import { CurrentUser, Roles } from '../../common/decorators';
-import { OrdersService } from './orders.service';
+
 import { PlaceOrderDto } from './dto/place-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {

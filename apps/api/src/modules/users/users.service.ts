@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { and, asc, desc, eq, ne } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
-import { addresses, users, wallets } from '../../db/schema';
+import { addresses, users } from '../../db/schema';
 
 @Injectable()
 export class UsersService {
@@ -47,7 +47,7 @@ export class UsersService {
   async getAddresses(userId: string) {
     return this.db.db.query.addresses.findMany({
       where: (t, { eq }) => eq(t.userId, userId),
-      orderBy: (t, { desc, asc }) => [desc(t.isDefault), desc(t.createdAt)],
+      orderBy: (t, { desc }) => [desc(t.isDefault), desc(t.createdAt)],
     });
   }
 

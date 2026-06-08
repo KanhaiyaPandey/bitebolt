@@ -10,9 +10,7 @@ export interface ApiResponse<T> {
 }
 
 @Injectable()
-export class ResponseTransformInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T>>
-{
+export class ResponseTransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
     const statusCode = context.switchToHttp().getResponse().statusCode;
 

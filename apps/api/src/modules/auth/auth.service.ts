@@ -1,3 +1,4 @@
+import { generateOtp } from '@bitebolt/utils';
 import {
   BadRequestException,
   HttpException,
@@ -9,15 +10,15 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { and, eq, gt, ne, sql } from 'drizzle-orm';
+import { eq, ne, sql } from 'drizzle-orm';
 import { Twilio } from 'twilio';
-import { generateOtp } from '@bitebolt/utils';
 
 import { DbService } from '../../db/db.service';
 import { otpVerifications, users, wallets } from '../../db/schema';
+
+import type { RegisterDto } from './dto/register.dto';
 import type { SendOtpDto } from './dto/send-otp.dto';
 import type { VerifyOtpDto } from './dto/verify-otp.dto';
-import type { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -52,7 +53,10 @@ export class AuthService {
     });
 
     if (recentOtp) {
-      throw new HttpException('Please wait before requesting another OTP.', HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        'Please wait before requesting another OTP.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     const otp = generateOtp();

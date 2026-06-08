@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { View, Text, Animated, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useRef } from 'react';
+import { View, Animated, StyleSheet } from 'react-native';
 
 interface Props {
   onFinish: () => void;
@@ -42,10 +42,7 @@ export default function AnimatedSplash({ onFinish }: Props) {
   return (
     <Animated.View style={[styles.container, { opacity: containerOpacity }]}>
       <Animated.View
-        style={[
-          styles.bubble,
-          { opacity: bubbleOpacity, transform: [{ scale: bubbleScale }] },
-        ]}
+        style={[styles.bubble, { opacity: bubbleOpacity, transform: [{ scale: bubbleScale }] }]}
       >
         <Ionicons name="flash" size={52} color="#FA7938" />
       </Animated.View>

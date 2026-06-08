@@ -1,6 +1,6 @@
+import { UserRole } from '@bitebolt/types';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRole } from '@bitebolt/types';
 
 export const ROLES_KEY = 'roles';
 

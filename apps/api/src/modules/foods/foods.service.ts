@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { Cache } from 'cache-manager';
+import { and, eq, ilike, or, sql } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
 import { foodItems } from '../../db/schema';
@@ -86,10 +86,7 @@ export class FoodsService {
 
     const items = await this.db.db.query.foodItems.findMany({
       where: (t, { and, eq }) =>
-        and(
-          eq(t.isAvailable, true),
-          sql`${t.tags} @> ARRAY['bestseller']::text[]`,
-        ),
+        and(eq(t.isAvailable, true), sql`${t.tags} @> ARRAY['bestseller']::text[]`),
       with: { category: { columns: { id: true, name: true, slug: true } } },
       orderBy: (t, { desc }) => [desc(t.rating)],
       limit: 10,

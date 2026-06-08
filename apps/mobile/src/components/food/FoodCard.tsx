@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
+import type { FoodItem } from '@bitebolt/types';
+import { formatCurrency } from '@bitebolt/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
+import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
 import Toast from 'react-native-toast-message';
+
 import { cartApi } from '../../api';
-import { formatCurrency } from '@bitebolt/utils';
-import type { FoodItem } from '@bitebolt/types';
 
 interface FoodCardProps {
   item: FoodItem;
@@ -19,7 +20,12 @@ export function FoodCard({ item, onPress }: FoodCardProps) {
     mutationFn: () => cartApi.addItem({ foodItemId: item.id, quantity: 1 }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      Toast.show({ type: 'success', text1: 'Added to cart!', text2: item.name, visibilityTime: 1500 });
+      Toast.show({
+        type: 'success',
+        text1: 'Added to cart!',
+        text2: item.name,
+        visibilityTime: 1500,
+      });
     },
     onError: () => Toast.show({ type: 'error', text1: 'Could not add item' }),
   });
@@ -63,12 +69,13 @@ export function FoodCard({ item, onPress }: FoodCardProps) {
                 item.isVeg ? 'border-success' : 'border-error'
               }`}
             >
-              <View
-                className={`w-2 h-2 rounded-full ${item.isVeg ? 'bg-success' : 'bg-error'}`}
-              />
+              <View className={`w-2 h-2 rounded-full ${item.isVeg ? 'bg-success' : 'bg-error'}`} />
             </View>
 
-            <Text className="font-semibold text-text-primary dark:text-text-primary-dark text-sm mb-0.5" numberOfLines={1}>
+            <Text
+              className="font-semibold text-text-primary dark:text-text-primary-dark text-sm mb-0.5"
+              numberOfLines={1}
+            >
               {item.name}
             </Text>
             <Text className="text-text-muted text-xs" numberOfLines={2}>

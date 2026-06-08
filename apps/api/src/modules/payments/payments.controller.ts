@@ -1,9 +1,10 @@
 import { Body, Controller, Headers, Post, RawBodyRequest, Req } from '@nestjs/common';
-import { Public } from '../../common/decorators';
-import { CurrentUser } from '../../common/decorators';
-import { PaymentsService } from './payments.service';
+
+import { Public, CurrentUser } from '../../common/decorators';
+
 import { CreateRazorpayOrderDto } from './dto/create-razorpay-order.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
+import { PaymentsService } from './payments.service';
 
 @Controller('payments')
 export class PaymentsController {

@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { formatCurrency } from '@bitebolt/utils';
 import type { CartItem } from '@bitebolt/types';
+import { formatCurrency } from '@bitebolt/utils';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 
 interface CartItemRowProps {
   item: CartItem;
@@ -20,7 +20,10 @@ export function CartItemRow({ item, onIncrement, onDecrement }: CartItemRowProps
         resizeMode="cover"
       />
       <View className="flex-1 ml-3">
-        <Text className="font-semibold text-text-primary dark:text-text-primary-dark text-sm" numberOfLines={1}>
+        <Text
+          className="font-semibold text-text-primary dark:text-text-primary-dark text-sm"
+          numberOfLines={1}
+        >
           {food.name}
         </Text>
         {item.specialInstructions && (

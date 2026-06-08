@@ -1,7 +1,9 @@
 import path from 'node:path';
+
 import { config as loadEnv } from 'dotenv';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+
 import * as schema from './schema';
 import { categories, foodItems, users } from './schema';
 
@@ -9,7 +11,9 @@ import { categories, foodItems, users } from './schema';
 loadEnv({ path: path.resolve(process.cwd(), '../../.env') });
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not set. Make sure repo-root `.env` exists and contains DATABASE_URL.');
+  throw new Error(
+    'DATABASE_URL is not set. Make sure repo-root `.env` exists and contains DATABASE_URL.',
+  );
 }
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -22,18 +26,56 @@ async function main() {
   const cats = await db
     .insert(categories)
     .values([
-      { name: 'Burgers', slug: 'burgers', description: 'Juicy & delicious burgers', imageUrl: 'https://cdn.bitebolt.in/categories/burgers.jpg', sortOrder: 1 },
-      { name: 'Pizza', slug: 'pizza', description: 'Fresh oven-baked pizzas', imageUrl: 'https://cdn.bitebolt.in/categories/pizza.jpg', sortOrder: 2 },
-      { name: 'Biryani', slug: 'biryani', description: 'Authentic aromatic biryanis', imageUrl: 'https://cdn.bitebolt.in/categories/biryani.jpg', sortOrder: 3 },
-      { name: 'Chinese', slug: 'chinese', description: 'Indo-Chinese favourites', imageUrl: 'https://cdn.bitebolt.in/categories/chinese.jpg', sortOrder: 4 },
-      { name: 'Desserts', slug: 'desserts', description: 'Sweet endings', imageUrl: 'https://cdn.bitebolt.in/categories/desserts.jpg', sortOrder: 5 },
-      { name: 'Beverages', slug: 'beverages', description: 'Refreshing drinks', imageUrl: 'https://cdn.bitebolt.in/categories/beverages.jpg', sortOrder: 6 },
+      {
+        name: 'Burgers',
+        slug: 'burgers',
+        description: 'Juicy & delicious burgers',
+        imageUrl: 'https://cdn.bitebolt.in/categories/burgers.jpg',
+        sortOrder: 1,
+      },
+      {
+        name: 'Pizza',
+        slug: 'pizza',
+        description: 'Fresh oven-baked pizzas',
+        imageUrl: 'https://cdn.bitebolt.in/categories/pizza.jpg',
+        sortOrder: 2,
+      },
+      {
+        name: 'Biryani',
+        slug: 'biryani',
+        description: 'Authentic aromatic biryanis',
+        imageUrl: 'https://cdn.bitebolt.in/categories/biryani.jpg',
+        sortOrder: 3,
+      },
+      {
+        name: 'Chinese',
+        slug: 'chinese',
+        description: 'Indo-Chinese favourites',
+        imageUrl: 'https://cdn.bitebolt.in/categories/chinese.jpg',
+        sortOrder: 4,
+      },
+      {
+        name: 'Desserts',
+        slug: 'desserts',
+        description: 'Sweet endings',
+        imageUrl: 'https://cdn.bitebolt.in/categories/desserts.jpg',
+        sortOrder: 5,
+      },
+      {
+        name: 'Beverages',
+        slug: 'beverages',
+        description: 'Refreshing drinks',
+        imageUrl: 'https://cdn.bitebolt.in/categories/beverages.jpg',
+        sortOrder: 6,
+      },
     ])
     .onConflictDoNothing()
     .returning();
 
   // Re-fetch all categories (may already exist from a prior seed)
-  const allCats = await db.query.categories.findMany({ orderBy: (c, { asc }) => [asc(c.sortOrder)] });
+  const allCats = await db.query.categories.findMany({
+    orderBy: (c, { asc }) => [asc(c.sortOrder)],
+  });
   const burgerCat = allCats.find((c) => c.slug === 'burgers')!;
   const pizzaCat = allCats.find((c) => c.slug === 'pizza')!;
   const biryaniCat = allCats.find((c) => c.slug === 'biryani')!;

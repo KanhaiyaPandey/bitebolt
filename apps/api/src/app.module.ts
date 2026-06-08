@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { redisStore } from 'cache-manager-ioredis-yet';
 
+import configuration from './config/configuration';
+import { DbModule } from './db/db.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CategoriesModule } from './modules/categories/categories.module';
@@ -14,8 +16,6 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { UsersModule } from './modules/users/users.module';
 import { WalletModule } from './modules/wallet/wallet.module';
-import { DbModule } from './db/db.module';
-import configuration from './config/configuration';
 
 @Module({
   imports: [

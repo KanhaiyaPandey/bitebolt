@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
+import * as SecureStore from 'expo-secure-store';
 
 const API_URL = Constants.expoConfig?.extra?.API_URL ?? 'http://localhost:3001/api/v1';
 
@@ -53,7 +53,9 @@ apiClient.interceptors.response.use(
     }
 
     const message =
-      (error.response?.data as Record<string, unknown>)?.message ?? error.message ?? 'Something went wrong';
+      (error.response?.data as Record<string, unknown>)?.message ??
+      error.message ??
+      'Something went wrong';
     return Promise.reject(new Error(message as string));
   },
 );

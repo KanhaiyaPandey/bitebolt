@@ -1,5 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
+
 import { Public } from '../../common/decorators';
+
 import { FoodsService } from './foods.service';
 
 @Controller('foods')

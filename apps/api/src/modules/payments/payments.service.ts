@@ -1,16 +1,13 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { and, eq } from 'drizzle-orm';
+
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { eq } from 'drizzle-orm';
 import Razorpay from 'razorpay';
 
 import { DbService } from '../../db/db.service';
 import { orderStatusHistory, orders, payments } from '../../db/schema';
+
 import type { CreateRazorpayOrderDto } from './dto/create-razorpay-order.dto';
 import type { VerifyPaymentDto } from './dto/verify-payment.dto';
 
@@ -114,10 +111,7 @@ export class PaymentsService {
         .where(eq(payments.id, payment.id))
         .returning();
 
-      await tx
-        .update(orders)
-        .set({ status: 'ACCEPTED' })
-        .where(eq(orders.id, payment.orderId));
+      await tx.update(orders).set({ status: 'ACCEPTED' }).where(eq(orders.id, payment.orderId));
 
       await tx.insert(orderStatusHistory).values({
         orderId: payment.orderId,

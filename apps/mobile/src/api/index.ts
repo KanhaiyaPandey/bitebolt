@@ -1,10 +1,16 @@
-import apiClient from './client';
 import type { FoodItem, Category, Cart, Order, PaginationMeta } from '@bitebolt/types';
+
+import apiClient from './client';
 
 // ── Foods ─────────────────────────────────────────────────────────────────────
 export const foodsApi = {
-  getAll: (params?: { page?: number; limit?: number; search?: string; categoryId?: string; isVeg?: boolean }) =>
-    apiClient.get<unknown, { items: FoodItem[]; meta: PaginationMeta }>('/foods', { params }),
+  getAll: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    categoryId?: string;
+    isVeg?: boolean;
+  }) => apiClient.get<unknown, { items: FoodItem[]; meta: PaginationMeta }>('/foods', { params }),
 
   getFeatured: () => apiClient.get<unknown, FoodItem[]>('/foods/featured'),
 
@@ -23,8 +29,7 @@ export const cartApi = {
   addItem: (data: { foodItemId: string; quantity: number; specialInstructions?: string }) =>
     apiClient.post('/cart/items', data),
 
-  updateItem: (id: string, quantity: number) =>
-    apiClient.patch(`/cart/items/${id}`, { quantity }),
+  updateItem: (id: string, quantity: number) => apiClient.patch(`/cart/items/${id}`, { quantity }),
 
   removeItem: (id: string) => apiClient.delete(`/cart/items/${id}`),
 
@@ -51,10 +56,10 @@ export const ordersApi = {
 // ── Payments ──────────────────────────────────────────────────────────────────
 export const paymentsApi = {
   createRazorpayOrder: (data: { orderId: string; method: string; walletAmountUsed?: number }) =>
-    apiClient.post<unknown, { razorpayOrderId: string; amount: number; currency: string; keyId: string }>(
-      '/payments/create-order',
-      data,
-    ),
+    apiClient.post<
+      unknown,
+      { razorpayOrderId: string; amount: number; currency: string; keyId: string }
+    >('/payments/create-order', data),
 
   verifyPayment: (data: {
     razorpayOrderId: string;
@@ -73,8 +78,7 @@ export const walletApi = {
 // ── Users ─────────────────────────────────────────────────────────────────────
 export const usersApi = {
   getProfile: () => apiClient.get('/users/me'),
-  updateProfile: (data: { name?: string; email?: string }) =>
-    apiClient.patch('/users/me', data),
+  updateProfile: (data: { name?: string; email?: string }) => apiClient.patch('/users/me', data),
   getAddresses: () => apiClient.get('/users/me/addresses'),
   addAddress: (data: object) => apiClient.post('/users/me/addresses', data),
   updateAddress: (id: string, data: object) => apiClient.patch(`/users/me/addresses/${id}`, data),

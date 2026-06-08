@@ -1,16 +1,17 @@
+import { randomUUID } from 'node:crypto';
+
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as AWS from 'aws-sdk';
-import { randomUUID } from 'node:crypto';
+import { S3 } from 'aws-sdk';
 
 @Injectable()
 export class UploadService {
-  private s3: AWS.S3;
+  private s3: S3;
   private bucket: string;
   private cloudfrontDomain: string;
 
   constructor(private configService: ConfigService) {
-    this.s3 = new AWS.S3({
+    this.s3 = new S3({
       accessKeyId: this.configService.get('aws.accessKeyId'),
       secretAccessKey: this.configService.get('aws.secretAccessKey'),
       region: this.configService.get('aws.region'),

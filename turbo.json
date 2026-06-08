@@ -37,6 +37,11 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env.test*"],
       "outputs": ["coverage/**"]
+    },
+    "test:cov": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env.test*"],
+      "outputs": ["coverage/**"]
     }
   }
 }

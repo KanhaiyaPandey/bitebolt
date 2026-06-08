@@ -1,10 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { and, desc, eq, sql } from 'drizzle-orm';
 import { calculateCartTotals, generateOrderNumber } from '@bitebolt/utils';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { eq, sql } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
 import {
@@ -12,11 +8,11 @@ import {
   orderItems,
   orderStatusHistory,
   orders,
-  payments,
   walletTransactions,
   wallets,
 } from '../../db/schema';
 import { NotificationsService } from '../notifications/notifications.service';
+
 import type { PlaceOrderDto } from './dto/place-order.dto';
 import type { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 

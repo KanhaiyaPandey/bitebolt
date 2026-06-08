@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "main": "index.js",
-  "scripts": {
-    "lint": "eslint ."
-  },
+  "scripts": {},
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^7.10.0",
     "@typescript-eslint/parser": "^7.10.0",

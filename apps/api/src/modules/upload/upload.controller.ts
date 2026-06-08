@@ -7,9 +7,14 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+
 import { UploadService } from './upload.service';
 
-const imageFilter = (_req: unknown, file: Express.Multer.File, cb: Function) => {
+const imageFilter = (
+  _req: unknown,
+  file: Express.Multer.File,
+  cb: (error: Error | null, acceptFile: boolean) => void,
+) => {
   if (!file.mimetype.startsWith('image/')) {
     return cb(new BadRequestException('Only image files are allowed.'), false);
   }

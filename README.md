@@ -14,12 +14,12 @@ packages/utils     → Shared Zod schemas & utilities
 
 ## Prerequisites
 
-| Tool | Version |
-|---|---|
-| Node.js | >= 20 |
-| pnpm | >= 9 |
-| PostgreSQL | >= 15 |
-| Redis | >= 7 |
+| Tool       | Version |
+| ---------- | ------- |
+| Node.js    | >= 20   |
+| pnpm       | >= 9    |
+| PostgreSQL | >= 15   |
+| Redis      | >= 7    |
 
 Install pnpm if you don't have it:
 
@@ -53,14 +53,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
 volumes:
   postgres_data:
@@ -100,10 +100,10 @@ pnpm dev
 
 This starts all three apps in parallel via Turborepo:
 
-| App | URL |
-|---|---|
-| API | http://localhost:3001/api/v1 |
-| Admin | http://localhost:3000 |
+| App    | URL                                    |
+| ------ | -------------------------------------- |
+| API    | http://localhost:3001/api/v1           |
+| Admin  | http://localhost:3000                  |
 | Mobile | Expo dev server (scan QR with Expo Go) |
 
 To run apps individually:
@@ -122,27 +122,27 @@ All variables live in `apps/api/.env`. Copy from `.env.example` and fill in your
 
 ### Database
 
-| Variable | Default | Description |
-|---|---|---|
+| Variable       | Default                                                                   | Description                  |
+| -------------- | ------------------------------------------------------------------------- | ---------------------------- |
 | `DATABASE_URL` | `postgresql://postgres:password@localhost:5432/bitebolt_db?schema=public` | PostgreSQL connection string |
 
 ### Redis
 
-| Variable | Default | Description |
-|---|---|---|
-| `REDIS_HOST` | `localhost` | Redis host |
-| `REDIS_PORT` | `6379` | Redis port |
-| `REDIS_PASSWORD` | _(empty)_ | Redis password (leave empty for local) |
-| `REDIS_TTL` | `3600` | Default cache TTL in seconds |
+| Variable         | Default     | Description                            |
+| ---------------- | ----------- | -------------------------------------- |
+| `REDIS_HOST`     | `localhost` | Redis host                             |
+| `REDIS_PORT`     | `6379`      | Redis port                             |
+| `REDIS_PASSWORD` | _(empty)_   | Redis password (leave empty for local) |
+| `REDIS_TTL`      | `3600`      | Default cache TTL in seconds           |
 
 ### JWT
 
-| Variable | Description |
-|---|---|
-| `JWT_SECRET` | Secret for access tokens — minimum 32 characters |
-| `JWT_EXPIRES_IN` | Access token expiry (default: `7d`) |
-| `JWT_REFRESH_SECRET` | Secret for refresh tokens — minimum 32 characters, different from `JWT_SECRET` |
-| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry (default: `30d`) |
+| Variable                 | Description                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| `JWT_SECRET`             | Secret for access tokens — minimum 32 characters                               |
+| `JWT_EXPIRES_IN`         | Access token expiry (default: `7d`)                                            |
+| `JWT_REFRESH_SECRET`     | Secret for refresh tokens — minimum 32 characters, different from `JWT_SECRET` |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry (default: `30d`)                                          |
 
 Generate strong secrets with:
 
@@ -154,12 +154,12 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 Get credentials from [console.twilio.com](https://console.twilio.com).
 
-| Variable | Description |
-|---|---|
-| `TWILIO_ACCOUNT_SID` | Account SID (starts with `AC`) |
-| `TWILIO_AUTH_TOKEN` | Auth token |
+| Variable              | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `TWILIO_ACCOUNT_SID`  | Account SID (starts with `AC`)                           |
+| `TWILIO_AUTH_TOKEN`   | Auth token                                               |
 | `TWILIO_PHONE_NUMBER` | Twilio phone number in E.164 format (e.g. `+1234567890`) |
-| `OTP_EXPIRY_MINUTES` | OTP validity window (default: `10`) |
+| `OTP_EXPIRY_MINUTES`  | OTP validity window (default: `10`)                      |
 
 > For local development you can use a Twilio trial account. OTPs will only send to verified numbers unless you upgrade.
 
@@ -167,48 +167,48 @@ Get credentials from [console.twilio.com](https://console.twilio.com).
 
 Get credentials from [dashboard.razorpay.com](https://dashboard.razorpay.com).
 
-| Variable | Description |
-|---|---|
-| `RAZORPAY_KEY_ID` | Key ID (use `rzp_test_...` for dev) |
-| `RAZORPAY_KEY_SECRET` | Key secret |
+| Variable                  | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `RAZORPAY_KEY_ID`         | Key ID (use `rzp_test_...` for dev)          |
+| `RAZORPAY_KEY_SECRET`     | Key secret                                   |
 | `RAZORPAY_WEBHOOK_SECRET` | Webhook signing secret (Settings → Webhooks) |
 
 > For local webhook testing, use [ngrok](https://ngrok.com) to expose your local API and register the ngrok URL in Razorpay's webhook settings.
 
 ### AWS S3 (File Uploads)
 
-| Variable | Default | Description |
-|---|---|---|
-| `AWS_ACCESS_KEY_ID` | — | IAM access key |
-| `AWS_SECRET_ACCESS_KEY` | — | IAM secret key |
-| `AWS_REGION` | `ap-south-1` | S3 bucket region |
-| `AWS_S3_BUCKET` | `bitebolt-media` | Bucket name |
+| Variable                | Default                   | Description                         |
+| ----------------------- | ------------------------- | ----------------------------------- |
+| `AWS_ACCESS_KEY_ID`     | —                         | IAM access key                      |
+| `AWS_SECRET_ACCESS_KEY` | —                         | IAM secret key                      |
+| `AWS_REGION`            | `ap-south-1`              | S3 bucket region                    |
+| `AWS_S3_BUCKET`         | `bitebolt-media`          | Bucket name                         |
 | `AWS_CLOUDFRONT_DOMAIN` | `https://cdn.bitebolt.in` | CloudFront domain for serving media |
 
 > For local development you can use [LocalStack](https://localstack.cloud) or a real S3 bucket. Image uploads will fail if these are not configured, but everything else works.
 
 ### App
 
-| Variable | Default | Description |
-|---|---|---|
-| `NODE_ENV` | `development` | Node environment |
-| `PORT` | `3001` | API server port |
-| `API_PREFIX` | `api/v1` | Global route prefix |
-| `CORS_ORIGINS` | `http://localhost:3000,http://localhost:19006` | Allowed CORS origins (comma-separated) |
-| `APP_NAME` | `BiteBolt` | Application name |
-| `SUPPORT_EMAIL` | `support@bitebolt.in` | Support contact email |
+| Variable        | Default                                        | Description                            |
+| --------------- | ---------------------------------------------- | -------------------------------------- |
+| `NODE_ENV`      | `development`                                  | Node environment                       |
+| `PORT`          | `3001`                                         | API server port                        |
+| `API_PREFIX`    | `api/v1`                                       | Global route prefix                    |
+| `CORS_ORIGINS`  | `http://localhost:3000,http://localhost:19006` | Allowed CORS origins (comma-separated) |
+| `APP_NAME`      | `BiteBolt`                                     | Application name                       |
+| `SUPPORT_EMAIL` | `support@bitebolt.in`                          | Support contact email                  |
 
 ### Rate Limiting
 
-| Variable | Default | Description |
-|---|---|---|
-| `THROTTLE_TTL` | `60` | Rate limit window in seconds |
-| `THROTTLE_LIMIT` | `100` | Max requests per window per IP |
+| Variable         | Default | Description                    |
+| ---------------- | ------- | ------------------------------ |
+| `THROTTLE_TTL`   | `60`    | Rate limit window in seconds   |
+| `THROTTLE_LIMIT` | `100`   | Max requests per window per IP |
 
 ### FCM (Future — Push Notifications)
 
-| Variable | Description |
-|---|---|
+| Variable         | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
 | `FCM_SERVER_KEY` | Firebase Cloud Messaging server key (leave empty until needed) |
 
 ---

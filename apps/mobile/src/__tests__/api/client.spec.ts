@@ -1,8 +1,8 @@
 import * as SecureStore from 'expo-secure-store';
 import { http, HttpResponse } from 'msw';
 
-import { mswServer } from '../../mocks/server';
 import apiClient from '../../api/client';
+import { mswServer } from '../../mocks/server';
 
 const BASE = 'http://localhost:3001/api/v1';
 
@@ -63,9 +63,7 @@ describe('apiClient interceptors', () => {
   describe('response interceptor - data unwrapping', () => {
     it('unwraps response.data.data when the server wraps in { data: ... }', async () => {
       mswServer.use(
-        http.get(`${BASE}/categories`, () =>
-          ok([{ id: 'cat-1', name: 'Main Course' }]),
-        ),
+        http.get(`${BASE}/categories`, () => ok([{ id: 'cat-1', name: 'Main Course' }])),
       );
 
       const result = await apiClient.get('/categories');
@@ -95,9 +93,7 @@ describe('apiClient interceptors', () => {
         accessToken: 'old-access-token',
         refreshToken: 'old-refresh-token',
       };
-      getSecureStore.mockImplementation((key: string) =>
-        Promise.resolve(store[key] ?? null),
-      );
+      getSecureStore.mockImplementation((key: string) => Promise.resolve(store[key] ?? null));
       setSecureStore.mockImplementation((key: string, value: string) => {
         store[key] = value;
         return Promise.resolve();
@@ -130,9 +126,7 @@ describe('apiClient interceptors', () => {
     it('clears tokens and rejects when there is no refresh token', async () => {
       getSecureStore.mockResolvedValue(null); // no tokens at all
 
-      mswServer.use(
-        http.get(`${BASE}/orders`, () => fail('Unauthorized', 401)),
-      );
+      mswServer.use(http.get(`${BASE}/orders`, () => fail('Unauthorized', 401)));
 
       await expect(apiClient.get('/orders')).rejects.toThrow();
 
@@ -151,17 +145,13 @@ describe('apiClient interceptors', () => {
         ),
       );
 
-      await expect(
-        apiClient.post('/auth/send-otp', { phone: '9876543210' }),
-      ).rejects.toThrow('Please wait before requesting another OTP.');
+      await expect(apiClient.post('/auth/send-otp', { phone: '9876543210' })).rejects.toThrow(
+        'Please wait before requesting another OTP.',
+      );
     });
 
     it('falls back to a generic message when the response has no message field', async () => {
-      mswServer.use(
-        http.get(`${BASE}/cart`, () =>
-          HttpResponse.json({}, { status: 500 }),
-        ),
-      );
+      mswServer.use(http.get(`${BASE}/cart`, () => HttpResponse.json({}, { status: 500 })));
 
       await expect(apiClient.get('/cart')).rejects.toThrow();
     });

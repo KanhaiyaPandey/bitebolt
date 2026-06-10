@@ -122,42 +122,42 @@ bitebolt/
 
 ### Backend (apps/api)
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Framework | NestJS 10 | Modular, scalable Node.js framework |
-| ORM | Prisma 5 | Type-safe DB access with migrations |
-| Database | PostgreSQL 16 | Primary data store |
-| Cache | Redis + ioredis | Session caching, OTP store, API caching |
-| Auth | JWT (access + refresh) | Stateless authentication |
-| OTP | Twilio | SMS-based phone verification |
-| Payments | Razorpay | UPI, cards, net banking, wallets |
-| Storage | AWS S3 + CloudFront | Image storage and CDN delivery |
-| Validation | class-validator + Zod | Request validation |
-| Rate Limiting | @nestjs/throttler | DDoS protection |
-| Security | Helmet + CORS | HTTP security headers |
+| Layer         | Technology             | Purpose                                 |
+| ------------- | ---------------------- | --------------------------------------- |
+| Framework     | NestJS 10              | Modular, scalable Node.js framework     |
+| ORM           | Prisma 5               | Type-safe DB access with migrations     |
+| Database      | PostgreSQL 16          | Primary data store                      |
+| Cache         | Redis + ioredis        | Session caching, OTP store, API caching |
+| Auth          | JWT (access + refresh) | Stateless authentication                |
+| OTP           | Twilio                 | SMS-based phone verification            |
+| Payments      | Razorpay               | UPI, cards, net banking, wallets        |
+| Storage       | AWS S3 + CloudFront    | Image storage and CDN delivery          |
+| Validation    | class-validator + Zod  | Request validation                      |
+| Rate Limiting | @nestjs/throttler      | DDoS protection                         |
+| Security      | Helmet + CORS          | HTTP security headers                   |
 
 ### Mobile App (apps/mobile)
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Framework | React Native + Expo 51 | Cross-platform iOS/Android |
-| Navigation | Expo Router (file-based) | Tab + Stack navigation |
-| Styling | NativeWind 4 | Tailwind CSS for React Native |
-| State | Zustand | Lightweight global state |
-| Server State | TanStack Query v5 | Async data fetching + caching |
-| Forms | React Hook Form + Zod | Type-safe form validation |
-| Animations | Reanimated 3 | Smooth 60fps animations |
-| Storage | Expo SecureStore | Encrypted token storage |
-| HTTP | Axios | API client with interceptors |
+| Layer        | Technology               | Purpose                       |
+| ------------ | ------------------------ | ----------------------------- |
+| Framework    | React Native + Expo 51   | Cross-platform iOS/Android    |
+| Navigation   | Expo Router (file-based) | Tab + Stack navigation        |
+| Styling      | NativeWind 4             | Tailwind CSS for React Native |
+| State        | Zustand                  | Lightweight global state      |
+| Server State | TanStack Query v5        | Async data fetching + caching |
+| Forms        | React Hook Form + Zod    | Type-safe form validation     |
+| Animations   | Reanimated 3             | Smooth 60fps animations       |
+| Storage      | Expo SecureStore         | Encrypted token storage       |
+| HTTP         | Axios                    | API client with interceptors  |
 
 ### Admin (apps/admin)
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Framework | Next.js 14 (App Router) | React server/client components |
-| Styling | Tailwind CSS | Utility-first CSS |
-| State | TanStack Query | Auto-refreshing order data |
-| Notifications | Sonner | Toast notifications |
+| Layer         | Technology              | Purpose                        |
+| ------------- | ----------------------- | ------------------------------ |
+| Framework     | Next.js 14 (App Router) | React server/client components |
+| Styling       | Tailwind CSS            | Utility-first CSS              |
+| State         | TanStack Query          | Auto-refreshing order data     |
+| Notifications | Sonner                  | Toast notifications            |
 
 ---
 
@@ -191,6 +191,7 @@ User ──< OtpVerification
 ### Indexes
 
 All foreign keys are indexed. Additional indexes are placed on:
+
 - `orders.status` — for admin filtering
 - `orders.createdAt` — for chronological listing
 - `food_items.isAvailable` — for catalog filtering
@@ -208,76 +209,76 @@ Public endpoints (no auth required): marked with 🔓
 
 ### Auth
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| POST | `/auth/send-otp` | 🔓 | Send OTP to phone number |
-| POST | `/auth/verify-otp` | 🔓 | Verify OTP, returns tokens + user |
-| POST | `/auth/register` | 🔒 | Complete registration (name, email) |
-| POST | `/auth/refresh` | 🔓 | Exchange refresh token for new access token |
+| Method | Endpoint           | Auth | Description                                 |
+| ------ | ------------------ | ---- | ------------------------------------------- |
+| POST   | `/auth/send-otp`   | 🔓   | Send OTP to phone number                    |
+| POST   | `/auth/verify-otp` | 🔓   | Verify OTP, returns tokens + user           |
+| POST   | `/auth/register`   | 🔒   | Complete registration (name, email)         |
+| POST   | `/auth/refresh`    | 🔓   | Exchange refresh token for new access token |
 
 ### Users
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| GET | `/users/me` | 🔒 | Get current user profile |
-| PATCH | `/users/me` | 🔒 | Update profile |
-| GET | `/users/me/addresses` | 🔒 | List saved addresses |
-| POST | `/users/me/addresses` | 🔒 | Add address |
-| PATCH | `/users/me/addresses/:id` | 🔒 | Update address |
-| DELETE | `/users/me/addresses/:id` | 🔒 | Delete address |
+| Method | Endpoint                  | Auth | Description              |
+| ------ | ------------------------- | ---- | ------------------------ |
+| GET    | `/users/me`               | 🔒   | Get current user profile |
+| PATCH  | `/users/me`               | 🔒   | Update profile           |
+| GET    | `/users/me/addresses`     | 🔒   | List saved addresses     |
+| POST   | `/users/me/addresses`     | 🔒   | Add address              |
+| PATCH  | `/users/me/addresses/:id` | 🔒   | Update address           |
+| DELETE | `/users/me/addresses/:id` | 🔒   | Delete address           |
 
 ### Categories & Foods
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| GET | `/categories` | 🔓 | List all active categories |
-| GET | `/foods` | 🔓 | List foods (supports ?search, ?categoryId, ?isVeg, ?page, ?limit) |
-| GET | `/foods/featured` | 🔓 | Get featured/bestseller foods |
-| GET | `/foods/:slug` | 🔓 | Get food item by slug |
+| Method | Endpoint          | Auth | Description                                                       |
+| ------ | ----------------- | ---- | ----------------------------------------------------------------- |
+| GET    | `/categories`     | 🔓   | List all active categories                                        |
+| GET    | `/foods`          | 🔓   | List foods (supports ?search, ?categoryId, ?isVeg, ?page, ?limit) |
+| GET    | `/foods/featured` | 🔓   | Get featured/bestseller foods                                     |
+| GET    | `/foods/:slug`    | 🔓   | Get food item by slug                                             |
 
 ### Cart
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| GET | `/cart` | 🔒 | Get cart with totals |
-| POST | `/cart/items` | 🔒 | Add item to cart |
-| PATCH | `/cart/items/:id` | 🔒 | Update item quantity |
-| DELETE | `/cart/items/:id` | 🔒 | Remove item from cart |
-| DELETE | `/cart` | 🔒 | Clear entire cart |
+| Method | Endpoint          | Auth | Description           |
+| ------ | ----------------- | ---- | --------------------- |
+| GET    | `/cart`           | 🔒   | Get cart with totals  |
+| POST   | `/cart/items`     | 🔒   | Add item to cart      |
+| PATCH  | `/cart/items/:id` | 🔒   | Update item quantity  |
+| DELETE | `/cart/items/:id` | 🔒   | Remove item from cart |
+| DELETE | `/cart`           | 🔒   | Clear entire cart     |
 
 ### Orders
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| POST | `/orders` | 🔒 | Place order (clears cart) |
-| GET | `/orders` | 🔒 | Get my orders (paginated) |
-| GET | `/orders/:id` | 🔒 | Get order details + history |
-| PATCH | `/orders/:id/cancel` | 🔒 | Cancel order |
-| GET | `/orders/admin/all` | 🔒 Admin | All orders (filterable) |
-| PATCH | `/orders/admin/:id/status` | 🔒 Admin | Update order status |
+| Method | Endpoint                   | Auth     | Description                 |
+| ------ | -------------------------- | -------- | --------------------------- |
+| POST   | `/orders`                  | 🔒       | Place order (clears cart)   |
+| GET    | `/orders`                  | 🔒       | Get my orders (paginated)   |
+| GET    | `/orders/:id`              | 🔒       | Get order details + history |
+| PATCH  | `/orders/:id/cancel`       | 🔒       | Cancel order                |
+| GET    | `/orders/admin/all`        | 🔒 Admin | All orders (filterable)     |
+| PATCH  | `/orders/admin/:id/status` | 🔒 Admin | Update order status         |
 
 ### Payments
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| POST | `/payments/create-order` | 🔒 | Create Razorpay order |
-| POST | `/payments/verify` | 🔒 | Verify payment signature |
-| POST | `/payments/webhook` | 🔓 | Razorpay webhook handler |
+| Method | Endpoint                 | Auth | Description              |
+| ------ | ------------------------ | ---- | ------------------------ |
+| POST   | `/payments/create-order` | 🔒   | Create Razorpay order    |
+| POST   | `/payments/verify`       | 🔒   | Verify payment signature |
+| POST   | `/payments/webhook`      | 🔓   | Razorpay webhook handler |
 
 ### Wallet
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| GET | `/wallet` | 🔒 | Get wallet + recent transactions |
-| GET | `/wallet/transactions` | 🔒 | Full transaction history (paginated) |
+| Method | Endpoint               | Auth | Description                          |
+| ------ | ---------------------- | ---- | ------------------------------------ |
+| GET    | `/wallet`              | 🔒   | Get wallet + recent transactions     |
+| GET    | `/wallet/transactions` | 🔒   | Full transaction history (paginated) |
 
 ### Notifications
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| GET | `/notifications` | 🔒 | Get notifications (paginated) |
-| PATCH | `/notifications/:id/read` | 🔒 | Mark notification as read |
-| PATCH | `/notifications/read-all` | 🔒 | Mark all as read |
+| Method | Endpoint                  | Auth | Description                   |
+| ------ | ------------------------- | ---- | ----------------------------- |
+| GET    | `/notifications`          | 🔒   | Get notifications (paginated) |
+| PATCH  | `/notifications/:id/read` | 🔒   | Mark notification as read     |
+| PATCH  | `/notifications/read-all` | 🔒   | Mark all as read              |
 
 ### Standard Response Format
 
@@ -299,6 +300,7 @@ Public endpoints (no auth required): marked with 🔓
 ```
 
 Error response:
+
 ```json
 {
   "success": false,
@@ -384,6 +386,7 @@ Navigate to Order Detail ◄── Done
 ### Webhook Handler
 
 The `/payments/webhook` endpoint receives Razorpay webhooks for:
+
 - `payment.failed` → Mark payment as FAILED in DB
 
 Webhook signature is verified using HMAC-SHA256 before processing.
@@ -415,13 +418,13 @@ app/
 
 ### State Management Strategy
 
-| State Type | Where | Why |
-|---|---|---|
-| Auth (user, tokens) | Zustand `authStore` | Persisted, global |
-| Cart summary | Zustand `cartStore` | Synced from server |
-| Server data | TanStack Query | Cached, refetchable |
-| Form state | React Hook Form | Local, uncontrolled |
-| Navigation state | Expo Router | File-based |
+| State Type          | Where               | Why                 |
+| ------------------- | ------------------- | ------------------- |
+| Auth (user, tokens) | Zustand `authStore` | Persisted, global   |
+| Cart summary        | Zustand `cartStore` | Synced from server  |
+| Server data         | TanStack Query      | Cached, refetchable |
+| Form state          | React Hook Form     | Local, uncontrolled |
+| Navigation state    | Expo Router         | File-based          |
 
 ### TanStack Query Keys Convention
 
@@ -440,6 +443,7 @@ app/
 ### Design System (NativeWind)
 
 Colors defined in `tailwind.config.js`:
+
 - `brand` / `primary` — `#FF5722` (orange-red, brand color)
 - `surface-card` — `#F8F9FA` (light mode card background)
 - `text-primary` — `#1A1A1A` (dark text)
@@ -469,6 +473,7 @@ Any status ──► CANCELLED (customer-initiated)
 ```
 
 Admin actions available per status:
+
 - **PENDING**: Accept or Reject
 - **ACCEPTED**: Mark as Preparing
 - **PREPARING**: Mark as Out for Delivery
@@ -500,18 +505,18 @@ VPC (Private Subnets)
 
 ### Services Used
 
-| Service | Purpose | Tier |
-|---|---|---|
-| ECS Fargate | Run NestJS API containers | Compute |
-| RDS PostgreSQL 16 | Primary database | db.t3.micro → db.t3.small |
-| ElastiCache Redis | Caching, OTP storage | cache.t3.micro |
-| S3 | Food images, user avatars | Standard |
-| CloudFront | CDN for S3 + API | Standard |
-| ALB | Load balancer for API | Standard |
-| ECR | Docker image registry | Standard |
-| Route 53 | DNS management | Standard |
-| ACM | SSL/TLS certificates | Free |
-| Secrets Manager | Store env secrets | Standard |
+| Service           | Purpose                   | Tier                      |
+| ----------------- | ------------------------- | ------------------------- |
+| ECS Fargate       | Run NestJS API containers | Compute                   |
+| RDS PostgreSQL 16 | Primary database          | db.t3.micro → db.t3.small |
+| ElastiCache Redis | Caching, OTP storage      | cache.t3.micro            |
+| S3                | Food images, user avatars | Standard                  |
+| CloudFront        | CDN for S3 + API          | Standard                  |
+| ALB               | Load balancer for API     | Standard                  |
+| ECR               | Docker image registry     | Standard                  |
+| Route 53          | DNS management            | Standard                  |
+| ACM               | SSL/TLS certificates      | Free                      |
+| Secrets Manager   | Store env secrets         | Standard                  |
 
 ### Docker Setup (apps/api)
 
@@ -547,17 +552,17 @@ CMD ["node", "dist/main"]
 
 See `.env.example` for full reference. Key variables:
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `REDIS_HOST` / `REDIS_PORT` | Redis connection |
-| `JWT_SECRET` | Min 32 chars, never expose |
-| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` | Twilio credentials |
-| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | Razorpay credentials |
-| `RAZORPAY_WEBHOOK_SECRET` | For webhook signature verification |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | S3 access |
-| `AWS_S3_BUCKET` | S3 bucket name |
-| `AWS_CLOUDFRONT_DOMAIN` | CDN domain (e.g., https://cdn.bitebolt.in) |
+| Variable                                      | Description                                |
+| --------------------------------------------- | ------------------------------------------ |
+| `DATABASE_URL`                                | PostgreSQL connection string               |
+| `REDIS_HOST` / `REDIS_PORT`                   | Redis connection                           |
+| `JWT_SECRET`                                  | Min 32 chars, never expose                 |
+| `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN`    | Twilio credentials                         |
+| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`     | Razorpay credentials                       |
+| `RAZORPAY_WEBHOOK_SECRET`                     | For webhook signature verification         |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | S3 access                                  |
+| `AWS_S3_BUCKET`                               | S3 bucket name                             |
+| `AWS_CLOUDFRONT_DOMAIN`                       | CDN domain (e.g., https://cdn.bitebolt.in) |
 
 In production, use **AWS Secrets Manager** or **Parameter Store** instead of `.env` files.
 
@@ -623,14 +628,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
 volumes:
   postgres_data:
@@ -667,4 +672,4 @@ The current MVP architecture is designed to support these future features withou
 
 ---
 
-*Built with ❤️ by the BiteBolt team.*
+_Built with ❤️ by the BiteBolt team._

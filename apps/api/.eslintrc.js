@@ -11,7 +11,10 @@ module.exports = {
   },
   rules: {
     // NestJS decorators rely on parameter properties
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+    ],
   },
   ignorePatterns: ['dist/', 'node_modules/', 'coverage/'],
 };

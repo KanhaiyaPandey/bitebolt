@@ -1,8 +1,9 @@
+import path from 'path';
+
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { sql } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import path from 'path';
 import { Pool } from 'pg';
 
 import * as schema from '../db/schema';

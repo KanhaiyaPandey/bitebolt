@@ -30,7 +30,11 @@ export default function PhoneScreen() {
 
   const handleSendOtp = async () => {
     if (!isValidIndianPhone(phone)) {
-      Toast.show({ type: 'error', text1: 'Invalid number', text2: 'Enter a valid 10-digit mobile number' });
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid number',
+        text2: 'Enter a valid 10-digit mobile number',
+      });
       return;
     }
     setLoading(true);
@@ -142,10 +146,19 @@ export default function PhoneScreen() {
               ],
             }}
           >
-            <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158', marginBottom: 6 }}>
+            <Text
+              style={{
+                fontFamily: 'Urbanist-Bold',
+                fontSize: 22,
+                color: '#414158',
+                marginBottom: 6,
+              }}
+            >
               Enter your phone
             </Text>
-            <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', marginBottom: 24 }}>
+            <Text
+              style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', marginBottom: 24 }}
+            >
               We'll send a one-time password to verify your number
             </Text>
 
@@ -161,7 +174,14 @@ export default function PhoneScreen() {
                 marginBottom: 20,
               }}
             >
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 15, color: '#414158', marginRight: 10 }}>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist-SemiBold',
+                  fontSize: 15,
+                  color: '#414158',
+                  marginRight: 10,
+                }}
+              >
                 🇮🇳 +91
               </Text>
               <View style={{ width: 1, height: 20, backgroundColor: '#D3D6DE', marginRight: 12 }} />
@@ -197,24 +217,28 @@ export default function PhoneScreen() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 16,
-                  color: isReady ? '#FFFFFF' : '#9098B1',
-                }}>
+                <Text
+                  style={{
+                    fontFamily: 'Urbanist-SemiBold',
+                    fontSize: 16,
+                    color: isReady ? '#FFFFFF' : '#9098B1',
+                  }}
+                >
                   Get OTP
                 </Text>
               )}
             </TouchableOpacity>
 
-            <Text style={{
-              fontFamily: 'Urbanist',
-              fontSize: 12,
-              color: '#C4C9D4',
-              textAlign: 'center',
-              marginTop: 20,
-              lineHeight: 18,
-            }}>
+            <Text
+              style={{
+                fontFamily: 'Urbanist',
+                fontSize: 12,
+                color: '#C4C9D4',
+                textAlign: 'center',
+                marginTop: 20,
+                lineHeight: 18,
+              }}
+            >
               By continuing, you agree to our Terms of Service and Privacy Policy
             </Text>
           </Animated.View>

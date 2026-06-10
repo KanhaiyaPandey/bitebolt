@@ -69,23 +69,5 @@
     "react-test-renderer": "19.1.0",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "setupFilesAfterEnv": [
-      "./jest.setup.ts"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!(?:\\.pnpm/[^/]+/node_modules/)?(?:(jest-)?react-native|@react-native(-community)?|@react-native(/.*)?|expo(nent)?|@expo(nent)?(/.*)?|@expo-google-fonts(/.*)?|react-navigation|@react-navigation(/.*)?|@unimodules(/.*)?|unimodules|sentry-expo|native-base|react-native-svg|nativewind|react-native-reanimated|react-native-safe-area-context|react-native-screens|react-native-toast-message|react-native-skeleton-placeholder|react-native-css-interop|@shopify(/.*)?|@bitebolt(/.*)?|@testing-library(/.*)?))"
-    ],
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1",
-      "^@bitebolt/types$": "<rootDir>/../../packages/types/src",
-      "^@bitebolt/utils$": "<rootDir>/../../packages/utils/src"
-    },
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!src/**/*.d.ts"
-    ]
   }
 }

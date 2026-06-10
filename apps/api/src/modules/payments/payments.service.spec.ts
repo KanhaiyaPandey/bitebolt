@@ -1,13 +1,14 @@
 import * as crypto from 'crypto';
+
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import { http, HttpResponse } from 'msw';
 
 import { DbService } from '../../db/db.service';
-import { orders, payments } from '../../db/schema';
+import { payments } from '../../db/schema';
 import { clearTables, startTestDb, type TestDb } from '../../test/db-helper';
-import { mswServer } from '../../test/msw-server';
 import { seedAddress, seedOrder, seedUser } from '../../test/fixtures';
+import { mswServer } from '../../test/msw-server';
 
 import { PaymentsService } from './payments.service';
 
@@ -97,7 +98,13 @@ describe('PaymentsService (integration)', () => {
         http.post('https://api.razorpay.com/v1/orders', async ({ request }) => {
           const body = (await request.json()) as { amount: number };
           capturedAmount = body.amount;
-          return HttpResponse.json({ id: 'order_rp_wallet', amount: body.amount, currency: 'INR', receipt: 'receipt', status: 'created' });
+          return HttpResponse.json({
+            id: 'order_rp_wallet',
+            amount: body.amount,
+            currency: 'INR',
+            receipt: 'receipt',
+            status: 'created',
+          });
         }),
       );
 
@@ -147,14 +154,17 @@ describe('PaymentsService (integration)', () => {
 
   describe('verifyPayment', () => {
     async function createPendingPayment(userId: string, orderId: string) {
-      const [payment] = await db.insert(payments).values({
-        orderId,
-        userId,
-        amount: '303.00',
-        method: 'UPI',
-        status: 'PENDING',
-        razorpayOrderId: 'order_rp_verify_test',
-      }).returning();
+      const [payment] = await db
+        .insert(payments)
+        .values({
+          orderId,
+          userId,
+          amount: '303.00',
+          method: 'UPI',
+          status: 'PENDING',
+          razorpayOrderId: 'order_rp_verify_test',
+        })
+        .returning();
       return payment;
     }
 
@@ -203,7 +213,11 @@ describe('PaymentsService (integration)', () => {
       const signature = sign(`${razorpayOrderId}|${razorpayPaymentId}`, KEY_SECRET);
 
       await expect(
-        service.verifyPayment(user.id, { razorpayOrderId, razorpayPaymentId, razorpaySignature: signature }),
+        service.verifyPayment(user.id, {
+          razorpayOrderId,
+          razorpayPaymentId,
+          razorpaySignature: signature,
+        }),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -251,9 +265,9 @@ describe('PaymentsService (integration)', () => {
     it('throws BadRequestException for an invalid webhook signature', async () => {
       const payload = JSON.stringify({ event: 'payment.captured' });
 
-      await expect(
-        service.handleWebhook(payload, 'bad-signature'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.handleWebhook(payload, 'bad-signature')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

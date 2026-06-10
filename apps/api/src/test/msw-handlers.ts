@@ -2,9 +2,8 @@ import { http, HttpResponse } from 'msw';
 
 export const apiHandlers = [
   // Twilio: create SMS
-  http.post(
-    'https://api.twilio.com/2010-04-01/Accounts/:accountSid/Messages.json',
-    () => HttpResponse.json({ sid: 'SM_test_sid', status: 'queued', to: '+910000000000' }),
+  http.post('https://api.twilio.com/2010-04-01/Accounts/:accountSid/Messages.json', () =>
+    HttpResponse.json({ sid: 'SM_test_sid', status: 'queued', to: '+910000000000' }),
   ),
 
   // Razorpay: create order

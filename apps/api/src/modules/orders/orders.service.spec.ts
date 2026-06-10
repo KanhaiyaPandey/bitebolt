@@ -184,9 +184,9 @@ describe('OrdersService (integration)', () => {
     it('throws NotFoundException when the order does not exist', async () => {
       const user = await seedUser(db);
 
-      await expect(
-        service.getOrderById(user.id, 'nonexistent-order-id'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getOrderById(user.id, 'nonexistent-order-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws NotFoundException when the order belongs to another user', async () => {
@@ -195,9 +195,7 @@ describe('OrdersService (integration)', () => {
       const address = await seedAddress(db, user1.id);
       const order = await seedOrder(db, user1.id, address.id);
 
-      await expect(
-        service.getOrderById(user2.id, order.id),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getOrderById(user2.id, order.id)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -229,16 +227,17 @@ describe('OrdersService (integration)', () => {
       const address = await seedAddress(db, user.id);
       const order = await seedOrder(db, user.id, address.id, { status: 'PREPARING' });
 
-      await expect(
-        service.cancelOrder(user.id, order.id),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.cancelOrder(user.id, order.id)).rejects.toThrow(BadRequestException);
     });
 
     it('issues a wallet refund when the payment was captured', async () => {
       const user = await seedUser(db);
       await seedWallet(db, user.id, '0.00');
       const address = await seedAddress(db, user.id);
-      const order = await seedOrder(db, user.id, address.id, { status: 'PENDING', total: '300.00' });
+      const order = await seedOrder(db, user.id, address.id, {
+        status: 'PENDING',
+        total: '300.00',
+      });
 
       // Insert a captured payment for this order
       await db.insert(payments).values({

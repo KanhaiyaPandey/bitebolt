@@ -94,7 +94,11 @@ export default function OtpScreen() {
       await authApi.sendOtp({ phone });
       setResendTimer(30);
       setOtp(['', '', '', '', '', '']);
-      Toast.show({ type: 'success', text1: 'OTP sent!', text2: `New OTP sent to ${maskPhone(phone)}` });
+      Toast.show({
+        type: 'success',
+        text1: 'OTP sent!',
+        text2: `New OTP sent to ${maskPhone(phone)}`,
+      });
     } catch {
       Toast.show({ type: 'error', text1: 'Failed to resend OTP' });
     }
@@ -145,10 +149,25 @@ export default function OtpScreen() {
               ],
             }}
           >
-            <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 26, color: '#414158', marginBottom: 10 }}>
+            <Text
+              style={{
+                fontFamily: 'Urbanist-Bold',
+                fontSize: 26,
+                color: '#414158',
+                marginBottom: 10,
+              }}
+            >
               Enter OTP
             </Text>
-            <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', marginBottom: 36, lineHeight: 22 }}>
+            <Text
+              style={{
+                fontFamily: 'Urbanist',
+                fontSize: 14,
+                color: '#9098B1',
+                marginBottom: 36,
+                lineHeight: 22,
+              }}
+            >
               We sent a 6-digit code to{'\n'}
               <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#414158' }}>
                 +91 {maskPhone(phone)}
@@ -156,11 +175,15 @@ export default function OtpScreen() {
             </Text>
 
             {/* OTP boxes */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 36 }}>
+            <View
+              style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 36 }}
+            >
               {otp.map((digit, i) => (
                 <TextInput
                   key={i}
-                  ref={(ref) => { inputs.current[i] = ref; }}
+                  ref={(ref) => {
+                    inputs.current[i] = ref;
+                  }}
                   style={{
                     width: 48,
                     height: 56,
@@ -203,23 +226,31 @@ export default function OtpScreen() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 16,
-                  color: allFilled ? '#FFFFFF' : '#9098B1',
-                }}>
+                <Text
+                  style={{
+                    fontFamily: 'Urbanist-SemiBold',
+                    fontSize: 16,
+                    color: allFilled ? '#FFFFFF' : '#9098B1',
+                  }}
+                >
                   Verify OTP
                 </Text>
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleResend} disabled={resendTimer > 0} style={{ alignItems: 'center' }}>
+            <TouchableOpacity
+              onPress={handleResend}
+              disabled={resendTimer > 0}
+              style={{ alignItems: 'center' }}
+            >
               <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1' }}>
                 Didn't receive OTP?{' '}
-                <Text style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  color: resendTimer === 0 ? '#FA7938' : '#C4C9D4',
-                }}>
+                <Text
+                  style={{
+                    fontFamily: 'Urbanist-SemiBold',
+                    color: resendTimer === 0 ? '#FA7938' : '#C4C9D4',
+                  }}
+                >
                   {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend'}
                 </Text>
               </Text>

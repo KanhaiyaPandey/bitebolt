@@ -18,7 +18,8 @@
     "db:migrate": "turbo run db:migrate --filter=@bitebolt/api",
     "db:push": "turbo run db:push --filter=@bitebolt/api",
     "db:studio": "turbo run db:studio --filter=@bitebolt/api",
-    "db:seed": "turbo run db:seed --filter=@bitebolt/api"
+    "db:seed": "turbo run db:seed --filter=@bitebolt/api",
+    "prepare": "husky"
   },
   "dependencies": {
     "react": "19.1.0",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@bitebolt/eslint-config": "workspace:*",
+    "husky": "^9.1.7",
     "prettier": "^3.2.5",
     "turbo": "^2.0.6",
     "typescript": "^5.4.5"

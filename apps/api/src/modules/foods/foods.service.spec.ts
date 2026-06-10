@@ -95,7 +95,11 @@ describe('FoodsService (integration)', () => {
     it('filters veg-only items', async () => {
       const category = await seedCategory(db);
       await seedFoodItem(db, category.id, { name: 'Veg Item', slug: 'veg-item', isVeg: true });
-      await seedFoodItem(db, category.id, { name: 'Non-Veg Item', slug: 'nonveg-item', isVeg: false });
+      await seedFoodItem(db, category.id, {
+        name: 'Non-Veg Item',
+        slug: 'nonveg-item',
+        isVeg: false,
+      });
 
       const result = await service.findAll({ isVeg: true });
 

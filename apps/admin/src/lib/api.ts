@@ -23,7 +23,12 @@ export const adminApi = {
 
   updateOrderStatus: async (
     id: string,
-    data: { status: string; notes?: string; rejectionReason?: string; estimatedDeliveryTime?: number },
+    data: {
+      status: string;
+      notes?: string;
+      rejectionReason?: string;
+      estimatedDeliveryTime?: number;
+    },
   ) => {
     const res = await client.patch(`/orders/admin/${id}/status`, data);
     return res.data.data;

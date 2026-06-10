@@ -46,7 +46,14 @@ export const handlers = [
           isAvailable: true,
         },
       ],
-      meta: { total: 1, page: 1, limit: 20, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
+      meta: {
+        total: 1,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
     }),
   ),
 
@@ -78,9 +85,7 @@ export const handlers = [
     ok({ id: 'cart-1', foodItemId: 'food-1', quantity: 1, userId: 'user-1' }),
   ),
 
-  http.patch(`${BASE}/cart/items/:id`, () =>
-    ok({ id: 'cart-1', quantity: 2 }),
-  ),
+  http.patch(`${BASE}/cart/items/:id`, () => ok({ id: 'cart-1', quantity: 2 })),
 
   http.delete(`${BASE}/cart/items/:id`, () => ok({ removed: true })),
 
@@ -99,9 +104,7 @@ export const handlers = [
     ok({ id: params.id, orderNumber: 'BB-TEST-001', status: 'PENDING' }),
   ),
 
-  http.patch(`${BASE}/orders/:id/cancel`, () =>
-    ok({ id: 'order-1', status: 'CANCELLED' }),
-  ),
+  http.patch(`${BASE}/orders/:id/cancel`, () => ok({ id: 'order-1', status: 'CANCELLED' })),
 
   // ── Payments ───────────────────────────────────────────────────────────────
   http.post(`${BASE}/payments/create-order`, () =>
@@ -111,9 +114,7 @@ export const handlers = [
   http.post(`${BASE}/payments/verify`, () => ok({ success: true, paymentId: 'pay-1' })),
 
   // ── Wallet ─────────────────────────────────────────────────────────────────
-  http.get(`${BASE}/wallet`, () =>
-    ok({ id: 'wallet-1', balance: '100.00', transactions: [] }),
-  ),
+  http.get(`${BASE}/wallet`, () => ok({ id: 'wallet-1', balance: '100.00', transactions: [] })),
 
   http.get(`${BASE}/wallet/transactions`, () =>
     ok({ transactions: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }),

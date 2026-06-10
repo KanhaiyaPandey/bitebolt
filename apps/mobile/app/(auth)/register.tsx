@@ -30,7 +30,11 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      Toast.show({ type: 'error', text1: 'Name required', text2: 'Please enter your name to continue' });
+      Toast.show({
+        type: 'error',
+        text1: 'Name required',
+        text2: 'Please enter your name to continue',
+      });
       return;
     }
 
@@ -79,39 +83,59 @@ export default function RegisterScreen() {
           >
             {/* Header */}
             <View style={{ marginBottom: 36 }}>
-              <View style={{
-                width: 56,
-                height: 56,
-                borderRadius: 16,
-                backgroundColor: '#FA793820',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 20,
-              }}>
+              <View
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 16,
+                  backgroundColor: '#FA793820',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 20,
+                }}
+              >
                 <Text style={{ fontSize: 26 }}>👋</Text>
               </View>
-              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 26, color: '#414158', marginBottom: 8 }}>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist-Bold',
+                  fontSize: 26,
+                  color: '#414158',
+                  marginBottom: 8,
+                }}
+              >
                 Welcome to BiteBolt!
               </Text>
-              <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', lineHeight: 22 }}>
+              <Text
+                style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', lineHeight: 22 }}
+              >
                 Just a couple of details and you're all set.
               </Text>
             </View>
 
             {/* Form card */}
-            <View style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: 20,
-              padding: 20,
-              shadowColor: '#1A1A2E',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.05,
-              shadowRadius: 10,
-              elevation: 3,
-              marginBottom: 20,
-            }}>
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 20,
+                padding: 20,
+                shadowColor: '#1A1A2E',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 10,
+                elevation: 3,
+                marginBottom: 20,
+              }}
+            >
               {/* Name */}
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#9098B1', marginBottom: 8 }}>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist-SemiBold',
+                  fontSize: 13,
+                  color: '#9098B1',
+                  marginBottom: 8,
+                }}
+              >
                 YOUR NAME *
               </Text>
               <TextInput
@@ -134,8 +158,15 @@ export default function RegisterScreen() {
               />
 
               {/* Email */}
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#9098B1', marginBottom: 8 }}>
-                EMAIL  <Text style={{ fontFamily: 'Urbanist', color: '#C4C9D4' }}>(optional)</Text>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist-SemiBold',
+                  fontSize: 13,
+                  color: '#9098B1',
+                  marginBottom: 8,
+                }}
+              >
+                EMAIL <Text style={{ fontFamily: 'Urbanist', color: '#C4C9D4' }}>(optional)</Text>
               </Text>
               <TextInput
                 style={{
@@ -177,11 +208,13 @@ export default function RegisterScreen() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 16,
-                  color: isReady ? '#FFFFFF' : '#9098B1',
-                }}>
+                <Text
+                  style={{
+                    fontFamily: 'Urbanist-SemiBold',
+                    fontSize: 16,
+                    color: isReady ? '#FFFFFF' : '#9098B1',
+                  }}
+                >
                   Let's go!
                 </Text>
               )}

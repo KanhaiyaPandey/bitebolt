@@ -16,7 +16,10 @@ export default function OrderDetailsScreen() {
       </View>
 
       <View className="px-5">
-        <TouchableOpacity onPress={() => router.back()} className="bg-brand rounded-button px-6 py-3 self-start">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="bg-brand rounded-button px-6 py-3 self-start"
+        >
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
       </View>

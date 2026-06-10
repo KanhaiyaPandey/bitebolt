@@ -1,4 +1,13 @@
-import { addresses, cartItems, categories, foodItems, orders, otpVerifications, users, wallets } from '../db/schema';
+import {
+  addresses,
+  cartItems,
+  categories,
+  foodItems,
+  orders,
+  otpVerifications,
+  users,
+  wallets,
+} from '../db/schema';
 
 import type { TestDb } from './db-helper';
 
@@ -23,7 +32,11 @@ export async function seedCategory(db: TestDb, overrides: Record<string, unknown
   return category;
 }
 
-export async function seedFoodItem(db: TestDb, categoryId: string, overrides: Record<string, unknown> = {}) {
+export async function seedFoodItem(
+  db: TestDb,
+  categoryId: string,
+  overrides: Record<string, unknown> = {},
+) {
   const [food] = await db
     .insert(foodItems)
     .values({
@@ -39,7 +52,11 @@ export async function seedFoodItem(db: TestDb, categoryId: string, overrides: Re
   return food;
 }
 
-export async function seedAddress(db: TestDb, userId: string, overrides: Record<string, unknown> = {}) {
+export async function seedAddress(
+  db: TestDb,
+  userId: string,
+  overrides: Record<string, unknown> = {},
+) {
   const [address] = await db
     .insert(addresses)
     .values({
@@ -55,16 +72,8 @@ export async function seedAddress(db: TestDb, userId: string, overrides: Record<
   return address;
 }
 
-export async function seedCartItem(
-  db: TestDb,
-  userId: string,
-  foodItemId: string,
-  quantity = 1,
-) {
-  const [item] = await db
-    .insert(cartItems)
-    .values({ userId, foodItemId, quantity })
-    .returning();
+export async function seedCartItem(db: TestDb, userId: string, foodItemId: string, quantity = 1) {
+  const [item] = await db.insert(cartItems).values({ userId, foodItemId, quantity }).returning();
   return item;
 }
 

@@ -96,12 +96,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              icon="home-outline"
-              iconFocused="home"
-              focused={focused}
-              isHome
-            />
+            <TabIcon icon="home-outline" iconFocused="home" focused={focused} isHome />
           ),
         }}
       />
@@ -129,11 +124,7 @@ export default function TabsLayout() {
         name="orders"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              icon="notifications-outline"
-              iconFocused="notifications"
-              focused={focused}
-            />
+            <TabIcon icon="notifications-outline" iconFocused="notifications" focused={focused} />
           ),
         }}
       />
@@ -143,11 +134,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon
-              icon="person-outline"
-              iconFocused="person"
-              focused={focused}
-            />
+            <TabIcon icon="person-outline" iconFocused="person" focused={focused} />
           ),
         }}
       />

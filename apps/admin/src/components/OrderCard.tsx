@@ -3,7 +3,12 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminApi } from '../lib/api';
-import { formatCurrency, formatDateTime, getOrderStatusLabel, getOrderStatusColor } from '@bitebolt/utils';
+import {
+  formatCurrency,
+  formatDateTime,
+  getOrderStatusLabel,
+  getOrderStatusColor,
+} from '@bitebolt/utils';
 import type { Order } from '@bitebolt/types';
 
 const STATUS_ACTIONS: Record<string, { label: string; next: string; color: string }[]> = {
@@ -11,15 +16,9 @@ const STATUS_ACTIONS: Record<string, { label: string; next: string; color: strin
     { label: '✅ Accept', next: 'ACCEPTED', color: 'bg-green-500' },
     { label: '❌ Reject', next: 'REJECTED', color: 'bg-red-500' },
   ],
-  ACCEPTED: [
-    { label: '👨‍🍳 Start Preparing', next: 'PREPARING', color: 'bg-blue-500' },
-  ],
-  PREPARING: [
-    { label: '🛵 Out for Delivery', next: 'OUT_FOR_DELIVERY', color: 'bg-orange-500' },
-  ],
-  OUT_FOR_DELIVERY: [
-    { label: '✔️ Mark Delivered', next: 'DELIVERED', color: 'bg-green-600' },
-  ],
+  ACCEPTED: [{ label: '👨‍🍳 Start Preparing', next: 'PREPARING', color: 'bg-blue-500' }],
+  PREPARING: [{ label: '🛵 Out for Delivery', next: 'OUT_FOR_DELIVERY', color: 'bg-orange-500' }],
+  OUT_FOR_DELIVERY: [{ label: '✔️ Mark Delivered', next: 'DELIVERED', color: 'bg-green-600' }],
 };
 
 interface OrderCardProps {
@@ -33,8 +32,7 @@ export function OrderCard({ order, onUpdate }: OrderCardProps) {
   const actions = STATUS_ACTIONS[order.status] ?? [];
 
   const mutation = useMutation({
-    mutationFn: (status: string) =>
-      adminApi.updateOrderStatus(order.id, { status }),
+    mutationFn: (status: string) => adminApi.updateOrderStatus(order.id, { status }),
     onSuccess: (_, status) => {
       toast.success(`Order ${order.orderNumber} → ${getOrderStatusLabel(status)}`);
       onUpdate();
@@ -58,7 +56,8 @@ export function OrderCard({ order, onUpdate }: OrderCardProps) {
               </span>
             </div>
             <p className="text-sm text-gray-500 mt-0.5">
-              {(order.user as { name?: string; phone?: string })?.name ?? 'Customer'} · {(order.user as { phone?: string })?.phone}
+              {(order.user as { name?: string; phone?: string })?.name ?? 'Customer'} ·{' '}
+              {(order.user as { phone?: string })?.phone}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">{formatDateTime(order.createdAt)}</p>
           </div>
@@ -70,14 +69,18 @@ export function OrderCard({ order, onUpdate }: OrderCardProps) {
 
         {/* Items preview */}
         <p className="text-sm text-gray-600 mt-2">
-          {order.items.slice(0, 3).map((i) => `${i.name} ×${i.quantity}`).join(', ')}
+          {order.items
+            .slice(0, 3)
+            .map((i) => `${i.name} ×${i.quantity}`)
+            .join(', ')}
           {order.items.length > 3 ? ` +${order.items.length - 3} more` : ''}
         </p>
 
         {/* Delivery address */}
         {order.deliveryAddress && (
           <p className="text-xs text-gray-400 mt-1">
-            📍 {(order.deliveryAddress as { addressLine1?: string; city?: string }).addressLine1}, {(order.deliveryAddress as { city?: string }).city}
+            📍 {(order.deliveryAddress as { addressLine1?: string; city?: string }).addressLine1},{' '}
+            {(order.deliveryAddress as { city?: string }).city}
           </p>
         )}
 
@@ -121,14 +124,20 @@ export function OrderCard({ order, onUpdate }: OrderCardProps) {
                 <tr key={item.id} className="border-t border-gray-50">
                   <td className="py-1.5 text-gray-700">{item.name}</td>
                   <td className="text-center text-gray-500">×{item.quantity}</td>
-                  <td className="text-right text-gray-700">{formatCurrency(Number(item.subtotal))}</td>
+                  <td className="text-right text-gray-700">
+                    {formatCurrency(Number(item.subtotal))}
+                  </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr className="border-t border-gray-200 font-semibold">
-                <td colSpan={2} className="pt-2 text-gray-500 text-xs">Total</td>
-                <td className="pt-2 text-right text-gray-900">{formatCurrency(Number(order.total))}</td>
+                <td colSpan={2} className="pt-2 text-gray-500 text-xs">
+                  Total
+                </td>
+                <td className="pt-2 text-right text-gray-900">
+                  {formatCurrency(Number(order.total))}
+                </td>
               </tr>
             </tfoot>
           </table>

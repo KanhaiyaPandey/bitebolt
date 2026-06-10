@@ -6,6 +6,7 @@ import React from 'react';
 import Toast from 'react-native-toast-message';
 
 import { mswServer } from '../../mocks/server';
+
 import { FoodCard } from './FoodCard';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -86,7 +87,11 @@ describe('FoodCard', () => {
 
     await waitFor(() => {
       expect(Toast.show).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'success', text1: 'Added to cart!', text2: 'Paneer Butter Masala' }),
+        expect.objectContaining({
+          type: 'success',
+          text1: 'Added to cart!',
+          text2: 'Paneer Butter Masala',
+        }),
       );
     });
   });

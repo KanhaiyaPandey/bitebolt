@@ -1,5 +1,5 @@
-import { NotFoundException } from '@nestjs/common';
 import { calculateCartTotals } from '@bitebolt/utils';
+import { NotFoundException } from '@nestjs/common';
 
 import { DbService } from '../../db/db.service';
 import { clearTables, startTestDb, type TestDb } from '../../test/db-helper';
@@ -152,9 +152,7 @@ describe('CartService (integration)', () => {
       const food = await seedFoodItem(db, category.id);
       const cartItem = await seedCartItem(db, user1.id, food.id, 1);
 
-      await expect(
-        service.updateItem(user2.id, cartItem.id, 2),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.updateItem(user2.id, cartItem.id, 2)).rejects.toThrow(NotFoundException);
     });
   });
 

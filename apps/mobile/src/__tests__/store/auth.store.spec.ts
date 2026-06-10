@@ -47,11 +47,9 @@ describe('useAuthStore', () => {
     it('sets isRegistered=false when user has no name', async () => {
       setSecureStore.mockResolvedValue(undefined);
 
-      await useAuthStore.getState().setAuth(
-        { ...testUser, name: null },
-        'access-token',
-        'refresh-token',
-      );
+      await useAuthStore
+        .getState()
+        .setAuth({ ...testUser, name: null }, 'access-token', 'refresh-token');
 
       expect(useAuthStore.getState().isRegistered).toBe(false);
     });

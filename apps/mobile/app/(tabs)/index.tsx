@@ -39,18 +39,25 @@ export default function HomeScreen() {
     debounceRef.current = setTimeout(() => setDebouncedSearch(text), 350);
   }, []);
 
-  useEffect(() => () => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    },
+    [],
+  );
 
   // ── Filter state ────────────────────────────────────────
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [showFilter, setShowFilter] = useState(false);
 
-  const activeFilterCount = [filters.categoryId, filters.isVeg !== null ? true : null, filters.minRating]
-    .filter(Boolean).length;
+  const activeFilterCount = [
+    filters.categoryId,
+    filters.isVeg !== null ? true : null,
+    filters.minRating,
+  ].filter(Boolean).length;
 
-  const isSearchMode = !!debouncedSearch || !!(filters.categoryId) || filters.isVeg !== null || !!(filters.minRating);
+  const isSearchMode =
+    !!debouncedSearch || !!filters.categoryId || filters.isVeg !== null || !!filters.minRating;
 
   // ── Data queries ────────────────────────────────────────
   const { data: categories, isLoading: loadingCats } = useQuery({
@@ -81,7 +88,9 @@ export default function HomeScreen() {
     enabled: isSearchMode,
   });
 
-  const onRefresh = useCallback(() => { refetch(); }, [refetch]);
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   // ── Derived display items (client-side minRating filter) ─
   const displayItems = useMemo<FoodItem[]>(() => {
@@ -96,7 +105,7 @@ export default function HomeScreen() {
   const isLoading = isSearchMode ? searchLoading : loadingFeatured;
 
   const handleCategoryPress = (catId: string) => {
-    setFilters(f => ({ ...f, categoryId: f.categoryId === catId ? null : catId }));
+    setFilters((f) => ({ ...f, categoryId: f.categoryId === catId ? null : catId }));
   };
 
   return (
@@ -114,21 +123,39 @@ export default function HomeScreen() {
         }
       >
         {/* ── Top bar ─────────────────────────────────────── */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingTop: 16,
+            paddingBottom: 12,
+          }}
+        >
           <View>
             <Text style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1' }}>
               Good {greeting()},
             </Text>
-            <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158', marginTop: 2 }}>
+            <Text
+              style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158', marginTop: 2 }}
+            >
               {user?.name?.split(' ')[0] ?? 'Foodie'} 👋
             </Text>
           </View>
           <TouchableOpacity
             style={{
-              width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFFFFF',
-              alignItems: 'center', justifyContent: 'center',
-              shadowColor: '#1A1A2E', shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08, shadowRadius: 6, elevation: 3,
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: '#FFFFFF',
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: '#1A1A2E',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 6,
+              elevation: 3,
             }}
           >
             <Ionicons name="notifications-outline" size={22} color="#414158" />
@@ -137,16 +164,31 @@ export default function HomeScreen() {
 
         {/* ── Search bar ──────────────────────────────────── */}
         <View style={{ paddingHorizontal: 20, marginBottom: 16, flexDirection: 'row', gap: 10 }}>
-          <View style={{
-            flex: 1, flexDirection: 'row', alignItems: 'center',
-            backgroundColor: '#FFFFFF', borderRadius: 14,
-            paddingHorizontal: 14, paddingVertical: 12,
-            shadowColor: '#1A1A2E', shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
-          }}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#FFFFFF',
+              borderRadius: 14,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
+              shadowColor: '#1A1A2E',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.06,
+              shadowRadius: 8,
+              elevation: 3,
+            }}
+          >
             <Ionicons name="search-outline" size={20} color="#9098B1" />
             <TextInput
-              style={{ flex: 1, fontFamily: 'Urbanist', fontSize: 14, color: '#414158', marginLeft: 10 }}
+              style={{
+                flex: 1,
+                fontFamily: 'Urbanist',
+                fontSize: 14,
+                color: '#414158',
+                marginLeft: 10,
+              }}
               placeholder="Search food, drinks..."
               placeholderTextColor="#9098B1"
               value={searchText}
@@ -156,7 +198,12 @@ export default function HomeScreen() {
               autoCorrect={false}
             />
             {searchText.length > 0 && (
-              <TouchableOpacity onPress={() => { handleSearchChange(''); setDebouncedSearch(''); }}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleSearchChange('');
+                  setDebouncedSearch('');
+                }}
+              >
                 <Ionicons name="close-circle" size={18} color="#C4C9D4" />
               </TouchableOpacity>
             )}
@@ -167,20 +214,36 @@ export default function HomeScreen() {
             onPress={() => setShowFilter(true)}
             activeOpacity={0.8}
             style={{
-              width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              alignItems: 'center',
+              justifyContent: 'center',
               backgroundColor: activeFilterCount > 0 ? '#FA7938' : '#414158',
               shadowColor: activeFilterCount > 0 ? '#FA7938' : '#1A1A2E',
-              shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6, elevation: 3,
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 6,
+              elevation: 3,
             }}
           >
             <Ionicons name="options-outline" size={20} color="#FFFFFF" />
             {activeFilterCount > 0 && (
-              <View style={{
-                position: 'absolute', top: -4, right: -4,
-                width: 18, height: 18, borderRadius: 9,
-                backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center',
-                borderWidth: 2, borderColor: '#FA7938',
-              }}>
+              <View
+                style={{
+                  position: 'absolute',
+                  top: -4,
+                  right: -4,
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  backgroundColor: '#FFFFFF',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 2,
+                  borderColor: '#FA7938',
+                }}
+              >
                 <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 9, color: '#FA7938' }}>
                   {activeFilterCount}
                 </Text>
@@ -198,20 +261,23 @@ export default function HomeScreen() {
           >
             {filters.categoryId && (
               <ActiveFilterPill
-                label={(categories as Category[] | undefined)?.find(c => c.id === filters.categoryId)?.name ?? 'Category'}
-                onRemove={() => setFilters(f => ({ ...f, categoryId: null }))}
+                label={
+                  (categories as Category[] | undefined)?.find((c) => c.id === filters.categoryId)
+                    ?.name ?? 'Category'
+                }
+                onRemove={() => setFilters((f) => ({ ...f, categoryId: null }))}
               />
             )}
             {filters.isVeg !== null && (
               <ActiveFilterPill
                 label={filters.isVeg ? '🌱 Veg' : '🍖 Non-Veg'}
-                onRemove={() => setFilters(f => ({ ...f, isVeg: null }))}
+                onRemove={() => setFilters((f) => ({ ...f, isVeg: null }))}
               />
             )}
             {filters.minRating !== null && (
               <ActiveFilterPill
                 label={`★ ${filters.minRating}+`}
-                onRemove={() => setFilters(f => ({ ...f, minRating: null }))}
+                onRemove={() => setFilters((f) => ({ ...f, minRating: null }))}
               />
             )}
           </ScrollView>
@@ -226,7 +292,16 @@ export default function HomeScreen() {
         >
           {loadingCats
             ? Array.from({ length: 4 }).map((_, i) => (
-                <View key={i} style={{ width: 72, height: 90, borderRadius: 16, backgroundColor: '#FFFFFF', opacity: 0.5 }} />
+                <View
+                  key={i}
+                  style={{
+                    width: 72,
+                    height: 90,
+                    borderRadius: 16,
+                    backgroundColor: '#FFFFFF',
+                    opacity: 0.5,
+                  }}
+                />
               ))
             : (categories as Category[] | undefined)?.map((cat) => (
                 <CategoryChip
@@ -239,7 +314,15 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* ── Section header ───────────────────────────────── */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 14 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            marginBottom: 14,
+          }}
+        >
           <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 17, color: '#414158' }}>
             {isSearchMode ? 'Results' : '⭐ Featured'}
           </Text>
@@ -252,28 +335,45 @@ export default function HomeScreen() {
 
         {/* ── Food grid ───────────────────────────────────── */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 16 }}>
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => <GridSkeleton key={i} width={CARD_WIDTH} />)
-            : displayItems.length === 0 && isSearchMode
-              ? (
-                <View style={{ flex: 1, alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32 }}>
-                  <Text style={{ fontSize: 40, marginBottom: 12 }}>🔍</Text>
-                  <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 18, color: '#414158', textAlign: 'center', marginBottom: 6 }}>
-                    No results found
-                  </Text>
-                  <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', textAlign: 'center' }}>
-                    Try different keywords or adjust your filters
-                  </Text>
-                </View>
-              )
-              : displayItems.map((item) => (
-                  <FoodCardGrid
-                    key={item.id}
-                    item={item}
-                    width={CARD_WIDTH}
-                    onPress={() => router.push(`/food/${item.slug}`)}
-                  />
-                ))}
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <GridSkeleton key={i} width={CARD_WIDTH} />)
+          ) : displayItems.length === 0 && isSearchMode ? (
+            <View
+              style={{ flex: 1, alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32 }}
+            >
+              <Text style={{ fontSize: 40, marginBottom: 12 }}>🔍</Text>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist-Bold',
+                  fontSize: 18,
+                  color: '#414158',
+                  textAlign: 'center',
+                  marginBottom: 6,
+                }}
+              >
+                No results found
+              </Text>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist',
+                  fontSize: 14,
+                  color: '#9098B1',
+                  textAlign: 'center',
+                }}
+              >
+                Try different keywords or adjust your filters
+              </Text>
+            </View>
+          ) : (
+            displayItems.map((item) => (
+              <FoodCardGrid
+                key={item.id}
+                item={item}
+                width={CARD_WIDTH}
+                onPress={() => router.push(`/food/${item.slug}`)}
+              />
+            ))
+          )}
         </View>
 
         <View style={{ height: 32 }} />
@@ -295,13 +395,22 @@ export default function HomeScreen() {
 
 function ActiveFilterPill({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <View style={{
-      flexDirection: 'row', alignItems: 'center', gap: 6,
-      backgroundColor: '#FA793820', borderRadius: 20,
-      paddingHorizontal: 12, paddingVertical: 6,
-      borderWidth: 1, borderColor: '#FA793840',
-    }}>
-      <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 12, color: '#FA7938' }}>{label}</Text>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#FA793820',
+        borderRadius: 20,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderWidth: 1,
+        borderColor: '#FA793840',
+      }}
+    >
+      <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 12, color: '#FA7938' }}>
+        {label}
+      </Text>
       <TouchableOpacity onPress={onRemove} hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}>
         <Ionicons name="close" size={13} color="#FA7938" />
       </TouchableOpacity>
@@ -311,7 +420,16 @@ function ActiveFilterPill({ label, onRemove }: { label: string; onRemove: () => 
 
 function GridSkeleton({ width }: { width: number }) {
   return (
-    <View style={{ width, height: 210, borderRadius: 16, backgroundColor: '#FFFFFF', overflow: 'hidden', opacity: 0.6 }}>
+    <View
+      style={{
+        width,
+        height: 210,
+        borderRadius: 16,
+        backgroundColor: '#FFFFFF',
+        overflow: 'hidden',
+        opacity: 0.6,
+      }}
+    >
       <View style={{ height: 120, backgroundColor: '#E8E8F0' }} />
       <View style={{ padding: 10, gap: 6 }}>
         <View style={{ height: 12, width: '70%', borderRadius: 6, backgroundColor: '#E8E8F0' }} />

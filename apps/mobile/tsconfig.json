@@ -2,25 +2,12 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "types": [
-      "nativewind/types",
-      "jest"
-    ],
+    "types": ["nativewind/types", "jest"],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@bitebolt/types": [
-        "../../packages/types/src"
-      ],
-      "@bitebolt/utils": [
-        "../../packages/utils/src"
-      ]
+      "@/*": ["./src/*"],
+      "@bitebolt/types": ["../../packages/types/src"],
+      "@bitebolt/utils": ["../../packages/utils/src"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "nativewind-env.d.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"]
 }

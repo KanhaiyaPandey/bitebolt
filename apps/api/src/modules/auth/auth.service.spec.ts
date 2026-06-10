@@ -1,14 +1,13 @@
-import { HttpException, NotFoundException } from '@nestjs/common';
-import { UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { HttpException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { http, HttpResponse } from 'msw';
 
 import { DbService } from '../../db/db.service';
 import { otpVerifications } from '../../db/schema';
 import { clearTables, startTestDb, type TestDb } from '../../test/db-helper';
-import { mswServer } from '../../test/msw-server';
 import { seedOtp, seedUser } from '../../test/fixtures';
+import { mswServer } from '../../test/msw-server';
 
 import { AuthService } from './auth.service';
 
@@ -93,13 +92,10 @@ describe('AuthService (integration)', () => {
     it('calls Twilio in production mode (MSW intercepts the HTTP request)', async () => {
       let twilioWasCalled = false;
       mswServer.use(
-        http.post(
-          'https://api.twilio.com/2010-04-01/Accounts/:accountSid/Messages.json',
-          () => {
-            twilioWasCalled = true;
-            return HttpResponse.json({ sid: 'SM_prod_test', status: 'queued' });
-          },
-        ),
+        http.post('https://api.twilio.com/2010-04-01/Accounts/:accountSid/Messages.json', () => {
+          twilioWasCalled = true;
+          return HttpResponse.json({ sid: 'SM_prod_test', status: 'queued' });
+        }),
       );
 
       const prodService = new AuthService(
@@ -143,9 +139,9 @@ describe('AuthService (integration)', () => {
     });
 
     it('throws UnauthorizedException for an OTP that does not match', async () => {
-      await expect(
-        service.verifyOtp({ phone: '9876543210', otp: '000000' }),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.verifyOtp({ phone: '9876543210', otp: '000000' })).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('throws UnauthorizedException for an expired OTP', async () => {
@@ -155,18 +151,18 @@ describe('AuthService (integration)', () => {
         expiresAt: new Date(Date.now() - 1000),
       });
 
-      await expect(
-        service.verifyOtp({ phone: '9876543210', otp: '999999' }),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.verifyOtp({ phone: '9876543210', otp: '999999' })).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('throws UnauthorizedException when the user account is suspended', async () => {
       await seedUser(db, { phone: '9876543210', isActive: false });
       await seedOtp(db, '9876543210', '222222');
 
-      await expect(
-        service.verifyOtp({ phone: '9876543210', otp: '222222' }),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.verifyOtp({ phone: '9876543210', otp: '222222' })).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('marks the OTP as used after successful verification', async () => {
@@ -197,9 +193,9 @@ describe('AuthService (integration)', () => {
     });
 
     it('throws NotFoundException when the user does not exist', async () => {
-      await expect(
-        service.register('nonexistent-id', { name: 'Ghost' }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.register('nonexistent-id', { name: 'Ghost' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws BadRequestException when the email is taken by another user', async () => {
@@ -222,7 +218,10 @@ describe('AuthService (integration)', () => {
 
       const result = await service.refreshToken('valid-token');
 
-      expect(result).toMatchObject({ accessToken: 'test-jwt-token', refreshToken: 'test-jwt-token' });
+      expect(result).toMatchObject({
+        accessToken: 'test-jwt-token',
+        refreshToken: 'test-jwt-token',
+      });
     });
 
     it('throws UnauthorizedException when the token is malformed', async () => {

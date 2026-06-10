@@ -29,7 +29,9 @@ const queryClient = new QueryClient({
 
 function InitAuth() {
   const initialize = useAuthStore((s) => s.initialize);
-  useEffect(() => { initialize(); }, []);
+  useEffect(() => {
+    initialize();
+  }, []);
   return null;
 }
 
@@ -40,15 +42,15 @@ export default function RootLayout() {
   // Once `@expo-google-fonts/urbanist` is installed (run `pnpm install`
   // in apps/mobile) swap these imports for the Urbanist equivalents.
   const [fontsLoaded] = useFonts({
-    Urbanist:           Inter_400Regular,
-    'Urbanist-Medium':  Inter_500Medium,
-    'Urbanist-SemiBold':Inter_600SemiBold,
-    'Urbanist-Bold':    Inter_700Bold,
+    Urbanist: Inter_400Regular,
+    'Urbanist-Medium': Inter_500Medium,
+    'Urbanist-SemiBold': Inter_600SemiBold,
+    'Urbanist-Bold': Inter_700Bold,
     // keep originals available too
-    Inter:              Inter_400Regular,
-    'Inter-Medium':     Inter_500Medium,
-    'Inter-SemiBold':   Inter_600SemiBold,
-    'Inter-Bold':       Inter_700Bold,
+    Inter: Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
   });
 
   useEffect(() => {

@@ -153,8 +153,7 @@ export const slugify = (text: string): string =>
     .replace(/[^\w ]+/g, '')
     .replace(/ +/g, '-');
 
-export const generateOtp = (): string =>
-  Math.floor(100000 + Math.random() * 900000).toString();
+export const generateOtp = (): string => Math.floor(100000 + Math.random() * 900000).toString();
 
 export const generateOrderNumber = (): string => {
   const timestamp = Date.now().toString(36).toUpperCase();
@@ -162,13 +161,10 @@ export const generateOrderNumber = (): string => {
   return `BB-${timestamp}-${random}`;
 };
 
-export const maskPhone = (phone: string): string =>
-  `${phone.slice(0, 3)}****${phone.slice(-3)}`;
+export const maskPhone = (phone: string): string => `${phone.slice(0, 3)}****${phone.slice(-3)}`;
 
 // ─── VALIDATION UTILITIES ─────────────────────────────────────────────────────
 
-export const isValidIndianPhone = (phone: string): boolean =>
-  /^[6-9]\d{9}$/.test(phone);
+export const isValidIndianPhone = (phone: string): boolean => /^[6-9]\d{9}$/.test(phone);
 
-export const isValidPincode = (pincode: string): boolean =>
-  /^\d{6}$/.test(pincode);
+export const isValidPincode = (pincode: string): boolean => /^\d{6}$/.test(pincode);

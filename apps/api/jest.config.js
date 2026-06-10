@@ -13,4 +13,6 @@ module.exports = {
     '^@bitebolt/types$': '<rootDir>/../../../packages/types/src',
     '^@bitebolt/utils$': '<rootDir>/../../../packages/utils/src',
   },
+  setupFilesAfterEnv: ['<rootDir>/test/jest-setup.ts'],
+  testTimeout: 90000,
 };

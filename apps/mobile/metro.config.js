@@ -9,7 +9,7 @@ const config = getDefaultConfig(projectRoot);
 
 // Required for pnpm monorepos: watch all workspace packages and resolve
 // modules from both the app's and the workspace root's node_modules.
-config.watchFolders = [workspaceRoot];
+config.watchFolders = [...(config.watchFolders ?? []), workspaceRoot];
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),

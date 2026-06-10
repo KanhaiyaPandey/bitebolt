@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#FF5722"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "in.bitebolt.customer",
@@ -50,10 +52,12 @@
     "scheme": "bitebolt",
     "extra": {
       "eas": {
-        "projectId": "your-eas-project-id"
+        "projectId": "2a4ad626-9d08-418b-bbc7-ee9e6c8a4989"
       },
       "API_URL": "http://10.25.93.138:3001/api/v1",
-      "RAZORPAY_KEY_ID": "rzp_test_xxxxxxxxxx"
-    }
+      "RAZORPAY_KEY_ID": "rzp_test_xxxxxxxxxx",
+      "router": {}
+    },
+    "owner": "kannhaiya"
   }
 }

@@ -7,6 +7,7 @@
     "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=@bitebolt/api",
     "dev:mobile": "turbo run dev --filter=@bitebolt/mobile",
+    "build:mobile:apk": "pnpm --filter @bitebolt/mobile build:apk",
     "dev:admin": "turbo run dev --filter=@bitebolt/admin",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",

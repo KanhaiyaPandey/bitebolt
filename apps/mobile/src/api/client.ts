@@ -1,8 +1,7 @@
 import axios, { AxiosError } from 'axios';
-import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
 
-const API_URL = Constants.expoConfig?.extra?.API_URL ?? 'http://localhost:3001/api/v1';
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
 
 export const apiClient = axios.create({
   baseURL: API_URL,

@@ -34,6 +34,13 @@ export default function CartScreen() {
     enabled: isAuthenticated,
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
+      cartApi.updateItem(id, quantity),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
+    onError: () => Toast.show({ type: 'error', text1: 'Failed to update cart' }),
+  });
+
   if (!authLoading && !isAuthenticated) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
@@ -98,13 +105,6 @@ export default function CartScreen() {
       </SafeAreaView>
     );
   }
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
-      cartApi.updateItem(id, quantity),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
-    onError: () => Toast.show({ type: 'error', text1: 'Failed to update cart' }),
-  });
 
   if (isLoading) {
     return (

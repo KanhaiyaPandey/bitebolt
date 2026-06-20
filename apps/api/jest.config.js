@@ -10,13 +10,14 @@ module.exports = {
   testRegex: '.*\\.spec\\.ts$',
   transform: {
     '^.+\\.ts$': 'ts-jest',
-    '[/\\\\]node_modules[/\\\\](?:\\.pnpm[/\\\\][^/\\\\]+[/\\\\]node_modules[/\\\\])?(?:msw|@mswjs|rettime|until-async|@open-draft)[/\\\\].+\\.(?:mjs|js)$': [
-      'ts-jest',
-      {
-        useESM: false,
-        tsconfig: { allowJs: true },
-      },
-    ],
+    '[/\\\\]node_modules[/\\\\](?:\\.pnpm[/\\\\][^/\\\\]+[/\\\\]node_modules[/\\\\])?(?:msw|@mswjs|rettime|until-async|@open-draft)[/\\\\].+\\.(?:mjs|js)$':
+      [
+        'ts-jest',
+        {
+          useESM: false,
+          tsconfig: { allowJs: true },
+        },
+      ],
   },
   transformIgnorePatterns: [
     'node_modules/(?!(?:\\.pnpm/[^/]+/node_modules/)?(?:msw|@mswjs|rettime|until-async|@open-draft))',

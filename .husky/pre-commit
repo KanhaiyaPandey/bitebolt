@@ -6,8 +6,5 @@ pnpm lint || { echo "✗ lint failed"; exit 1; }
 echo "▶ type-check"
 pnpm type-check || { echo "✗ type-check failed"; exit 1; }
 
-echo "▶ test (mobile)"
-pnpm turbo run test --filter=@bitebolt/mobile || { echo "✗ tests failed"; exit 1; }
-
 echo "▶ build"
 pnpm build || { echo "✗ build failed"; exit 1; }

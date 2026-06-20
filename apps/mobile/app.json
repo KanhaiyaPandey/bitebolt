@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#FF5722"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "in.bitebolt.customer",

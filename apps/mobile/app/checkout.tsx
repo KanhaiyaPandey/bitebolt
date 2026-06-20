@@ -1,21 +1,49 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  Alert,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
-import { cartApi } from '../src/api';
-import type { Cart } from '@bitebolt/types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { cartApi, ordersApi, usersApi, paymentsApi } from '../src/api';
 import { useAuthStore } from '../src/store/auth.store';
+import type { Cart, Address, Order } from '@bitebolt/types';
 
 type DeliveryMode = 'delivery' | 'pickup';
+
+interface PaymentOption {
+  method: string;
+  label: string;
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+}
+
+const PAYMENT_OPTIONS: PaymentOption[] = [
+  { method: 'COD', label: 'Cash on Delivery', icon: 'cash-outline' },
+  { method: 'UPI', label: 'UPI', icon: 'phone-portrait-outline' },
+  { method: 'CARD', label: 'Credit / Debit Card', icon: 'card-outline' },
+  { method: 'NET_BANKING', label: 'Net Banking', icon: 'globe-outline' },
+];
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function CheckoutScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string>('COD');
+  const [showAddressPicker, setShowAddressPicker] = useState(false);
 
   const { data: cart } = useQuery({
     queryKey: ['cart'],
@@ -23,10 +51,61 @@ export default function CheckoutScreen() {
     enabled: isAuthenticated,
   });
 
+  const { data: addresses } = useQuery({
+    queryKey: ['addresses'],
+    queryFn: () => usersApi.getAddresses(),
+    enabled: isAuthenticated,
+  });
+
+  useEffect(() => {
+    if (addresses?.length && !selectedAddressId) {
+      const def = addresses.find((a) => a.isDefault) ?? addresses[0];
+      setSelectedAddressId(def.id);
+    }
+  }, [addresses, selectedAddressId]);
+
+  const selectedAddress = addresses?.find((a) => a.id === selectedAddressId);
+
+  const placeOrderMutation = useMutation({
+    mutationFn: async (): Promise<Order> => {
+      if (deliveryMode === 'delivery' && !selectedAddressId) {
+        throw new Error('Please select a delivery address');
+      }
+
+      const addressId = selectedAddressId ?? '';
+      const order = await ordersApi.placeOrder({ addressId, paymentMethod });
+
+      if (paymentMethod !== 'COD') {
+        try {
+          await paymentsApi.createRazorpayOrder({ orderId: order.id, method: paymentMethod });
+          // Razorpay SDK call would go here once react-native-razorpay is installed.
+          // For now navigate to order; payment will be pending.
+        } catch {
+          // Non-blocking — order is placed, payment can be completed later.
+        }
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['cart'] });
+      return order;
+    },
+    onSuccess: (order) => {
+      router.replace(`/order/${order.id}`);
+    },
+    onError: (err: Error) => {
+      Alert.alert('Order Failed', err.message ?? 'Something went wrong. Please try again.');
+    },
+  });
+
   if (!authLoading && !isAuthenticated) {
     router.replace('/(auth)/phone');
     return null;
   }
+
+  const addressDisplay = selectedAddress
+    ? `${selectedAddress.addressLine1}, ${selectedAddress.city}`
+    : 'Select delivery address';
+
+  const selectedPaymentOption = PAYMENT_OPTIONS.find((p) => p.method === paymentMethod);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
@@ -62,9 +141,6 @@ export default function CheckoutScreen() {
         <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158', flex: 1 }}>
           Checkout
         </Text>
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={22} color="#414158" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -114,12 +190,12 @@ export default function CheckoutScreen() {
           </View>
         </View>
 
-        {/* ── Map placeholder ───────────────────────────── */}
+        {/* ── Delivery address visual ────────────────────── */}
         {deliveryMode === 'delivery' && (
           <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
             <View
               style={{
-                height: 180,
+                height: 100,
                 borderRadius: 16,
                 overflow: 'hidden',
                 backgroundColor: '#2C3E50',
@@ -132,42 +208,39 @@ export default function CheckoutScreen() {
                 elevation: 4,
               }}
             >
-              {/* Dark map mock */}
-              <View style={{ position: 'absolute', inset: 0, opacity: 0.7 }}>
-                {/* Grid lines */}
-                {[...Array(6)].map((_, i) => (
+              <View style={{ position: 'absolute', inset: 0, opacity: 0.5 }}>
+                {[...Array(4)].map((_, i) => (
                   <View
                     key={`h${i}`}
                     style={{
                       position: 'absolute',
                       left: 0,
                       right: 0,
-                      top: i * 30,
+                      top: i * 25,
                       height: 1,
                       backgroundColor: '#ffffff15',
                     }}
                   />
                 ))}
-                {[...Array(8)].map((_, i) => (
+                {[...Array(6)].map((_, i) => (
                   <View
                     key={`v${i}`}
                     style={{
                       position: 'absolute',
                       top: 0,
                       bottom: 0,
-                      left: i * 50,
+                      left: i * (SCREEN_WIDTH / 5),
                       width: 1,
                       backgroundColor: '#ffffff15',
                     }}
                   />
                 ))}
               </View>
-              {/* Pin */}
               <View
                 style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
                   backgroundColor: '#FA7938',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -178,27 +251,8 @@ export default function CheckoutScreen() {
                   elevation: 6,
                 }}
               >
-                <Ionicons name="location" size={20} color="#FFFFFF" />
+                <Ionicons name="location" size={18} color="#FFFFFF" />
               </View>
-              <TouchableOpacity
-                style={{
-                  position: 'absolute',
-                  bottom: 12,
-                  right: 12,
-                  backgroundColor: '#FFFFFF',
-                  borderRadius: 10,
-                  paddingHorizontal: 12,
-                  paddingVertical: 7,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 5,
-                }}
-              >
-                <Ionicons name="pencil" size={13} color="#414158" />
-                <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 12, color: '#414158' }}>
-                  Edit Pin
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -216,29 +270,120 @@ export default function CheckoutScreen() {
             Checkout Details
           </Text>
 
-          <DetailRow
-            icon="home-outline"
-            title="Delivery Address"
-            value="633 Rose Ave, Venice, CA"
-            onPress={() => {}}
-          />
+          {deliveryMode === 'delivery' && (
+            <DetailRow
+              icon="home-outline"
+              title="Delivery Address"
+              value={addressDisplay}
+              onPress={() => setShowAddressPicker(true)}
+            />
+          )}
+
           <DetailRow
             icon="time-outline"
             title="Delivery Time"
-            value="15 - 20 min"
+            value="15 – 20 min"
             onPress={() => {}}
           />
+
           <DetailRow
-            icon="card-outline"
+            icon={selectedPaymentOption?.icon ?? 'card-outline'}
             title="Payment Method"
-            value="Credit Card"
+            value={selectedPaymentOption?.label ?? 'Select payment'}
             onPress={() => {}}
           />
         </View>
 
+        {/* ── Payment method selector ───────────────────── */}
+        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+          <Text
+            style={{
+              fontFamily: 'Urbanist-SemiBold',
+              fontSize: 16,
+              color: '#414158',
+              marginBottom: 14,
+            }}
+          >
+            Payment Method
+          </Text>
+          <View
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 16,
+              overflow: 'hidden',
+              shadowColor: '#1A1A2E',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 8,
+              elevation: 2,
+            }}
+          >
+            {PAYMENT_OPTIONS.map((option, idx) => (
+              <TouchableOpacity
+                key={option.method}
+                onPress={() => setPaymentMethod(option.method)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 16,
+                  paddingVertical: 14,
+                  borderBottomWidth: idx < PAYMENT_OPTIONS.length - 1 ? 1 : 0,
+                  borderBottomColor: '#F4F4FA',
+                }}
+              >
+                <View
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 10,
+                    backgroundColor: '#EEEEF5',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: 14,
+                  }}
+                >
+                  <Ionicons name={option.icon} size={18} color="#FA7938" />
+                </View>
+                <Text
+                  style={{
+                    fontFamily: 'Urbanist-Medium',
+                    fontSize: 15,
+                    flex: 1,
+                    color: '#414158',
+                  }}
+                >
+                  {option.label}
+                </Text>
+                <View
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: paymentMethod === option.method ? '#FA7938' : '#C4C9D4',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {paymentMethod === option.method && (
+                    <View
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: '#FA7938',
+                      }}
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* ── Order summary ─────────────────────────────── */}
         {cart && (
-          <View style={{ paddingHorizontal: 20, marginTop: 12 }}>
+          <View style={{ paddingHorizontal: 20, marginTop: 4 }}>
             <Text
               style={{
                 fontFamily: 'Urbanist-SemiBold',
@@ -308,12 +453,11 @@ export default function CheckoutScreen() {
           </View>
         )}
         <TouchableOpacity
-          onPress={() => {
-            // TODO: submit order
-          }}
+          onPress={() => placeOrderMutation.mutate()}
+          disabled={placeOrderMutation.isPending}
           style={{
             flex: 1,
-            backgroundColor: '#FA7938',
+            backgroundColor: placeOrderMutation.isPending ? '#FBAD85' : '#FA7938',
             borderRadius: 14,
             paddingVertical: 16,
             alignItems: 'center',
@@ -324,11 +468,192 @@ export default function CheckoutScreen() {
             elevation: 5,
           }}
         >
-          <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>
-            Place Order
-          </Text>
+          {placeOrderMutation.isPending ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>
+              Place Order
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
+
+      {/* ── Address Picker Modal ──────────────────────────── */}
+      <Modal
+        visible={showAddressPicker}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowAddressPicker(false)}
+      >
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: '#00000050' }}
+          activeOpacity={1}
+          onPress={() => setShowAddressPicker(false)}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: '#FFFFFF',
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            paddingTop: 12,
+            paddingBottom: 40,
+            maxHeight: '70%',
+          }}
+        >
+          {/* Drag handle */}
+          <View
+            style={{
+              width: 36,
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: '#D3D6DE',
+              alignSelf: 'center',
+              marginBottom: 16,
+            }}
+          />
+          <Text
+            style={{
+              fontFamily: 'Urbanist-Bold',
+              fontSize: 18,
+              color: '#414158',
+              paddingHorizontal: 20,
+              marginBottom: 16,
+            }}
+          >
+            Select Address
+          </Text>
+
+          {!addresses?.length ? (
+            <View style={{ alignItems: 'center', paddingVertical: 32 }}>
+              <Ionicons name="location-outline" size={40} color="#C4C9D4" />
+              <Text
+                style={{
+                  fontFamily: 'Urbanist',
+                  fontSize: 14,
+                  color: '#9098B1',
+                  marginTop: 12,
+                  textAlign: 'center',
+                  paddingHorizontal: 32,
+                }}
+              >
+                No saved addresses. Add one from your profile.
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={addresses}
+              keyExtractor={(a) => a.id}
+              contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedAddressId(item.id);
+                    setShowAddressPicker(false);
+                  }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: selectedAddressId === item.id ? '#FFF5F0' : '#F8F9FA',
+                    borderRadius: 14,
+                    padding: 14,
+                    borderWidth: 1.5,
+                    borderColor: selectedAddressId === item.id ? '#FA7938' : 'transparent',
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 10,
+                      backgroundColor: selectedAddressId === item.id ? '#FA793820' : '#EEEEF5',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 12,
+                    }}
+                  >
+                    <Ionicons
+                      name="location-outline"
+                      size={18}
+                      color={selectedAddressId === item.id ? '#FA7938' : '#9098B1'}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text
+                        style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158' }}
+                      >
+                        {item.label}
+                      </Text>
+                      {item.isDefault && (
+                        <View
+                          style={{
+                            backgroundColor: '#FA793820',
+                            paddingHorizontal: 8,
+                            paddingVertical: 2,
+                            borderRadius: 6,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: 'Urbanist-SemiBold',
+                              fontSize: 10,
+                              color: '#FA7938',
+                            }}
+                          >
+                            Default
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text
+                      style={{
+                        fontFamily: 'Urbanist',
+                        fontSize: 12,
+                        color: '#9098B1',
+                        marginTop: 2,
+                      }}
+                      numberOfLines={1}
+                    >
+                      {item.addressLine1}, {item.city} – {item.pincode}
+                    </Text>
+                  </View>
+                  {selectedAddressId === item.id && (
+                    <Ionicons name="checkmark-circle" size={20} color="#FA7938" />
+                  )}
+                </TouchableOpacity>
+              )}
+            />
+          )}
+
+          <TouchableOpacity
+            onPress={() => {
+              setShowAddressPicker(false);
+              router.push('/addresses');
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 14,
+              marginHorizontal: 20,
+              paddingVertical: 14,
+              borderRadius: 14,
+              borderWidth: 1.5,
+              borderColor: '#FA7938',
+              gap: 8,
+            }}
+          >
+            <Ionicons name="add" size={18} color="#FA7938" />
+            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#FA7938' }}>
+              Add New Address
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -381,6 +706,7 @@ function DetailRow({
         <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1' }}>{title}</Text>
         <Text
           style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158', marginTop: 1 }}
+          numberOfLines={1}
         >
           {value}
         </Text>

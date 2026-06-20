@@ -1,4 +1,12 @@
-import type { FoodItem, Category, Cart, Order, PaginationMeta } from '@bitebolt/types';
+import type {
+  FoodItem,
+  Category,
+  Cart,
+  Order,
+  Address,
+  UserProfile,
+  PaginationMeta,
+} from '@bitebolt/types';
 
 import apiClient from './client';
 
@@ -77,9 +85,9 @@ export const walletApi = {
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 export const usersApi = {
-  getProfile: () => apiClient.get('/users/me'),
+  getProfile: () => apiClient.get<unknown, UserProfile>('/users/me'),
   updateProfile: (data: { name?: string; email?: string }) => apiClient.patch('/users/me', data),
-  getAddresses: () => apiClient.get('/users/me/addresses'),
+  getAddresses: () => apiClient.get<unknown, Address[]>('/users/me/addresses'),
   addAddress: (data: object) => apiClient.post('/users/me/addresses', data),
   updateAddress: (id: string, data: object) => apiClient.patch(`/users/me/addresses/${id}`, data),
   deleteAddress: (id: string) => apiClient.delete(`/users/me/addresses/${id}`),

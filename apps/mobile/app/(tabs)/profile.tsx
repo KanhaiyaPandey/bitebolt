@@ -92,10 +92,14 @@ export default function ProfileScreen() {
   ];
 
   const MENU_ITEMS: MenuItem[] = [
-    { icon: 'person-outline', label: 'Personal Info', onPress: () => {} },
+    {
+      icon: 'person-outline',
+      label: 'Personal Info',
+      onPress: () => router.push('/personal-info'),
+    },
     { icon: 'receipt-outline', label: 'My Orders', onPress: () => router.push('/(tabs)/orders') },
     { icon: 'card-outline', label: 'Payment Info', onPress: () => {} },
-    { icon: 'location-outline', label: 'Addresses', onPress: () => {} },
+    { icon: 'location-outline', label: 'Addresses', onPress: () => router.push('/addresses') },
     { icon: 'settings-outline', label: 'Settings', onPress: () => {} },
     { icon: 'help-circle-outline', label: 'Help & Support', onPress: () => {} },
     { icon: 'log-out-outline', label: 'Sign Out', color: '#EF4444', onPress: () => logout() },
@@ -155,6 +159,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
             <TouchableOpacity
+              onPress={() => router.push('/personal-info')}
               style={{
                 width: 36,
                 height: 36,

@@ -12,6 +12,7 @@ module.exports = {
   },
   settings: {
     react: { version: 'detect' },
+    'import/ignore': ['react-native'],
   },
   ignorePatterns: [
     'node_modules/',

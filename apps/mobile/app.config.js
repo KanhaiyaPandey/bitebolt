@@ -14,7 +14,7 @@ module.exports = {
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: false,
-    bundleIdentifier: process.env.APP_BUNDLE_ID,
+    bundleIdentifier: process.env.APP_BUNDLE_ID ?? 'in.bitebolt.customer',
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         'BiteBolt needs your location to deliver food to your address.',
@@ -26,7 +26,7 @@ module.exports = {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#FF5722',
     },
-    package: process.env.APP_BUNDLE_ID,
+    package: process.env.APP_BUNDLE_ID ?? 'in.bitebolt.customer',
     permissions: [
       'ACCESS_FINE_LOCATION',
       'CAMERA',
@@ -47,13 +47,21 @@ module.exports = {
         color: '#FF5722',
       },
     ],
+    [
+      'expo-build-properties',
+      {
+        android: {
+          extraMavenRepos: ['https://jitpack.io'],
+        },
+      },
+    ],
   ],
   scheme: 'bitebolt',
   extra: {
     eas: {
-      projectId: process.env.EAS_PROJECT_ID,
+      projectId: process.env.EAS_PROJECT_ID ?? '2a4ad626-9d08-418b-bbc7-ee9e6c8a4989',
     },
     router: {},
   },
-  owner: process.env.EXPO_OWNER,
+  owner: process.env.EXPO_OWNER ?? 'kannhaiya',
 };

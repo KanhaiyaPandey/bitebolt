@@ -47,6 +47,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
           host: config.get('REDIS_HOST'),
           port: Number(config.get('REDIS_PORT')),
           password: config.get('REDIS_PASSWORD'),
+          tls: config.get('REDIS_TLS') === 'true' ? {} : undefined,
           ttl: config.get('REDIS_TTL', 3600),
         }),
       }),

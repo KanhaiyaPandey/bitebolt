@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import RazorpayCheckout from 'react-native-razorpay';
 import { cartApi, ordersApi, usersApi, paymentsApi } from '../src/api';
 import { useAuthStore } from '../src/store/auth.store';
 import type { Cart, Address, Order } from '@bitebolt/types';
@@ -38,7 +39,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 export default function CheckoutScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuthStore();
 
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -72,17 +73,44 @@ export default function CheckoutScreen() {
         throw new Error('Please select a delivery address');
       }
 
-      const addressId = selectedAddressId ?? '';
-      const order = await ordersApi.placeOrder({ addressId, paymentMethod });
+      // Guard: Razorpay native module is only available in dev/production builds, not Expo Go.
+      if (paymentMethod !== 'COD' && !RazorpayCheckout) {
+        throw new Error(
+          'Online payment requires a native build. Please select Cash on Delivery or install a development build.',
+        );
+      }
+
+      const order = await ordersApi.placeOrder({
+        addressId: selectedAddressId ?? '',
+        paymentMethod,
+      });
 
       if (paymentMethod !== 'COD') {
-        try {
-          await paymentsApi.createRazorpayOrder({ orderId: order.id, method: paymentMethod });
-          // Razorpay SDK call would go here once react-native-razorpay is installed.
-          // For now navigate to order; payment will be pending.
-        } catch {
-          // Non-blocking — order is placed, payment can be completed later.
-        }
+        const rzpOrder = await paymentsApi.createRazorpayOrder({
+          orderId: order.id,
+          method: paymentMethod,
+        });
+
+        const payment = await RazorpayCheckout.open({
+          key: rzpOrder.keyId,
+          amount: rzpOrder.amount,
+          currency: rzpOrder.currency,
+          name: 'BiteBolt',
+          description: `Order #${order.id.slice(0, 8).toUpperCase()}`,
+          order_id: rzpOrder.razorpayOrderId,
+          prefill: {
+            name: user?.name,
+            email: user?.email,
+            contact: user?.phone,
+          },
+          theme: { color: '#FA7938' },
+        });
+
+        await paymentsApi.verifyPayment({
+          razorpayOrderId: payment.razorpay_order_id,
+          razorpayPaymentId: payment.razorpay_payment_id,
+          razorpaySignature: payment.razorpay_signature,
+        });
       }
 
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -92,6 +120,15 @@ export default function CheckoutScreen() {
       router.replace(`/order/${order.id}`);
     },
     onError: (err: Error) => {
+      // User dismissed Razorpay — order exists but is unpaid
+      if ((err as { code?: number }).code === 0) {
+        Alert.alert(
+          'Payment Cancelled',
+          'Your order is placed but payment is pending. You can retry from your orders page.',
+        );
+        router.replace('/(tabs)/orders');
+        return;
+      }
       Alert.alert('Order Failed', err.message ?? 'Something went wrong. Please try again.');
     },
   });
@@ -318,66 +355,79 @@ export default function CheckoutScreen() {
               elevation: 2,
             }}
           >
-            {PAYMENT_OPTIONS.map((option, idx) => (
-              <TouchableOpacity
-                key={option.method}
-                onPress={() => setPaymentMethod(option.method)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingHorizontal: 16,
-                  paddingVertical: 14,
-                  borderBottomWidth: idx < PAYMENT_OPTIONS.length - 1 ? 1 : 0,
-                  borderBottomColor: '#F4F4FA',
-                }}
-              >
-                <View
+            {PAYMENT_OPTIONS.map((option, idx) => {
+              const needsNative = option.method !== 'COD';
+              const disabled = needsNative && !RazorpayCheckout;
+              return (
+                <TouchableOpacity
+                  key={option.method}
+                  onPress={() => !disabled && setPaymentMethod(option.method)}
+                  activeOpacity={disabled ? 1 : 0.7}
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    backgroundColor: '#EEEEF5',
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    marginRight: 14,
+                    paddingHorizontal: 16,
+                    paddingVertical: 14,
+                    borderBottomWidth: idx < PAYMENT_OPTIONS.length - 1 ? 1 : 0,
+                    borderBottomColor: '#F4F4FA',
+                    opacity: disabled ? 0.45 : 1,
                   }}
                 >
-                  <Ionicons name={option.icon} size={18} color="#FA7938" />
-                </View>
-                <Text
-                  style={{
-                    fontFamily: 'Urbanist-Medium',
-                    fontSize: 15,
-                    flex: 1,
-                    color: '#414158',
-                  }}
-                >
-                  {option.label}
-                </Text>
-                <View
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 10,
-                    borderWidth: 2,
-                    borderColor: paymentMethod === option.method ? '#FA7938' : '#C4C9D4',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {paymentMethod === option.method && (
-                    <View
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        backgroundColor: '#FA7938',
-                      }}
-                    />
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
+                  <View
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      backgroundColor: '#EEEEF5',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 14,
+                    }}
+                  >
+                    <Ionicons name={option.icon} size={18} color="#FA7938" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontFamily: 'Urbanist-Medium', fontSize: 15, color: '#414158' }}>
+                      {option.label}
+                    </Text>
+                    {disabled && (
+                      <Text
+                        style={{
+                          fontFamily: 'Urbanist',
+                          fontSize: 11,
+                          color: '#9098B1',
+                          marginTop: 1,
+                        }}
+                      >
+                        Requires a native build
+                      </Text>
+                    )}
+                  </View>
+                  <View
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      borderWidth: 2,
+                      borderColor: paymentMethod === option.method ? '#FA7938' : '#C4C9D4',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {paymentMethod === option.method && (
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: '#FA7938',
+                        }}
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 

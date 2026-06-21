@@ -14,13 +14,15 @@ interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  isRegistered: boolean; // Has the user completed registration (name set)
+  isRegistered: boolean;
 
   setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => Promise<void>;
   setUser: (user: Partial<AuthUser>) => void;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
 }
+
+const USER_KEY = 'user';
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -29,49 +31,83 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isRegistered: false,
 
   setAuth: async (user, accessToken, refreshToken) => {
-    await SecureStore.setItemAsync('accessToken', accessToken);
-    await SecureStore.setItemAsync('refreshToken', refreshToken);
-    await SecureStore.setItemAsync('userId', user.id);
-    await SecureStore.setItemAsync('isRegistered', user.name ? '1' : '0');
+    await Promise.all([
+      SecureStore.setItemAsync('accessToken', accessToken),
+      SecureStore.setItemAsync('refreshToken', refreshToken),
+      SecureStore.setItemAsync('userId', user.id),
+      SecureStore.setItemAsync('isRegistered', user.name ? '1' : '0'),
+      SecureStore.setItemAsync(USER_KEY, JSON.stringify(user)),
+    ]);
 
-    set({
-      user,
-      isAuthenticated: true,
-      isRegistered: !!user.name,
-    });
+    set({ user, isAuthenticated: true, isRegistered: !!user.name });
   },
 
   setUser: (userData) => {
     const current = get().user;
     if (!current) return;
     const updated = { ...current, ...userData };
-    set({
-      user: updated,
-      isRegistered: !!updated.name,
-    });
-    if (updated.name) {
-      SecureStore.setItemAsync('isRegistered', '1');
-    }
+    set({ user: updated, isRegistered: !!updated.name });
+    SecureStore.setItemAsync(USER_KEY, JSON.stringify(updated));
+    if (updated.name) SecureStore.setItemAsync('isRegistered', '1');
   },
 
   logout: async () => {
-    await SecureStore.deleteItemAsync('accessToken');
-    await SecureStore.deleteItemAsync('refreshToken');
-    await SecureStore.deleteItemAsync('userId');
-    await SecureStore.deleteItemAsync('isRegistered');
+    await Promise.all([
+      SecureStore.deleteItemAsync('accessToken'),
+      SecureStore.deleteItemAsync('refreshToken'),
+      SecureStore.deleteItemAsync('userId'),
+      SecureStore.deleteItemAsync('isRegistered'),
+      SecureStore.deleteItemAsync(USER_KEY),
+    ]);
     set({ user: null, isAuthenticated: false, isRegistered: false });
   },
 
   initialize: async () => {
     try {
-      const token = await SecureStore.getItemAsync('accessToken');
+      const [token, storedUser, registered] = await Promise.all([
+        SecureStore.getItemAsync('accessToken'),
+        SecureStore.getItemAsync(USER_KEY),
+        SecureStore.getItemAsync('isRegistered'),
+      ]);
+
       if (!token) {
         set({ isLoading: false });
         return;
       }
 
-      const registered = await SecureStore.getItemAsync('isRegistered');
-      set({ isAuthenticated: true, isRegistered: registered === '1', isLoading: false });
+      // Restore user immediately from cache so UI isn't blank
+      if (storedUser) {
+        const user: AuthUser = JSON.parse(storedUser);
+        set({ user, isAuthenticated: true, isRegistered: !!user.name, isLoading: false });
+      } else {
+        set({ isAuthenticated: true, isRegistered: registered === '1', isLoading: false });
+      }
+
+      // Silently refresh profile from API in the background
+      try {
+        const { usersApi } = await import('../api');
+        const profile = await usersApi.getProfile();
+        const refreshed: AuthUser = {
+          id: profile.id,
+          phone: profile.phone,
+          name: profile.name,
+          email: profile.email,
+          avatarUrl: profile.avatarUrl,
+          role: profile.role,
+        };
+        set({ user: refreshed, isRegistered: !!refreshed.name });
+        SecureStore.setItemAsync(USER_KEY, JSON.stringify(refreshed));
+      } catch {
+        // Background refresh failed (expired token etc.) — force re-login
+        await Promise.all([
+          SecureStore.deleteItemAsync('accessToken'),
+          SecureStore.deleteItemAsync('refreshToken'),
+          SecureStore.deleteItemAsync('userId'),
+          SecureStore.deleteItemAsync('isRegistered'),
+          SecureStore.deleteItemAsync(USER_KEY),
+        ]);
+        set({ user: null, isAuthenticated: false, isRegistered: false, isLoading: false });
+      }
     } catch {
       set({ isLoading: false });
     }

@@ -283,6 +283,9 @@ export default function HomeScreen() {
           </ScrollView>
         )}
 
+        {/* ── Offers banner ───────────────────────────────── */}
+        {!isSearchMode && <OffersBanner />}
+
         {/* ── Categories ──────────────────────────────────── */}
         <ScrollView
           horizontal
@@ -392,6 +395,118 @@ export default function HomeScreen() {
 }
 
 // ── Sub-components ───────────────────────────────────────────
+
+const OFFERS = [
+  {
+    id: '1',
+    title: 'Free Delivery',
+    subtitle: 'On orders above ₹299',
+    bg: '#FA7938',
+    accent: '#FF9A6C',
+    icon: 'bicycle' as const,
+  },
+  {
+    id: '2',
+    title: '20% Off',
+    subtitle: 'On your first order',
+    bg: '#414158',
+    accent: '#5C5C7A',
+    icon: 'pricetag' as const,
+  },
+  {
+    id: '3',
+    title: 'Combo Deal',
+    subtitle: 'Buy 2 get 1 free',
+    bg: '#22C55E',
+    accent: '#4ADE80',
+    icon: 'gift' as const,
+  },
+];
+
+function OffersBanner() {
+  return (
+    <View style={{ marginBottom: 20 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          marginBottom: 12,
+        }}
+      >
+        <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 16, color: '#414158' }}>
+          Offers & Deals
+        </Text>
+        <Text style={{ fontFamily: 'Urbanist-Medium', fontSize: 13, color: '#FA7938' }}>
+          See All
+        </Text>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+      >
+        {OFFERS.map((offer) => (
+          <View
+            key={offer.id}
+            style={{
+              width: SCREEN_WIDTH * 0.62,
+              height: 110,
+              borderRadius: 18,
+              backgroundColor: offer.bg,
+              overflow: 'hidden',
+              padding: 18,
+              justifyContent: 'space-between',
+            }}
+          >
+            {/* Decorative circle */}
+            <View
+              style={{
+                position: 'absolute',
+                right: -20,
+                top: -20,
+                width: 110,
+                height: 110,
+                borderRadius: 55,
+                backgroundColor: offer.accent,
+                opacity: 0.4,
+              }}
+            />
+            <View
+              style={{
+                position: 'absolute',
+                right: 24,
+                bottom: -30,
+                width: 90,
+                height: 90,
+                borderRadius: 45,
+                backgroundColor: offer.accent,
+                opacity: 0.25,
+              }}
+            />
+            <Ionicons name={offer.icon} size={22} color="rgba(255,255,255,0.9)" />
+            <View>
+              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 18, color: '#FFFFFF' }}>
+                {offer.title}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist',
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,0.8)',
+                  marginTop: 2,
+                }}
+              >
+                {offer.subtitle}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
 
 function ActiveFilterPill({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (

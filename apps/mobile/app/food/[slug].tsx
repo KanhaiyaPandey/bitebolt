@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,7 +14,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import { foodsApi, cartApi } from '../../src/api';
-import { formatCurrency } from '@bitebolt/utils';
 import type { FoodItem } from '@bitebolt/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -29,11 +28,10 @@ export default function FoodDetailsScreen() {
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('delivery');
   const [quantity, setQuantity] = useState(1);
   const [isFavourite, setIsFavourite] = useState(false);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const { data: item, isLoading } = useQuery({
     queryKey: ['food', slug],
-    queryFn: () => foodsApi.getBySlug(slug) as Promise<FoodItem>,
+    queryFn: () => foodsApi.getBySlug(slug),
     enabled: !!slug,
   });
 
@@ -62,35 +60,25 @@ export default function FoodDetailsScreen() {
           justifyContent: 'center',
         }}
       >
-        <View
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 24,
-            backgroundColor: '#FA793820',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Ionicons name="restaurant-outline" size={24} color="#FA7938" />
-        </View>
+        <ActivityIndicator size="large" color="#FA7938" />
       </View>
     );
   }
 
-  const effectivePrice = item.discountedPrice ? Number(item.discountedPrice) : Number(item.price);
-  const IMAGE_HEIGHT = SCREEN_WIDTH * 0.72;
+  const originalPrice = Number(item.price);
+  const effectivePrice = item.discountedPrice ? Number(item.discountedPrice) : originalPrice;
+  const hasDiscount = !!item.discountedPrice && effectivePrice < originalPrice;
+  const IMAGE_HEIGHT = SCREEN_WIDTH * 0.78;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
       {/* ── Hero image ───────────────────────────────────── */}
       <View style={{ height: IMAGE_HEIGHT }}>
         <Image
-          source={{ uri: item.imageUrl ?? 'https://placehold.co/400x288/F5E6D3/FA7938?text=🍓' }}
+          source={{ uri: item.imageUrl ?? 'https://placehold.co/400x312/F5E6D3/FA7938?text=🍽️' }}
           style={{ width: '100%', height: '100%' }}
           resizeMode="cover"
         />
-        {/* Overlay top bar */}
         <SafeAreaView style={{ position: 'absolute', top: 0, left: 0, right: 0 }} edges={['top']}>
           <View
             style={{
@@ -101,43 +89,22 @@ export default function FoodDetailsScreen() {
               paddingTop: 8,
             }}
           >
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
-                backgroundColor: '#FFFFFF',
-                alignItems: 'center',
-                justifyContent: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 6,
-                elevation: 4,
-              }}
-            >
+            <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
               <Ionicons name="arrow-back" size={20} color="#414158" />
             </TouchableOpacity>
-            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 16, color: '#414158' }}>
-              Overview
-            </Text>
-            <TouchableOpacity
-              onPress={() => setIsFavourite(!isFavourite)}
+            <Text
               style={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
-                backgroundColor: '#FFFFFF',
-                alignItems: 'center',
-                justifyContent: 'center',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 6,
-                elevation: 4,
+                fontFamily: 'Urbanist-SemiBold',
+                fontSize: 16,
+                color: '#FFFFFF',
+                textShadowColor: 'rgba(0,0,0,0.4)',
+                textShadowOffset: { width: 0, height: 1 },
+                textShadowRadius: 4,
               }}
             >
+              {item.name}
+            </Text>
+            <TouchableOpacity onPress={() => setIsFavourite(!isFavourite)} style={styles.iconBtn}>
               <Ionicons
                 name={isFavourite ? 'heart' : 'heart-outline'}
                 size={20}
@@ -146,21 +113,48 @@ export default function FoodDetailsScreen() {
             </TouchableOpacity>
           </View>
         </SafeAreaView>
+
+        {/* Veg / Non-veg badge */}
+        {item.isVeg !== undefined && (
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 30,
+              left: 20,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 5,
+              backgroundColor: item.isVeg ? '#22C55E' : '#EF4444',
+              borderRadius: 20,
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+            }}
+          >
+            <Ionicons
+              name={item.isVeg ? 'leaf-outline' : 'restaurant-outline'}
+              size={12}
+              color="#fff"
+            />
+            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 11, color: '#fff' }}>
+              {item.isVeg ? 'Veg' : 'Non-Veg'}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* ── Content card ─────────────────────────────────── */}
       <ScrollView
-        style={{ flex: 1, marginTop: -24 }}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        style={{ flex: 1, marginTop: -28 }}
+        contentContainerStyle={{ paddingBottom: 110 }}
         showsVerticalScrollIndicator={false}
       >
         <View
           style={{
             backgroundColor: '#FFFFFF',
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
             paddingHorizontal: 20,
-            paddingTop: 20,
+            paddingTop: 24,
           }}
         >
           {/* Name + qty row */}
@@ -171,17 +165,18 @@ export default function FoodDetailsScreen() {
               justifyContent: 'space-between',
             }}
           >
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginRight: 12 }}>
               <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158' }}>
                 {item.name}
               </Text>
               <Text
-                style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1', marginTop: 2 }}
+                style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1', marginTop: 3 }}
               >
-                By {item.category?.name ?? 'BiteBolt'}
+                {item.category?.name ?? 'BiteBolt Kitchen'}
               </Text>
             </View>
-            {/* Qty control */}
+
+            {/* Quantity stepper */}
             <View
               style={{
                 flexDirection: 'row',
@@ -190,16 +185,16 @@ export default function FoodDetailsScreen() {
                 borderRadius: 24,
                 paddingHorizontal: 4,
                 paddingVertical: 4,
-                gap: 8,
-                marginTop: 4,
+                gap: 10,
+                marginTop: 2,
               }}
             >
               <TouchableOpacity
                 onPress={() => setQuantity(Math.max(1, quantity - 1))}
                 style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 15,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
                   backgroundColor: '#FFFFFF',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -214,18 +209,18 @@ export default function FoodDetailsScreen() {
                   fontFamily: 'Urbanist-Bold',
                   fontSize: 15,
                   color: '#414158',
-                  minWidth: 20,
+                  minWidth: 16,
                   textAlign: 'center',
                 }}
               >
-                {quantity} kg
+                {quantity}
               </Text>
               <TouchableOpacity
                 onPress={() => setQuantity(quantity + 1)}
                 style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 15,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
                   backgroundColor: '#FA7938',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -236,66 +231,85 @@ export default function FoodDetailsScreen() {
             </View>
           </View>
 
-          {/* Rating row */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, gap: 20 }}>
-            <View style={{ alignItems: 'center' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+          {/* Rating + stats row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 18,
+              backgroundColor: '#FAFAFA',
+              borderRadius: 16,
+              padding: 14,
+              gap: 0,
+            }}
+          >
+            {/* Rating */}
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Ionicons name="star" size={15} color="#F59E0B" />
                 <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 16, color: '#414158' }}>
-                  {item.rating ?? '4.96'}
+                  {Number(item.rating ?? 4.9).toFixed(1)}
                 </Text>
               </View>
-              <View style={{ flexDirection: 'row', marginTop: 3, gap: 2 }}>
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Ionicons
-                    key={s}
-                    name={s <= Math.round(Number(item.rating ?? 5)) ? 'star' : 'star-outline'}
-                    size={12}
-                    color="#F59E0B"
-                  />
-                ))}
-              </View>
-            </View>
-            <View style={{ width: 1, height: 36, backgroundColor: '#EEEEF5' }} />
-            <View style={{ alignItems: 'center' }}>
-              <Ionicons name="trophy-outline" size={18} color="#F59E0B" />
               <Text
-                style={{
-                  fontFamily: 'Urbanist-Medium',
-                  fontSize: 11,
-                  color: '#9098B1',
-                  marginTop: 2,
-                }}
+                style={{ fontFamily: 'Urbanist', fontSize: 11, color: '#9098B1', marginTop: 3 }}
               >
-                All Time{'\n'}Favourite
+                Rating
               </Text>
             </View>
+
             <View style={{ width: 1, height: 36, backgroundColor: '#EEEEF5' }} />
-            <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 16, color: '#414158' }}>
-                {item.totalRatings ?? '298'}
-              </Text>
+
+            {/* Reviews */}
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Ionicons name="chatbubble-outline" size={14} color="#9098B1" />
+                <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 16, color: '#414158' }}>
+                  {item.totalRatings ?? '298'}
+                </Text>
+              </View>
               <Text
-                style={{
-                  fontFamily: 'Urbanist-Medium',
-                  fontSize: 11,
-                  color: '#9098B1',
-                  marginTop: 2,
-                }}
+                style={{ fontFamily: 'Urbanist', fontSize: 11, color: '#9098B1', marginTop: 3 }}
               >
                 Reviews
+              </Text>
+            </View>
+
+            <View style={{ width: 1, height: 36, backgroundColor: '#EEEEF5' }} />
+
+            {/* Delivery time */}
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Ionicons name="time-outline" size={14} color="#9098B1" />
+                <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 16, color: '#414158' }}>
+                  25
+                </Text>
+              </View>
+              <Text
+                style={{ fontFamily: 'Urbanist', fontSize: 11, color: '#9098B1', marginTop: 3 }}
+              >
+                Min
               </Text>
             </View>
           </View>
 
           {/* Divider */}
-          <View style={{ height: 1, backgroundColor: '#EEEEF5', marginVertical: 16 }} />
+          <View style={{ height: 1, backgroundColor: '#EEEEF5', marginVertical: 18 }} />
 
           {/* Description */}
+          <Text
+            style={{
+              fontFamily: 'Urbanist-SemiBold',
+              fontSize: 15,
+              color: '#414158',
+              marginBottom: 8,
+            }}
+          >
+            About this item
+          </Text>
           <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', lineHeight: 22 }}>
             {item.description ??
-              'Fresh and full of flavor, perfect for healthy snacking, desserts and refreshing recipes for daily enjoyment.'}
-            {'  '}
-            <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FA7938' }}>...See More</Text>
+              'Fresh and full of flavor, crafted with quality ingredients. Perfect for any time of the day — satisfying, delicious and made with care.'}
           </Text>
 
           {/* Delivery / Pickup toggle */}
@@ -319,8 +333,16 @@ export default function FoodDetailsScreen() {
                   borderRadius: 10,
                   backgroundColor: deliveryMode === mode ? '#414158' : 'transparent',
                   alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 6,
                 }}
               >
+                <Ionicons
+                  name={mode === 'delivery' ? 'bicycle-outline' : 'storefront-outline'}
+                  size={15}
+                  color={deliveryMode === mode ? '#FFFFFF' : '#9098B1'}
+                />
                 <Text
                   style={{
                     fontFamily: 'Urbanist-SemiBold',
@@ -335,43 +357,22 @@ export default function FoodDetailsScreen() {
             ))}
           </View>
 
-          {/* You Might Like */}
-          <Text
-            style={{
-              fontFamily: 'Urbanist-SemiBold',
-              fontSize: 16,
-              color: '#414158',
-              marginTop: 24,
-              marginBottom: 14,
-            }}
-          >
-            You Might Like
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            {[
-              { emoji: '🍊', price: '₹3.00' },
-              { emoji: '🍔', price: '₹5.50' },
-            ].map((suggestion, i) => (
+          {/* Nutritional tags */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 20 }}>
+            {['Fresh', 'Hygienic', 'No Preservatives', 'Chef Special'].map((tag) => (
               <View
-                key={i}
+                key={tag}
                 style={{
-                  width: 72,
-                  alignItems: 'center',
-                  backgroundColor: '#EEEEF5',
-                  borderRadius: 14,
-                  padding: 8,
+                  backgroundColor: '#FA793812',
+                  borderRadius: 20,
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderWidth: 1,
+                  borderColor: '#FA793830',
                 }}
               >
-                <Text style={{ fontSize: 30 }}>{suggestion.emoji}</Text>
-                <Text
-                  style={{
-                    fontFamily: 'Urbanist-SemiBold',
-                    fontSize: 12,
-                    color: '#414158',
-                    marginTop: 4,
-                  }}
-                >
-                  {suggestion.price}
+                <Text style={{ fontFamily: 'Urbanist-Medium', fontSize: 12, color: '#FA7938' }}>
+                  {tag}
                 </Text>
               </View>
             ))}
@@ -388,7 +389,7 @@ export default function FoodDetailsScreen() {
           right: 0,
           backgroundColor: '#FFFFFF',
           paddingHorizontal: 20,
-          paddingVertical: 14,
+          paddingTop: 14,
           paddingBottom: 28,
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
@@ -403,20 +404,37 @@ export default function FoodDetailsScreen() {
         }}
       >
         <View>
-          <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1' }}>Price</Text>
-          <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158' }}>
-            ₹{effectivePrice.toFixed(2)}
-          </Text>
+          <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1' }}>Total</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+            <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158' }}>
+              ₹{(effectivePrice * quantity).toFixed(2)}
+            </Text>
+            {hasDiscount && (
+              <Text
+                style={{
+                  fontFamily: 'Urbanist',
+                  fontSize: 13,
+                  color: '#C4C9D4',
+                  textDecorationLine: 'line-through',
+                }}
+              >
+                ₹{(originalPrice * quantity).toFixed(2)}
+              </Text>
+            )}
+          </View>
         </View>
         <TouchableOpacity
           onPress={() => addMutation.mutate()}
           disabled={addMutation.isPending}
           style={{
             flex: 1,
-            backgroundColor: '#FA7938',
+            backgroundColor: addMutation.isPending ? '#F5A97A' : '#FA7938',
             borderRadius: 14,
             paddingVertical: 16,
             alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            gap: 8,
             shadowColor: '#FA7938',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
@@ -424,11 +442,32 @@ export default function FoodDetailsScreen() {
             elevation: 5,
           }}
         >
+          {addMutation.isPending ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Ionicons name="cart-outline" size={18} color="#FFFFFF" />
+          )}
           <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>
-            Checkout
+            {addMutation.isPending ? 'Adding…' : 'Add to Cart'}
           </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
+
+const styles = {
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+};

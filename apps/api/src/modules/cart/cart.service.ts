@@ -4,10 +4,14 @@ import { eq } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
 import { cartItems } from '../../db/schema';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class CartService {
-  constructor(private db: DbService) {}
+  constructor(
+    private db: DbService,
+    private settings: SettingsService,
+  ) {}
 
   async getCart(userId: string) {
     const items = await this.db.db.query.cartItems.findMany({
@@ -26,7 +30,8 @@ export class CartService {
       0,
     );
 
-    const { taxes, deliveryFee, total } = calculateCartTotals(subtotal);
+    const fee = await this.settings.getDeliveryFee();
+    const { taxes, deliveryFee, total } = calculateCartTotals(subtotal, fee);
 
     return {
       items,

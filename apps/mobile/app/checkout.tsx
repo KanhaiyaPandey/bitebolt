@@ -47,6 +47,12 @@ export default function CheckoutScreen() {
   const [paymentMethod, setPaymentMethod] = useState<string>('COD');
   const [showAddressPicker, setShowAddressPicker] = useState(false);
 
+  // Hard guard — redirect guests to login
+  if (!authLoading && !isAuthenticated) {
+    router.replace('/(auth)/phone');
+    return null;
+  }
+
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartApi.getCart() as Promise<Cart>,
@@ -472,7 +478,7 @@ export default function CheckoutScreen() {
               }}
             >
               <SummaryRow label="Subtotal" value={`₹${Number(cart.subtotal).toFixed(2)}`} />
-              <SummaryRow label="Shipping" value={`₹${Number(cart.deliveryFee).toFixed(2)}`} />
+              <SummaryRow label="Delivery Fee" value={`₹${Number(cart.deliveryFee).toFixed(2)}`} />
               <SummaryRow label="Tax (5%)" value={`₹${Number(cart.taxes).toFixed(2)}`} />
               <View style={{ height: 1, backgroundColor: '#EEEEF5', marginVertical: 10 }} />
               <SummaryRow

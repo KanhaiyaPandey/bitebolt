@@ -13,6 +13,7 @@ import Toast from 'react-native-toast-message';
 import { StatusBar } from 'expo-status-bar';
 
 import { useAuthStore } from '../src/store/auth.store';
+import { useGuestCartStore } from '../src/store/guest-cart.store';
 import AnimatedSplash from '../src/components/AnimatedSplash';
 
 SplashScreen.preventAutoHideAsync();
@@ -29,8 +30,10 @@ const queryClient = new QueryClient({
 
 function InitAuth() {
   const initialize = useAuthStore((s) => s.initialize);
+  const hydrateGuestCart = useGuestCartStore((s) => s.hydrate);
   useEffect(() => {
     initialize();
+    hydrateGuestCart();
   }, []);
   return null;
 }

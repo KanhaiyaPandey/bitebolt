@@ -12,6 +12,7 @@ import {
   wallets,
 } from '../../db/schema';
 import { NotificationsService } from '../notifications/notifications.service';
+import { SettingsService } from '../settings/settings.service';
 
 import type { PlaceOrderDto } from './dto/place-order.dto';
 import type { UpdateOrderStatusDto } from './dto/update-order-status.dto';
@@ -21,6 +22,7 @@ export class OrdersService {
   constructor(
     private db: DbService,
     private notifications: NotificationsService,
+    private settings: SettingsService,
   ) {}
 
   // ── Place Order ──────────────────────────────────────────────────────────────
@@ -50,7 +52,8 @@ export class OrdersService {
         sum + Number(item.foodItem.discountedPrice ?? item.foodItem.price) * item.quantity,
       0,
     );
-    const { taxes, deliveryFee, total } = calculateCartTotals(subtotal);
+    const fee = await this.settings.getDeliveryFee();
+    const { taxes, deliveryFee, total } = calculateCartTotals(subtotal, fee);
 
     let walletAmountUsed = 0;
     if (dto.walletAmountToUse && dto.walletAmountToUse > 0) {

@@ -138,9 +138,10 @@ export const getOrderStatusColor = (status: string): string =>
 export const DELIVERY_FEE = 40;
 export const TAX_RATE = 0.05; // 5% GST
 
-export const calculateCartTotals = (subtotal: number) => {
+export const calculateCartTotals = (subtotal: number, feeOverride?: number) => {
   const taxes = Math.round(subtotal * TAX_RATE);
-  const deliveryFee = subtotal > 0 ? DELIVERY_FEE : 0;
+  const fee = feeOverride ?? DELIVERY_FEE;
+  const deliveryFee = subtotal > 0 ? fee : 0;
   const total = subtotal + taxes + deliveryFee;
   return { subtotal, taxes, deliveryFee, total };
 };

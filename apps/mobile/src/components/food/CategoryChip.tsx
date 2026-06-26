@@ -20,25 +20,27 @@ export function CategoryChip({ category, onPress, selected }: CategoryChipProps)
           width: 60,
           height: 60,
           borderRadius: 16,
-          backgroundColor: selected ? '#FA7938' : '#FFFFFF',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 6,
+          overflow: 'hidden',
+          backgroundColor: '#FFFFFF',
+          borderWidth: selected ? 2.5 : 1,
+          borderColor: selected ? '#FA7938' : 'rgba(0,0,0,0.06)',
           shadowColor: '#1A1A2E',
           shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: selected ? 0 : 0.06,
+          shadowOpacity: selected ? 0.12 : 0.06,
           shadowRadius: 6,
-          elevation: selected ? 0 : 2,
+          elevation: selected ? 3 : 2,
         }}
       >
         {category.imageUrl ? (
           <Image
             source={{ uri: category.imageUrl }}
-            style={{ width: 34, height: 34 }}
-            resizeMode="contain"
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="cover"
           />
         ) : (
-          <Text style={{ fontSize: 26 }}>{getCategoryEmoji(category.name)}</Text>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 26 }}>{getCategoryEmoji(category.name)}</Text>
+          </View>
         )}
       </View>
 
@@ -46,10 +48,11 @@ export function CategoryChip({ category, onPress, selected }: CategoryChipProps)
       <Text
         numberOfLines={1}
         style={{
-          fontFamily: 'Urbanist-Medium',
+          fontFamily: selected ? 'Urbanist-SemiBold' : 'Urbanist-Medium',
           fontSize: 12,
           color: selected ? '#FA7938' : '#414158',
           textAlign: 'center',
+          marginTop: 6,
         }}
       >
         {category.name}
@@ -60,15 +63,14 @@ export function CategoryChip({ category, onPress, selected }: CategoryChipProps)
 
 function getCategoryEmoji(name: string): string {
   const n = name.toLowerCase();
-  if (n.includes('meal') || n.includes('food')) return '🍕';
-  if (n.includes('shop') || n.includes('store')) return '🛍️';
-  if (n.includes('drug') || n.includes('pharma') || n.includes('med')) return '💊';
-  if (n.includes('drink') || n.includes('beverage')) return '🥤';
   if (n.includes('burger')) return '🍔';
   if (n.includes('pizza')) return '🍕';
-  if (n.includes('sushi')) return '🍣';
+  if (n.includes('biryani')) return '🍛';
+  if (n.includes('chinese')) return '🥡';
   if (n.includes('dessert') || n.includes('sweet')) return '🍰';
-  if (n.includes('fruit')) return '🍓';
+  if (n.includes('drink') || n.includes('beverage')) return '🥤';
+  if (n.includes('south')) return '🥘';
+  if (n.includes('snack')) return '🍟';
   if (n.includes('veg')) return '🥦';
   return '🍽️';
 }

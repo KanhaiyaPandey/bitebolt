@@ -101,5 +101,10 @@ export const notificationsApi = {
   markAllRead: () => apiClient.patch('/notifications/read-all'),
 };
 
+// ── Settings ──────────────────────────────────────────────────────────────────
+export const settingsApi = {
+  getAll: () => apiClient.get<unknown, Record<string, string>>('/settings'),
+};
+
 export { authApi } from './auth';
 export { default as apiClient } from './client';

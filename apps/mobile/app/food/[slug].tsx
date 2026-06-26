@@ -15,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import { foodsApi, cartApi } from '../../src/api';
-import type { FoodItem } from '@bitebolt/types';
+import { useAuthStore } from '../../src/store/auth.store';
+import { useGuestCartStore } from '../../src/store/guest-cart.store';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -30,6 +31,9 @@ export default function FoodDetailsScreen() {
   const [quantity, setQuantity] = useState(1);
   const [isFavourite, setIsFavourite] = useState(false);
 
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const addGuestItem = useGuestCartStore((s) => s.addItem);
+
   const { data: item, isLoading } = useQuery({
     queryKey: ['food', slug],
     queryFn: () => foodsApi.getBySlug(slug),
@@ -40,16 +44,28 @@ export default function FoodDetailsScreen() {
     mutationFn: () => cartApi.addItem({ foodItemId: item!.id, quantity }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      Toast.show({
-        type: 'success',
-        text1: 'Added to cart!',
-        text2: item?.name,
-        visibilityTime: 1500,
-      });
+      Toast.show({ type: 'success', text1: 'Added to cart!', text2: item?.name, visibilityTime: 1500 });
       router.back();
     },
     onError: () => Toast.show({ type: 'error', text1: 'Could not add item' }),
   });
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      addGuestItem({
+        foodItemId: item!.id,
+        name: item!.name,
+        imageUrl: item!.imageUrl,
+        price: Number(item!.price),
+        discountedPrice: item!.discountedPrice ? Number(item!.discountedPrice) : null,
+        isVeg: item!.isVeg,
+      });
+      Toast.show({ type: 'success', text1: 'Added to cart!', text2: item?.name, visibilityTime: 1500 });
+      router.back();
+      return;
+    }
+    addMutation.mutate();
+  };
 
   if (isLoading || !item) {
     return (
@@ -73,7 +89,7 @@ export default function FoodDetailsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
-      {/* ── Hero image ───────────────────────────────────── */}
+      {/* ── Hero image — fixed, never scrolls ──────────────── */}
       <Animated.View entering={FadeIn.duration(600)} style={{ height: IMAGE_HEIGHT }}>
         <Image
           source={{ uri: item.imageUrl ?? 'https://placehold.co/400x312/F5E6D3/FA7938?text=🍽️' }}
@@ -143,21 +159,21 @@ export default function FoodDetailsScreen() {
         )}
       </Animated.View>
 
-      {/* ── Content card ─────────────────────────────────── */}
-      <ScrollView
-        style={{ flex: 1, marginTop: -28 }}
-        contentContainerStyle={{ paddingBottom: 110 }}
-        showsVerticalScrollIndicator={false}
+      {/* ── Content card — fixed position, only inner content scrolls ── */}
+      <Animated.View
+        entering={FadeInDown.duration(400)}
+        style={{
+          flex: 1,
+          marginTop: -28,
+          backgroundColor: '#FFFFFF',
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28,
+          overflow: 'hidden',
+        }}
       >
-        <Animated.View
-          entering={FadeInDown.duration(400)}
-          style={{
-            backgroundColor: '#FFFFFF',
-            borderTopLeftRadius: 28,
-            borderTopRightRadius: 28,
-            paddingHorizontal: 20,
-            paddingTop: 24,
-          }}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 120 }}
         >
           {/* Name + qty row */}
           <View
@@ -242,10 +258,8 @@ export default function FoodDetailsScreen() {
               backgroundColor: '#FAFAFA',
               borderRadius: 16,
               padding: 14,
-              gap: 0,
             }}
           >
-            {/* Rating */}
             <View style={{ flex: 1, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Ionicons name="star" size={15} color="#F59E0B" />
@@ -262,7 +276,6 @@ export default function FoodDetailsScreen() {
 
             <View style={{ width: 1, height: 36, backgroundColor: '#EEEEF5' }} />
 
-            {/* Reviews */}
             <View style={{ flex: 1, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Ionicons name="chatbubble-outline" size={14} color="#9098B1" />
@@ -279,12 +292,11 @@ export default function FoodDetailsScreen() {
 
             <View style={{ width: 1, height: 36, backgroundColor: '#EEEEF5' }} />
 
-            {/* Delivery time */}
             <View style={{ flex: 1, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Ionicons name="time-outline" size={14} color="#9098B1" />
                 <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 16, color: '#414158' }}>
-                  25
+                  {item.preparationTime ?? 25}
                 </Text>
               </View>
               <Text
@@ -379,8 +391,127 @@ export default function FoodDetailsScreen() {
               </View>
             ))}
           </View>
-        </Animated.View>
-      </ScrollView>
+
+          {/* Goes Well With */}
+          {item.combinations && item.combinations.length > 0 && (
+            <View style={{ marginTop: 28 }}>
+              <Text
+                style={{
+                  fontFamily: 'Urbanist-Bold',
+                  fontSize: 16,
+                  color: '#414158',
+                  marginBottom: 14,
+                }}
+              >
+                Goes Well With
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 12 }}
+              >
+                {item.combinations.map((combo) => {
+                  const comboPrice = combo.discountedPrice
+                    ? Number(combo.discountedPrice)
+                    : Number(combo.price);
+                  return (
+                    <TouchableOpacity
+                      key={combo.id}
+                      activeOpacity={0.85}
+                      onPress={() => router.replace(`/food/${combo.slug}`)}
+                      style={{
+                        width: 130,
+                        backgroundColor: '#FAFAFA',
+                        borderRadius: 16,
+                        overflow: 'hidden',
+                        borderWidth: 1,
+                        borderColor: '#EEEEF5',
+                      }}
+                    >
+                      <Image
+                        source={{
+                          uri:
+                            combo.imageUrl ??
+                            'https://placehold.co/130x90/F5E6D3/FA7938?text=🍽️',
+                        }}
+                        style={{ width: 130, height: 90 }}
+                        resizeMode="cover"
+                      />
+                      {/* Veg / Non-veg dot */}
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 7,
+                          right: 7,
+                          width: 14,
+                          height: 14,
+                          borderRadius: 3,
+                          backgroundColor: '#FFFFFF',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderWidth: 1.5,
+                          borderColor: combo.isVeg ? '#22C55E' : '#EF4444',
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: 7,
+                            height: 7,
+                            borderRadius: 4,
+                            backgroundColor: combo.isVeg ? '#22C55E' : '#EF4444',
+                          }}
+                        />
+                      </View>
+                      <View style={{ padding: 10 }}>
+                        <Text
+                          numberOfLines={1}
+                          style={{
+                            fontFamily: 'Urbanist-SemiBold',
+                            fontSize: 12,
+                            color: '#414158',
+                          }}
+                        >
+                          {combo.name}
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginTop: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: 'Urbanist-Bold',
+                              fontSize: 13,
+                              color: '#FA7938',
+                            }}
+                          >
+                            ₹{comboPrice.toFixed(0)}
+                          </Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                            <Ionicons name="star" size={10} color="#F59E0B" />
+                            <Text
+                              style={{
+                                fontFamily: 'Urbanist-Medium',
+                                fontSize: 10,
+                                color: '#9098B1',
+                              }}
+                            >
+                              {Number(combo.rating).toFixed(1)}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
+        </ScrollView>
+      </Animated.View>
 
       {/* ── Fixed bottom bar ─────────────────────────────── */}
       <Animated.View
@@ -427,7 +558,7 @@ export default function FoodDetailsScreen() {
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => addMutation.mutate()}
+          onPress={handleAddToCart}
           disabled={addMutation.isPending}
           style={{
             flex: 1,

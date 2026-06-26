@@ -6,6 +6,8 @@ import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 import { cartApi } from '../../api';
+import { useAuthStore } from '../../store/auth.store';
+import { useGuestCartStore } from '../../store/guest-cart.store';
 
 interface FoodCardGridProps {
   item: FoodItem;
@@ -16,6 +18,8 @@ interface FoodCardGridProps {
 export function FoodCardGrid({ item, width, onPress }: FoodCardGridProps) {
   const queryClient = useQueryClient();
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const addGuestItem = useGuestCartStore((s) => s.addItem);
 
   const addMutation = useMutation({
     mutationFn: () => cartApi.addItem({ foodItemId: item.id, quantity: 1 }),
@@ -36,6 +40,23 @@ export function FoodCardGrid({ item, width, onPress }: FoodCardGridProps) {
       Animated.spring(scaleAnim, { toValue: 0.92, useNativeDriver: true }),
       Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }),
     ]).start();
+    if (!isAuthenticated) {
+      addGuestItem({
+        foodItemId: item.id,
+        name: item.name,
+        imageUrl: item.imageUrl,
+        price: Number(item.price),
+        discountedPrice: item.discountedPrice ? Number(item.discountedPrice) : null,
+        isVeg: item.isVeg,
+      });
+      Toast.show({
+        type: 'success',
+        text1: 'Added to cart!',
+        text2: item.name,
+        visibilityTime: 1500,
+      });
+      return;
+    }
     addMutation.mutate();
   };
 

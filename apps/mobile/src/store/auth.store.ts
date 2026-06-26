@@ -40,6 +40,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     ]);
 
     set({ user, isAuthenticated: true, isRegistered: !!user.name });
+
+    // Merge any guest cart items into the server cart after login
+    try {
+      const { useGuestCartStore } = await import('./guest-cart.store');
+      const { cartApi } = await import('../api');
+      const guestItems = useGuestCartStore.getState().items;
+      if (guestItems.length > 0) {
+        await Promise.allSettled(
+          guestItems.map((item) =>
+            cartApi.addItem({ foodItemId: item.foodItemId, quantity: item.quantity }),
+          ),
+        );
+        await useGuestCartStore.getState().clear();
+      }
+    } catch {
+      // Non-critical — cart merge failure should not block login
+    }
   },
 
   setUser: (userData) => {

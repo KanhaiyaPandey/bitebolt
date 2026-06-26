@@ -324,6 +324,8 @@ Response: { "accessToken": "...", "refreshToken": "...", "user": { ... } }
 | PATCH  | `/foods/admin/discount`         | 🔑 Admin | Set discounted prices on multiple items    |
 | PATCH  | `/foods/admin/:id/availability` | 🔑 Admin | Toggle a food item on/off                  |
 | PUT    | `/foods/admin/:id/combinations` | 🔑 Admin | Set "Goes Well With" items for a food      |
+| GET    | `/settings`                     | Public   | Get all app settings (delivery fee, etc.)  |
+| PATCH  | `/settings/delivery-fee`        | 🔑 Admin | Update the delivery fee                    |
 
 **GET /foods — query params**
 
@@ -361,6 +363,20 @@ Pass `null` for `discountedPrice` to remove the discount on that item.
 ```
 
 Replaces all existing combinations for that item. Pass an empty array to clear them.
+
+**PATCH /settings/delivery-fee — update delivery fee**
+
+```json
+{ "value": 60 }
+```
+
+Returns `{ "deliveryFee": 60 }`. The new fee is applied immediately to all subsequent cart and order total calculations. Cached for 1 hour; calling this endpoint also clears the cache.
+
+**GET /settings — public, returns all app config**
+
+```json
+{ "delivery_fee": "40" }
+```
 
 **GET /foods/admin/list — response shape**
 
@@ -533,6 +549,7 @@ All admin routes require `Authorization: Bearer <adminToken>` where the token be
 | PUT    | `/foods/admin/:id/combinations` | Set the "Goes Well With" list for a food item |
 | GET    | `/orders/admin/all`             | All orders, filter by status                  |
 | PATCH  | `/orders/admin/:id/status`      | Move order through its lifecycle              |
+| PATCH  | `/settings/delivery-fee`        | Set the delivery fee charged on every order   |
 
 ---
 

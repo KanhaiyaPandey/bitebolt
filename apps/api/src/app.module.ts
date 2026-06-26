@@ -13,6 +13,7 @@ import { FoodsModule } from './modules/foods/foods.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { UsersModule } from './modules/users/users.module';
 import { WalletModule } from './modules/wallet/wallet.module';
@@ -70,6 +71,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
 
     // ── Feature Modules ─────────────────────────────────────────────────────
     DbModule,
+    SettingsModule,
     AuthModule,
     UsersModule,
     CategoriesModule,

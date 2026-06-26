@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -129,7 +130,8 @@ export default function AddressesScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
       {/* ── Header ─────────────────────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInDown.duration(400)}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -178,7 +180,7 @@ export default function AddressesScreen() {
         >
           <Ionicons name="add" size={22} color="#FFFFFF" />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {isLoading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -248,9 +250,10 @@ export default function AddressesScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ padding: 20, gap: 12 }}
         >
-          {addresses.map((address) => (
-            <View
+          {addresses.map((address, idx) => (
+            <Animated.View
               key={address.id}
+              entering={FadeInDown.delay(Math.min(idx * 80, 400)).duration(400)}
               style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: 16,
@@ -381,7 +384,7 @@ export default function AddressesScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </Animated.View>
           ))}
         </ScrollView>
       )}

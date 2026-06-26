@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useAuthStore } from '../../src/store/auth.store';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -112,14 +113,20 @@ export default function ProfileScreen() {
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         {/* ── Header ─────────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 }}>
+        <Animated.View
+          entering={FadeInDown.duration(400)}
+          style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 }}
+        >
           <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 22, color: '#414158' }}>
             My Account
           </Text>
-        </View>
+        </Animated.View>
 
         {/* ── Profile card ──────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+        <Animated.View
+          entering={FadeInDown.delay(80).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 20 }}
+        >
           <View
             style={{
               backgroundColor: '#FFFFFF',
@@ -172,10 +179,13 @@ export default function ProfileScreen() {
               <Ionicons name="pencil-outline" size={16} color="#FA7938" />
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
 
         {/* ── Order status tracker ──────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+        <Animated.View
+          entering={FadeInDown.delay(160).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 20 }}
+        >
           <Text
             style={{
               fontFamily: 'Urbanist-SemiBold',
@@ -239,10 +249,13 @@ export default function ProfileScreen() {
               ))}
             </View>
           </View>
-        </View>
+        </Animated.View>
 
         {/* ── Settings menu ─────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20 }}>
+        <Animated.View
+          entering={FadeInDown.delay(240).duration(400)}
+          style={{ paddingHorizontal: 20 }}
+        >
           <Text
             style={{
               fontFamily: 'Urbanist-SemiBold',
@@ -305,7 +318,7 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );

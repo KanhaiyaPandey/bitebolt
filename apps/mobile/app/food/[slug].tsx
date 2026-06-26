@@ -8,6 +8,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -73,7 +74,7 @@ export default function FoodDetailsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
       {/* ── Hero image ───────────────────────────────────── */}
-      <View style={{ height: IMAGE_HEIGHT }}>
+      <Animated.View entering={FadeIn.duration(600)} style={{ height: IMAGE_HEIGHT }}>
         <Image
           source={{ uri: item.imageUrl ?? 'https://placehold.co/400x312/F5E6D3/FA7938?text=🍽️' }}
           style={{ width: '100%', height: '100%' }}
@@ -140,7 +141,7 @@ export default function FoodDetailsScreen() {
             </Text>
           </View>
         )}
-      </View>
+      </Animated.View>
 
       {/* ── Content card ─────────────────────────────────── */}
       <ScrollView
@@ -148,7 +149,8 @@ export default function FoodDetailsScreen() {
         contentContainerStyle={{ paddingBottom: 110 }}
         showsVerticalScrollIndicator={false}
       >
-        <View
+        <Animated.View
+          entering={FadeInDown.duration(400)}
           style={{
             backgroundColor: '#FFFFFF',
             borderTopLeftRadius: 28,
@@ -377,11 +379,12 @@ export default function FoodDetailsScreen() {
               </View>
             ))}
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
 
       {/* ── Fixed bottom bar ─────────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInUp.duration(400)}
         style={{
           position: 'absolute',
           bottom: 0,
@@ -451,7 +454,7 @@ export default function FoodDetailsScreen() {
             {addMutation.isPending ? 'Adding…' : 'Add to Cart'}
           </Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 }

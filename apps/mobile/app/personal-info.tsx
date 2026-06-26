@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -75,7 +76,8 @@ export default function PersonalInfoScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
       {/* ── Header ─────────────────────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInDown.duration(400)}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -106,7 +108,7 @@ export default function PersonalInfoScreen() {
         <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158', flex: 1 }}>
           Personal Info
         </Text>
-      </View>
+      </Animated.View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -118,7 +120,10 @@ export default function PersonalInfoScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* ── Avatar ───────────────────────────────────── */}
-          <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+          <Animated.View
+            entering={FadeInDown.delay(80).duration(400)}
+            style={{ alignItems: 'center', paddingVertical: 8 }}
+          >
             {profileLoading ? (
               <View
                 style={{
@@ -150,10 +155,10 @@ export default function PersonalInfoScreen() {
                 </Text>
               </View>
             )}
-          </View>
+          </Animated.View>
 
           {/* ── Phone (read-only) ─────────────────────────── */}
-          <View>
+          <Animated.View entering={FadeInDown.delay(160).duration(400)}>
             <Text style={labelStyle}>Phone Number</Text>
             <View
               style={[
@@ -174,77 +179,83 @@ export default function PersonalInfoScreen() {
             <Text style={{ fontFamily: 'Urbanist', fontSize: 11, color: '#9098B1', marginTop: 4 }}>
               Phone number cannot be changed
             </Text>
-          </View>
+          </Animated.View>
 
           {/* ── Name ─────────────────────────────────────── */}
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <View>
-                <Text style={labelStyle}>Full Name</Text>
-                <TextInput
-                  value={value ?? ''}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Enter your name"
-                  placeholderTextColor="#C4C9D4"
-                  autoCapitalize="words"
-                  style={[inputStyle, errors.name && { borderColor: '#EF4444' }]}
-                />
-                {errors.name && <Text style={errorStyle}>{errors.name.message}</Text>}
-              </View>
-            )}
-          />
+          <Animated.View entering={FadeInDown.delay(240).duration(400)}>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <View>
+                  <Text style={labelStyle}>Full Name</Text>
+                  <TextInput
+                    value={value ?? ''}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    placeholder="Enter your name"
+                    placeholderTextColor="#C4C9D4"
+                    autoCapitalize="words"
+                    style={[inputStyle, errors.name && { borderColor: '#EF4444' }]}
+                  />
+                  {errors.name && <Text style={errorStyle}>{errors.name.message}</Text>}
+                </View>
+              )}
+            />
+          </Animated.View>
 
           {/* ── Email ────────────────────────────────────── */}
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <View>
-                <Text style={labelStyle}>Email Address</Text>
-                <TextInput
-                  value={value ?? ''}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Enter your email"
-                  placeholderTextColor="#C4C9D4"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  style={[inputStyle, errors.email && { borderColor: '#EF4444' }]}
-                />
-                {errors.email && <Text style={errorStyle}>{errors.email.message}</Text>}
-              </View>
-            )}
-          />
+          <Animated.View entering={FadeInDown.delay(320).duration(400)}>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <View>
+                  <Text style={labelStyle}>Email Address</Text>
+                  <TextInput
+                    value={value ?? ''}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    placeholder="Enter your email"
+                    placeholderTextColor="#C4C9D4"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={[inputStyle, errors.email && { borderColor: '#EF4444' }]}
+                  />
+                  {errors.email && <Text style={errorStyle}>{errors.email.message}</Text>}
+                </View>
+              )}
+            />
+          </Animated.View>
 
           {/* ── Save button ───────────────────────────────── */}
-          <TouchableOpacity
-            onPress={handleSubmit((data) => updateMutation.mutate(data))}
-            disabled={updateMutation.isPending || !isDirty}
-            style={{
-              backgroundColor: updateMutation.isPending || !isDirty ? '#FBAD85' : '#FA7938',
-              borderRadius: 14,
-              paddingVertical: 16,
-              alignItems: 'center',
-              marginTop: 8,
-              shadowColor: '#FA7938',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: isDirty ? 0.3 : 0,
-              shadowRadius: 10,
-              elevation: isDirty ? 5 : 0,
-            }}
-          >
-            {updateMutation.isPending ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>
-                Save Changes
-              </Text>
-            )}
-          </TouchableOpacity>
+          <Animated.View entering={FadeInDown.delay(400).duration(400)}>
+            <TouchableOpacity
+              onPress={handleSubmit((data) => updateMutation.mutate(data))}
+              disabled={updateMutation.isPending || !isDirty}
+              style={{
+                backgroundColor: updateMutation.isPending || !isDirty ? '#FBAD85' : '#FA7938',
+                borderRadius: 14,
+                paddingVertical: 16,
+                alignItems: 'center',
+                marginTop: 8,
+                shadowColor: '#FA7938',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: isDirty ? 0.3 : 0,
+                shadowRadius: 10,
+                elevation: isDirty ? 5 : 0,
+              }}
+            >
+              {updateMutation.isPending ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={{ fontFamily: 'Urbanist-SemiBold', color: '#FFFFFF', fontSize: 16 }}>
+                  Save Changes
+                </Text>
+              )}
+            </TouchableOpacity>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

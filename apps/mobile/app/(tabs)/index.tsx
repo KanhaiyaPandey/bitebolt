@@ -13,13 +13,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { categoriesApi, foodsApi } from '../../src/api';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { categoriesApi, foodsApi, notificationsApi } from '../../src/api';
 import { useAuthStore } from '../../src/store/auth.store';
 import { FoodCardGrid } from '../../src/components/food/FoodCardGrid';
 import { CategoryChip } from '../../src/components/food/CategoryChip';
 import { FilterModal, EMPTY_FILTERS } from '../../src/components/FilterModal';
 import type { FilterState } from '../../src/components/FilterModal';
-import type { FoodItem, Category } from '@bitebolt/types';
+import type { FoodItem, Category, Notification } from '@bitebolt/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 48) / 2;
@@ -27,6 +28,18 @@ const CARD_WIDTH = (SCREEN_WIDTH - 48) / 2;
 export default function HomeScreen() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  const { data: notifData } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () =>
+      notificationsApi.getNotifications({ page: 1, limit: 20 }) as unknown as Promise<{
+        notifications: Notification[];
+      }>,
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+  });
+  const unreadCount = (notifData?.notifications ?? []).filter((n) => !n.isRead).length;
 
   // ── Search state ────────────────────────────────────────
   const [searchText, setSearchText] = useState('');
@@ -123,7 +136,8 @@ export default function HomeScreen() {
         }
       >
         {/* ── Top bar ─────────────────────────────────────── */}
-        <View
+        <Animated.View
+          entering={FadeInDown.duration(400)}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -144,6 +158,7 @@ export default function HomeScreen() {
             </Text>
           </View>
           <TouchableOpacity
+            onPress={() => router.push('/notifications')}
             style={{
               width: 40,
               height: 40,
@@ -159,11 +174,29 @@ export default function HomeScreen() {
             }}
           >
             <Ionicons name="notifications-outline" size={22} color="#414158" />
+            {unreadCount > 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  right: 6,
+                  width: 9,
+                  height: 9,
+                  borderRadius: 5,
+                  backgroundColor: '#FA7938',
+                  borderWidth: 1.5,
+                  borderColor: '#FFFFFF',
+                }}
+              />
+            )}
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {/* ── Search bar ──────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 16, flexDirection: 'row', gap: 10 }}>
+        <Animated.View
+          entering={FadeInDown.delay(80).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 16, flexDirection: 'row', gap: 10 }}
+        >
           <View
             style={{
               flex: 1,
@@ -250,7 +283,7 @@ export default function HomeScreen() {
               </View>
             )}
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {/* ── Active filter pills ──────────────────────────── */}
         {activeFilterCount > 0 && (
@@ -317,7 +350,8 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* ── Section header ───────────────────────────────── */}
-        <View
+        <Animated.View
+          entering={FadeInDown.delay(160).duration(400)}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -334,7 +368,7 @@ export default function HomeScreen() {
               {displayItems.length} item{displayItems.length !== 1 ? 's' : ''}
             </Text>
           )}
-        </View>
+        </Animated.View>
 
         {/* ── Food grid ───────────────────────────────────── */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 16 }}>

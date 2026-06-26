@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { cartApi } from '../../src/api';
 import { useCartStore } from '../../src/store/cart.store';
 import { useAuthStore } from '../../src/store/auth.store';
@@ -182,7 +183,8 @@ export default function CartScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
       {/* ── Header ────────────────────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInDown.duration(400)}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -201,21 +203,25 @@ export default function CartScreen() {
         <TouchableOpacity>
           <Ionicons name="ellipsis-vertical" size={22} color="#414158" />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* ── Cart items ──────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, gap: 12 }}>
-          {cart.items.map((item) => {
+        <Animated.View
+          entering={FadeInDown.delay(80).duration(400)}
+          style={{ paddingHorizontal: 20, gap: 12 }}
+        >
+          {cart.items.map((item, idx) => {
             const food = item.foodItem!;
             const price = food.discountedPrice ? Number(food.discountedPrice) : Number(food.price);
 
             return (
-              <View
+              <Animated.View
                 key={item.id}
+                entering={FadeInDown.delay(Math.min(idx * 70, 350)).duration(400)}
                 style={{
                   backgroundColor: '#FFFFFF',
                   borderRadius: 16,
@@ -326,13 +332,16 @@ export default function CartScreen() {
                     <Ionicons name="add" size={16} color="#fff" />
                   </TouchableOpacity>
                 </View>
-              </View>
+              </Animated.View>
             );
           })}
-        </View>
+        </Animated.View>
 
         {/* ── Voucher code ────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
+        <Animated.View
+          entering={FadeInDown.delay(200).duration(400)}
+          style={{ paddingHorizontal: 20, marginTop: 20 }}
+        >
           <View
             style={{
               backgroundColor: '#FFFFFF',
@@ -372,10 +381,11 @@ export default function CartScreen() {
               }}
             />
           </View>
-        </View>
+        </Animated.View>
 
         {/* ── Bill summary ────────────────────────────────── */}
-        <View
+        <Animated.View
+          entering={FadeInDown.delay(280).duration(400)}
           style={{
             marginHorizontal: 20,
             marginTop: 20,
@@ -399,11 +409,12 @@ export default function CartScreen() {
             bold
             valueColor="#FA7938"
           />
-        </View>
+        </Animated.View>
       </ScrollView>
 
       {/* ── Fixed checkout bar ──────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInUp.duration(500)}
         style={{
           position: 'absolute',
           bottom: 0,
@@ -451,7 +462,7 @@ export default function CartScreen() {
             Checkout
           </Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </SafeAreaView>
   );
 }

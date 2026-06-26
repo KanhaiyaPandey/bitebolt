@@ -1,17 +1,19 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ordersApi } from '../../src/api';
+import { OrderStatus, PaymentStatus } from '@bitebolt/types';
+import type { Order, OrderItem } from '@bitebolt/types';
 import {
   formatCurrency,
   formatDateTime,
   getOrderStatusColor,
   getOrderStatusLabel,
 } from '@bitebolt/utils';
-import { OrderStatus } from '@bitebolt/types';
-import type { Order, OrderItem } from '@bitebolt/types';
+import { Ionicons } from '@expo/vector-icons';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { ordersApi } from '../../src/api';
 
 const STATUS_STEPS: {
   status: OrderStatus;
@@ -125,7 +127,8 @@ export default function OrderDetailScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
       {/* ── Header ─────────────────────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInDown.duration(400)}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -173,7 +176,7 @@ export default function OrderDetailScreen() {
             {getOrderStatusLabel(order.status)}
           </Text>
         </View>
-      </View>
+      </Animated.View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -181,7 +184,10 @@ export default function OrderDetailScreen() {
       >
         {/* ── Status Timeline ───────────────────────────── */}
         {!isTerminal ? (
-          <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+          <Animated.View
+            entering={FadeInDown.delay(80).duration(400)}
+            style={{ paddingHorizontal: 20, marginBottom: 20 }}
+          >
             <View
               style={{
                 backgroundColor: '#FFFFFF',
@@ -212,7 +218,6 @@ export default function OrderDetailScreen() {
 
                   return (
                     <View key={step.status} style={{ flex: 1, alignItems: 'center' }}>
-                      {/* Connector line (left side) */}
                       {idx > 0 && (
                         <View
                           style={{
@@ -225,7 +230,6 @@ export default function OrderDetailScreen() {
                           }}
                         />
                       )}
-                      {/* Icon circle */}
                       <View
                         style={{
                           width: 38,
@@ -257,9 +261,12 @@ export default function OrderDetailScreen() {
                 })}
               </View>
             </View>
-          </View>
+          </Animated.View>
         ) : (
-          <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+          <Animated.View
+            entering={FadeInDown.delay(80).duration(400)}
+            style={{ paddingHorizontal: 20, marginBottom: 20 }}
+          >
             <View
               style={{
                 backgroundColor: statusColor + '12',
@@ -288,12 +295,15 @@ export default function OrderDetailScreen() {
                 </Text>
               </View>
             </View>
-          </View>
+          </Animated.View>
         )}
 
         {/* ── Delivery Address ──────────────────────────── */}
         {order.deliveryAddress && (
-          <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+          <Animated.View
+            entering={FadeInDown.delay(160).duration(400)}
+            style={{ paddingHorizontal: 20, marginBottom: 16 }}
+          >
             <SectionCard>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
                 <View
@@ -327,11 +337,14 @@ export default function OrderDetailScreen() {
                 </View>
               </View>
             </SectionCard>
-          </View>
+          </Animated.View>
         )}
 
         {/* ── Order Items ───────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+        <Animated.View
+          entering={FadeInDown.delay(240).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 16 }}
+        >
           <Text
             style={{
               fontFamily: 'Urbanist-SemiBold',
@@ -347,10 +360,13 @@ export default function OrderDetailScreen() {
               <OrderItemRow key={item.id} item={item} showDivider={idx < order.items.length - 1} />
             ))}
           </SectionCard>
-        </View>
+        </Animated.View>
 
         {/* ── Bill Summary ──────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+        <Animated.View
+          entering={FadeInDown.delay(320).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 16 }}
+        >
           <Text
             style={{
               fontFamily: 'Urbanist-SemiBold',
@@ -380,11 +396,14 @@ export default function OrderDetailScreen() {
               valueColor="#FA7938"
             />
           </SectionCard>
-        </View>
+        </Animated.View>
 
         {/* ── Payment Info ──────────────────────────────── */}
         {order.payment && (
-          <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+          <Animated.View
+            entering={FadeInDown.delay(380).duration(400)}
+            style={{ paddingHorizontal: 20, marginBottom: 16 }}
+          >
             <Text
               style={{
                 fontFamily: 'Urbanist-SemiBold',
@@ -423,7 +442,9 @@ export default function OrderDetailScreen() {
                       {order.payment.method}
                     </Text>
                     <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1' }}>
-                      {order.payment.status}
+                      {order.payment.status === PaymentStatus.CAPTURED
+                        ? 'Paid'
+                        : order.payment.status}
                     </Text>
                   </View>
                 </View>
@@ -432,11 +453,14 @@ export default function OrderDetailScreen() {
                 </Text>
               </View>
             </SectionCard>
-          </View>
+          </Animated.View>
         )}
 
         {/* ── Order Meta ────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+        <Animated.View
+          entering={FadeInDown.delay(440).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 24 }}
+        >
           <SectionCard>
             <View
               style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}
@@ -459,11 +483,14 @@ export default function OrderDetailScreen() {
               </View>
             )}
           </SectionCard>
-        </View>
+        </Animated.View>
 
         {/* ── Cancel Button ─────────────────────────────── */}
         {CANCELLABLE_STATUSES.includes(order.status) && (
-          <View style={{ paddingHorizontal: 20, marginBottom: 24 }}>
+          <Animated.View
+            entering={FadeInDown.delay(500).duration(400)}
+            style={{ paddingHorizontal: 20, marginBottom: 24 }}
+          >
             <TouchableOpacity
               onPress={handleCancel}
               disabled={cancelMutation.isPending}
@@ -484,7 +511,7 @@ export default function OrderDetailScreen() {
                 </Text>
               )}
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         )}
       </ScrollView>
     </SafeAreaView>

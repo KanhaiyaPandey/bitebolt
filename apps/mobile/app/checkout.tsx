@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -73,7 +74,6 @@ export default function CheckoutScreen() {
         throw new Error('Please select a delivery address');
       }
 
-      // Guard: Razorpay native module is only available in dev/production builds, not Expo Go.
       if (paymentMethod !== 'COD' && !RazorpayCheckout) {
         throw new Error(
           'Online payment requires a native build. Please select Cash on Delivery or install a development build.',
@@ -120,7 +120,6 @@ export default function CheckoutScreen() {
       router.replace(`/order/${order.id}`);
     },
     onError: (err: Error) => {
-      // User dismissed Razorpay — order exists but is unpaid
       if ((err as { code?: number }).code === 0) {
         Alert.alert(
           'Payment Cancelled',
@@ -147,7 +146,8 @@ export default function CheckoutScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EEEEF5' }} edges={['top']}>
       {/* ── Header ─────────────────────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInDown.duration(400)}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -178,14 +178,17 @@ export default function CheckoutScreen() {
         <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158', flex: 1 }}>
           Checkout
         </Text>
-      </View>
+      </Animated.View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* ── Delivery / Pickup toggle ───────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+        <Animated.View
+          entering={FadeInDown.delay(80).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 20 }}
+        >
           <View
             style={{
               flexDirection: 'row',
@@ -225,11 +228,14 @@ export default function CheckoutScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         {/* ── Delivery address visual ────────────────────── */}
         {deliveryMode === 'delivery' && (
-          <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+          <Animated.View
+            entering={FadeInDown.delay(160).duration(400)}
+            style={{ paddingHorizontal: 20, marginBottom: 20 }}
+          >
             <View
               style={{
                 height: 100,
@@ -291,11 +297,14 @@ export default function CheckoutScreen() {
                 <Ionicons name="location" size={18} color="#FFFFFF" />
               </View>
             </View>
-          </View>
+          </Animated.View>
         )}
 
         {/* ── Checkout Details ──────────────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 8 }}>
+        <Animated.View
+          entering={FadeInDown.delay(240).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 8 }}
+        >
           <Text
             style={{
               fontFamily: 'Urbanist-SemiBold',
@@ -329,10 +338,13 @@ export default function CheckoutScreen() {
             value={selectedPaymentOption?.label ?? 'Select payment'}
             onPress={() => {}}
           />
-        </View>
+        </Animated.View>
 
         {/* ── Payment method selector ───────────────────── */}
-        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+        <Animated.View
+          entering={FadeInDown.delay(320).duration(400)}
+          style={{ paddingHorizontal: 20, marginBottom: 20 }}
+        >
           <Text
             style={{
               fontFamily: 'Urbanist-SemiBold',
@@ -429,11 +441,14 @@ export default function CheckoutScreen() {
               );
             })}
           </View>
-        </View>
+        </Animated.View>
 
         {/* ── Order summary ─────────────────────────────── */}
         {cart && (
-          <View style={{ paddingHorizontal: 20, marginTop: 4 }}>
+          <Animated.View
+            entering={FadeInDown.delay(400).duration(400)}
+            style={{ paddingHorizontal: 20, marginTop: 4 }}
+          >
             <Text
               style={{
                 fontFamily: 'Urbanist-SemiBold',
@@ -467,12 +482,13 @@ export default function CheckoutScreen() {
                 valueColor="#FA7938"
               />
             </View>
-          </View>
+          </Animated.View>
         )}
       </ScrollView>
 
       {/* ── Place Order CTA ───────────────────────────────── */}
-      <View
+      <Animated.View
+        entering={FadeInUp.duration(500)}
         style={{
           position: 'absolute',
           bottom: 0,
@@ -526,7 +542,7 @@ export default function CheckoutScreen() {
             </Text>
           )}
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {/* ── Address Picker Modal ──────────────────────────── */}
       <Modal
@@ -554,7 +570,6 @@ export default function CheckoutScreen() {
             maxHeight: '70%',
           }}
         >
-          {/* Drag handle */}
           <View
             style={{
               width: 36,

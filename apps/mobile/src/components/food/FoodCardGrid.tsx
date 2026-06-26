@@ -131,7 +131,7 @@ export function FoodCardGrid({ item, width, onPress }: FoodCardGridProps) {
                   color: '#414158',
                 }}
               >
-                $ {effectivePrice.toFixed(2)}
+                ₹{effectivePrice.toFixed(2)}
               </Text>
               {hasDiscount && (
                 <Text
@@ -142,7 +142,7 @@ export function FoodCardGrid({ item, width, onPress }: FoodCardGridProps) {
                     textDecorationLine: 'line-through',
                   }}
                 >
-                  $ {Number(item.price).toFixed(2)}
+                  ₹{Number(item.price).toFixed(2)}
                 </Text>
               )}
             </View>

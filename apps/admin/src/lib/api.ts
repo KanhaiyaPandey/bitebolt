@@ -33,4 +33,23 @@ export const adminApi = {
     const res = await client.patch(`/orders/admin/${id}/status`, data);
     return res.data.data;
   },
+
+  getFoods: async () => {
+    const res = await client.get('/foods/admin/list');
+    return res.data as {
+      id: string;
+      name: string;
+      slug: string;
+      imageUrl: string | null;
+      isAvailable: boolean;
+      price: number;
+      isVeg: boolean;
+      combinationLinks: { combinationId: string }[];
+    }[];
+  },
+
+  setCombinations: async (foodItemId: string, combinationIds: string[]) => {
+    const res = await client.put(`/foods/admin/${foodItemId}/combinations`, { combinationIds });
+    return res.data;
+  },
 };

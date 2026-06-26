@@ -7,6 +7,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -183,6 +184,21 @@ export const foodItems = pgTable(
     index('food_item_is_available_idx').on(t.isAvailable),
     index('food_item_is_veg_idx').on(t.isVeg),
   ],
+);
+
+// ── Food Item Combinations ────────────────────────────────────────────────────
+
+export const foodItemCombinations = pgTable(
+  'food_item_combinations',
+  {
+    foodItemId: text('food_item_id')
+      .notNull()
+      .references(() => foodItems.id, { onDelete: 'cascade' }),
+    combinationId: text('combination_id')
+      .notNull()
+      .references(() => foodItems.id, { onDelete: 'cascade' }),
+  },
+  (t) => [primaryKey({ columns: [t.foodItemId, t.combinationId] })],
 );
 
 // ── Cart Items ────────────────────────────────────────────────────────────────
@@ -426,6 +442,20 @@ export const foodItemsRelations = relations(foodItems, ({ one, many }) => ({
   category: one(categories, { fields: [foodItems.categoryId], references: [categories.id] }),
   cartItems: many(cartItems),
   orderItems: many(orderItems),
+  combinationLinks: many(foodItemCombinations, { relationName: 'mainItem' }),
+}));
+
+export const foodItemCombinationsRelations = relations(foodItemCombinations, ({ one }) => ({
+  foodItem: one(foodItems, {
+    fields: [foodItemCombinations.foodItemId],
+    references: [foodItems.id],
+    relationName: 'mainItem',
+  }),
+  combination: one(foodItems, {
+    fields: [foodItemCombinations.combinationId],
+    references: [foodItems.id],
+    relationName: 'combinationTarget',
+  }),
 }));
 
 export const cartItemsRelations = relations(cartItems, ({ one }) => ({

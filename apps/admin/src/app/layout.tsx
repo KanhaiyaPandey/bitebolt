@@ -24,10 +24,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <p className="text-xs text-gray-500 mt-0.5">Admin Dashboard</p>
               </div>
               <nav className="flex-1 p-4">
-                <SidebarLink href="/orders" label="📦 Orders" />
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
+                  Orders
+                </p>
+                <SidebarLink href="/orders" label="📦 All Orders" />
                 <SidebarLink href="/orders?status=PENDING" label="🟡 Pending" />
                 <SidebarLink href="/orders?status=PREPARING" label="🔵 Preparing" />
                 <SidebarLink href="/orders?status=OUT_FOR_DELIVERY" label="🟠 Out for Delivery" />
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mt-4 mb-2">
+                  Menu
+                </p>
+                <SidebarLink href="/foods" label="🍽️ Food Items" />
               </nav>
             </aside>
             {/* Main */}

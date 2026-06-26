@@ -124,6 +124,10 @@ export interface FoodItem {
   rating: number;
   totalRatings: number;
   tags: string[];
+  combinations?: Pick<
+    FoodItem,
+    'id' | 'name' | 'slug' | 'imageUrl' | 'price' | 'discountedPrice' | 'isVeg' | 'rating'
+  >[];
   createdAt: Date;
   updatedAt: Date;
 }

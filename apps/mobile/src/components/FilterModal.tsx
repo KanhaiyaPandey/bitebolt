@@ -254,6 +254,7 @@ const styles = StyleSheet.create({
   content: {
     position: 'relative',
     zIndex: 2,
+    flex: 1,
   },
   handleWrap: {
     alignItems: 'center',
@@ -321,6 +322,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    zIndex: 3,
     paddingHorizontal: 20,
     paddingTop: 14,
     paddingBottom: 34,

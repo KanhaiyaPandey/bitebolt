@@ -276,7 +276,282 @@ bitebolt/
 └── pnpm-workspace.yaml
 ```
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for full system design, API reference, auth flow, payment flow, and deployment guide.
+---
+
+## API Reference
+
+Base URL: `http://localhost:3001/api/v1`
+
+All routes prefixed with `/api/v1`. Routes marked **🔐 Auth** require a Bearer JWT. Routes marked **🔑 Admin** require a Bearer JWT with role `ADMIN`.
+
+---
+
+### Auth — `/auth`
+
+| Method | Path               | Access  | Description                              |
+| ------ | ------------------ | ------- | ---------------------------------------- |
+| POST   | `/auth/send-otp`   | Public  | Send OTP to phone number                 |
+| POST   | `/auth/verify-otp` | Public  | Verify OTP and get tokens                |
+| POST   | `/auth/register`   | 🔐 Auth | Complete profile after first OTP login   |
+| POST   | `/auth/refresh`    | Public  | Refresh access token using refresh token |
+
+**Send OTP**
+
+```json
+POST /auth/send-otp
+{ "phone": "+919876543210" }
+```
+
+**Verify OTP**
+
+```json
+POST /auth/verify-otp
+{ "phone": "+919876543210", "otp": "123456" }
+
+Response: { "accessToken": "...", "refreshToken": "...", "user": { ... } }
+```
+
+---
+
+### Foods — `/foods`
+
+| Method | Path                            | Access   | Description                                |
+| ------ | ------------------------------- | -------- | ------------------------------------------ |
+| GET    | `/foods`                        | Public   | List food items (paginated, filterable)    |
+| GET    | `/foods/featured`               | Public   | Get featured / bestseller items            |
+| GET    | `/foods/:slug`                  | Public   | Get single food item with combinations     |
+| GET    | `/foods/admin/list`             | 🔑 Admin | List all food items (for admin management) |
+| PATCH  | `/foods/admin/discount`         | 🔑 Admin | Set discounted prices on multiple items    |
+| PATCH  | `/foods/admin/:id/availability` | 🔑 Admin | Toggle a food item on/off                  |
+| PUT    | `/foods/admin/:id/combinations` | 🔑 Admin | Set "Goes Well With" items for a food      |
+
+**GET /foods — query params**
+
+```
+page        number   (default: 1)
+limit       number   (default: 20)
+search      string   name/description search
+categoryId  string   filter by category
+isVeg       boolean  true | false
+```
+
+**PATCH /foods/admin/discount — set discount on multiple items**
+
+```json
+{
+  "items": [
+    { "id": "food-item-uuid", "discountedPrice": 149.0 },
+    { "id": "another-uuid", "discountedPrice": null }
+  ]
+}
+```
+
+Pass `null` for `discountedPrice` to remove the discount on that item.
+
+**PATCH /foods/admin/:id/availability — toggle availability**
+
+```json
+{ "isAvailable": false }
+```
+
+**PUT /foods/admin/:id/combinations — set "Goes Well With" items**
+
+```json
+{ "combinationIds": ["uuid-1", "uuid-2", "uuid-3"] }
+```
+
+Replaces all existing combinations for that item. Pass an empty array to clear them.
+
+**GET /foods/admin/list — response shape**
+
+```json
+[
+  {
+    "id": "uuid",
+    "name": "Chicken Burger",
+    "slug": "chicken-burger",
+    "imageUrl": "https://...",
+    "price": 199,
+    "isVeg": false,
+    "isAvailable": true,
+    "combinationLinks": [{ "combinationId": "uuid-of-combo" }]
+  }
+]
+```
+
+---
+
+### Categories — `/categories`
+
+| Method | Path          | Access | Description         |
+| ------ | ------------- | ------ | ------------------- |
+| GET    | `/categories` | Public | List all categories |
+
+---
+
+### Cart — `/cart`
+
+| Method | Path              | Access  | Description             |
+| ------ | ----------------- | ------- | ----------------------- |
+| GET    | `/cart`           | 🔐 Auth | Get current user's cart |
+| POST   | `/cart/items`     | 🔐 Auth | Add item to cart        |
+| PATCH  | `/cart/items/:id` | 🔐 Auth | Update item quantity    |
+| DELETE | `/cart/items/:id` | 🔐 Auth | Remove item from cart   |
+| DELETE | `/cart`           | 🔐 Auth | Clear entire cart       |
+
+**POST /cart/items**
+
+```json
+{ "foodItemId": "uuid", "quantity": 2, "specialInstructions": "no onions" }
+```
+
+---
+
+### Orders — `/orders`
+
+| Method | Path                       | Access   | Description                            |
+| ------ | -------------------------- | -------- | -------------------------------------- |
+| POST   | `/orders`                  | 🔐 Auth  | Place a new order                      |
+| GET    | `/orders`                  | 🔐 Auth  | Get current user's orders (paginated)  |
+| GET    | `/orders/:id`              | 🔐 Auth  | Get single order details               |
+| PATCH  | `/orders/:id/cancel`       | 🔐 Auth  | Cancel an order                        |
+| GET    | `/orders/admin/all`        | 🔑 Admin | List all orders (filterable by status) |
+| PATCH  | `/orders/admin/:id/status` | 🔑 Admin | Update order status                    |
+
+**GET /orders/admin/all — query params**
+
+```
+page    number
+limit   number
+status  PENDING | ACCEPTED | REJECTED | PREPARING | OUT_FOR_DELIVERY | DELIVERED | CANCELLED
+```
+
+**PATCH /orders/admin/:id/status**
+
+```json
+{
+  "status": "ACCEPTED",
+  "notes": "Starting preparation",
+  "estimatedDeliveryTime": 30,
+  "rejectionReason": ""
+}
+```
+
+---
+
+### Payments — `/payments`
+
+| Method | Path                     | Access  | Description                             |
+| ------ | ------------------------ | ------- | --------------------------------------- |
+| POST   | `/payments/create-order` | 🔐 Auth | Create Razorpay order for payment       |
+| POST   | `/payments/verify`       | 🔐 Auth | Verify Razorpay signature after payment |
+| POST   | `/payments/webhook`      | Public  | Razorpay webhook handler                |
+
+**POST /payments/create-order**
+
+```json
+{ "orderId": "uuid", "method": "UPI", "walletAmountUsed": 50 }
+```
+
+**POST /payments/verify**
+
+```json
+{
+  "razorpayOrderId": "order_xxx",
+  "razorpayPaymentId": "pay_xxx",
+  "razorpaySignature": "..."
+}
+```
+
+---
+
+### Users — `/users`
+
+| Method | Path                      | Access  | Description                               |
+| ------ | ------------------------- | ------- | ----------------------------------------- |
+| GET    | `/users/me`               | 🔐 Auth | Get current user profile + wallet balance |
+| PATCH  | `/users/me`               | 🔐 Auth | Update name and email                     |
+| GET    | `/users/me/addresses`     | 🔐 Auth | List delivery addresses                   |
+| POST   | `/users/me/addresses`     | 🔐 Auth | Add a new delivery address                |
+| PATCH  | `/users/me/addresses/:id` | 🔐 Auth | Update a delivery address                 |
+| DELETE | `/users/me/addresses/:id` | 🔐 Auth | Delete a delivery address                 |
+
+**POST /users/me/addresses**
+
+```json
+{
+  "label": "Home",
+  "addressLine1": "12 MG Road",
+  "addressLine2": "Flat 4B",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "pincode": "560001",
+  "latitude": 12.9716,
+  "longitude": 77.5946,
+  "isDefault": true
+}
+```
+
+---
+
+### Wallet — `/wallet`
+
+| Method | Path                   | Access  | Description                         |
+| ------ | ---------------------- | ------- | ----------------------------------- |
+| GET    | `/wallet`              | 🔐 Auth | Get wallet balance                  |
+| GET    | `/wallet/transactions` | 🔐 Auth | Get transaction history (paginated) |
+
+---
+
+### Notifications — `/notifications`
+
+| Method | Path                      | Access  | Description                      |
+| ------ | ------------------------- | ------- | -------------------------------- |
+| GET    | `/notifications`          | 🔐 Auth | List notifications (paginated)   |
+| PATCH  | `/notifications/read-all` | 🔐 Auth | Mark all notifications as read   |
+| PATCH  | `/notifications/:id/read` | 🔐 Auth | Mark single notification as read |
+
+---
+
+### Upload — `/upload`
+
+| Method | Path             | Access  | Description                         |
+| ------ | ---------------- | ------- | ----------------------------------- |
+| POST   | `/upload/avatar` | 🔐 Auth | Upload user avatar to S3/CloudFront |
+
+---
+
+### Admin — Quick Reference
+
+All admin routes require `Authorization: Bearer <adminToken>` where the token belongs to a user with role `ADMIN`.
+
+| Method | Path                            | What it does                                  |
+| ------ | ------------------------------- | --------------------------------------------- |
+| GET    | `/foods/admin/list`             | All food items with current combo IDs         |
+| PATCH  | `/foods/admin/discount`         | Set/clear discounted price on multiple items  |
+| PATCH  | `/foods/admin/:id/availability` | Mark a food item available or unavailable     |
+| PUT    | `/foods/admin/:id/combinations` | Set the "Goes Well With" list for a food item |
+| GET    | `/orders/admin/all`             | All orders, filter by status                  |
+| PATCH  | `/orders/admin/:id/status`      | Move order through its lifecycle              |
+
+---
+
+## Database
+
+Run migrations after any schema change:
+
+```bash
+cd apps/api
+pnpm db:push      # dev — push directly (no migration files)
+pnpm db:generate  # generate SQL migration from schema
+pnpm db:migrate   # apply generated migrations (use in production)
+```
+
+After adding the `food_item_combinations` table for the first time, run:
+
+```bash
+cd apps/api && pnpm db:push
+```
 
 ---
 

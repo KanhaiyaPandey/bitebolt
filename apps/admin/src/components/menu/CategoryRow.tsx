@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { Switch, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
+import { color, hitSlop, motion, radius, space, switchProps, text, ui } from '@/theme';
+
 interface Category {
   id: string;
   name: string;
@@ -24,78 +26,51 @@ export function CategoryRow({ item, index, onToggleActive, onDelete }: CategoryR
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(index * 50)
-        .duration(300)
+      entering={FadeInDown.delay(index * motion.stagger)
+        .duration(motion.base)
         .springify()}
     >
-      <View
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderRadius: 16,
-          marginHorizontal: 16,
-          marginBottom: 10,
-          padding: 14,
-          flexDirection: 'row',
-          alignItems: 'center',
-          shadowColor: '#000',
-          shadowOpacity: 0.05,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 2,
-        }}
-      >
+      <View style={[ui.card, { flexDirection: 'row', alignItems: 'center' }]}>
         {/* Icon */}
         <View
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            backgroundColor: '#FFF4EE',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 12,
-          }}
+          style={[ui.iconTile(44, color.brandSubtle, radius.control), { marginRight: space[3] }]}
         >
-          <Ionicons name="grid-outline" size={20} color="#FA7938" />
+          <Ionicons name="grid-outline" size={20} color={color.brand} />
         </View>
 
         {/* Info */}
         <View style={{ flex: 1 }}>
-          <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158' }}>
-            {item.name}
-          </Text>
-          <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1', marginTop: 2 }}>
+          <Text style={[text.bodyStrong, { color: color.textPrimary }]}>{item.name}</Text>
+          <Text style={[text.caption, { color: color.textSecondary, marginTop: space[0.5] }]}>
             {foodCount} item{foodCount !== 1 ? 's' : ''}
           </Text>
         </View>
 
         {/* Actions */}
-        <View style={{ alignItems: 'center', gap: 8 }}>
+        <View style={{ alignItems: 'center', gap: space[2] }}>
           <Switch
             value={item.isActive}
             onValueChange={(v) => {
               Haptics.selectionAsync();
               onToggleActive(item.id, v);
             }}
-            trackColor={{ false: '#E0E0EA', true: '#FA7938' }}
-            thumbColor="#FFFFFF"
-            style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+            {...switchProps}
           />
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flexDirection: 'row', gap: space[2] }}>
             <TouchableOpacity
               onPress={() => router.push(`/category/${item.id}/edit`)}
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              hitSlop={hitSlop}
             >
-              <Ionicons name="pencil-outline" size={18} color="#9098B1" />
+              <Ionicons name="pencil-outline" size={18} color={color.textSecondary} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 onDelete(item.id, item.name);
               }}
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              hitSlop={hitSlop}
             >
-              <Ionicons name="trash-outline" size={18} color="#EF4444" />
+              <Ionicons name="trash-outline" size={18} color={color.error} />
             </TouchableOpacity>
           </View>
         </View>

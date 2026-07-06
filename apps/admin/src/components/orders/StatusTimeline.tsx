@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { STATUS_STYLES } from './StatusBadge';
+import { color, orderTone, space, text } from '@/theme';
 
 interface StatusHistoryItem {
   id: string;
@@ -28,46 +28,41 @@ export function StatusTimeline({ history }: StatusTimelineProps) {
   return (
     <View>
       {history.map((item, i) => {
-        const style = STATUS_STYLES[item.status] ?? {
-          bg: '#F3F4F6',
-          text: '#374151',
-          label: item.status,
-        };
+        const tone = orderTone(item.status);
         const isLast = i === history.length - 1;
 
         return (
-          <View key={item.id} style={{ flexDirection: 'row', paddingLeft: 16 }}>
+          <View key={item.id} style={{ flexDirection: 'row', paddingLeft: space[4] }}>
             {/* Timeline line + dot */}
-            <View style={{ alignItems: 'center', width: 24, marginRight: 12 }}>
+            <View style={{ alignItems: 'center', width: space[6], marginRight: space[3] }}>
               <View
                 style={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: 6,
-                  backgroundColor: style.text,
-                  marginTop: 3,
+                  width: space[3],
+                  height: space[3],
+                  borderRadius: space[1.5],
+                  backgroundColor: tone.text,
+                  marginTop: space[0.5] + 1,
                 }}
               />
               {!isLast && (
                 <View
-                  style={{ width: 2, flex: 1, backgroundColor: '#E0E0EA', marginVertical: 4 }}
+                  style={{
+                    width: 2,
+                    flex: 1,
+                    backgroundColor: color.borderStrong,
+                    marginVertical: space[1],
+                  }}
                 />
               )}
             </View>
 
-            <View style={{ paddingBottom: isLast ? 0 : 16, flex: 1 }}>
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: style.text }}>
-                {style.label}
-              </Text>
-              <Text
-                style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1', marginTop: 1 }}
-              >
+            <View style={{ paddingBottom: isLast ? 0 : space[4], flex: 1 }}>
+              <Text style={[text.label, { color: tone.text }]}>{tone.label}</Text>
+              <Text style={[text.caption, { color: color.textSecondary, marginTop: 1 }]}>
                 {formatTime(item.createdAt)}
               </Text>
               {item.notes && (
-                <Text
-                  style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#6B7280', marginTop: 2 }}
-                >
+                <Text style={[text.caption, { color: color.textSecondary, marginTop: space[0.5] }]}>
                   {item.notes}
                 </Text>
               )}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 
 import { uploadApi } from '@/api';
+import { color, press, radius, space, text } from '@/theme';
 
 interface ImagePickerProps {
   value?: string | null;
@@ -51,23 +52,21 @@ export function ImagePicker({ value, onChange, label = 'Food Image' }: ImagePick
   }
 
   return (
-    <View style={{ marginBottom: 16 }}>
-      <Text
-        style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#9098B1', marginBottom: 6 }}
-      >
+    <View style={{ marginBottom: space[4] }}>
+      <Text style={[text.label, { color: color.textSecondary, marginBottom: space[1.5] }]}>
         {label}
       </Text>
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: 'row', gap: space[2.5] }}>
         {/* Preview */}
         <View
           style={{
             width: 100,
             height: 100,
-            borderRadius: 12,
-            backgroundColor: '#F5F5FA',
+            borderRadius: radius.control,
+            backgroundColor: color.surfaceSubtle,
             borderWidth: 1.5,
-            borderColor: value ? '#FA7938' : '#D3D6DE',
+            borderColor: value ? color.brand : color.disabled,
             borderStyle: value ? 'solid' : 'dashed',
             overflow: 'hidden',
             alignItems: 'center',
@@ -75,54 +74,50 @@ export function ImagePicker({ value, onChange, label = 'Food Image' }: ImagePick
           }}
         >
           {uploading ? (
-            <ActivityIndicator color="#FA7938" />
+            <ActivityIndicator color={color.brand} />
           ) : value ? (
             <Image source={{ uri: value }} style={{ width: 100, height: 100 }} resizeMode="cover" />
           ) : (
-            <Ionicons name="image-outline" size={32} color="#C4C9D4" />
+            <Ionicons name="image-outline" size={32} color={color.textMuted} />
           )}
         </View>
 
         {/* Buttons */}
-        <View style={{ flex: 1, gap: 8, justifyContent: 'center' }}>
+        <View style={{ flex: 1, gap: space[2], justifyContent: 'center' }}>
           <TouchableOpacity
             onPress={() => pickFromSource('camera')}
             disabled={uploading}
-            activeOpacity={0.8}
+            activeOpacity={press.secondary}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: '#FFF4EE',
-              borderRadius: 10,
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              gap: 8,
+              backgroundColor: color.brandSubtle,
+              borderRadius: radius.control,
+              paddingHorizontal: space[3.5],
+              paddingVertical: space[2.5],
+              gap: space[2],
             }}
           >
-            <Ionicons name="camera-outline" size={18} color="#FA7938" />
-            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#FA7938' }}>
-              Camera
-            </Text>
+            <Ionicons name="camera-outline" size={18} color={color.brand} />
+            <Text style={[text.label, { color: color.brand }]}>Camera</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => pickFromSource('gallery')}
             disabled={uploading}
-            activeOpacity={0.8}
+            activeOpacity={press.secondary}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: '#F5F5FA',
-              borderRadius: 10,
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              gap: 8,
+              backgroundColor: color.surfaceSubtle,
+              borderRadius: radius.control,
+              paddingHorizontal: space[3.5],
+              paddingVertical: space[2.5],
+              gap: space[2],
             }}
           >
-            <Ionicons name="images-outline" size={18} color="#414158" />
-            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#414158' }}>
-              Gallery
-            </Text>
+            <Ionicons name="images-outline" size={18} color={color.textPrimary} />
+            <Text style={[text.label, { color: color.textPrimary }]}>Gallery</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,16 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Switch,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -18,8 +15,16 @@ import { z } from 'zod';
 
 import { categoriesApi, foodsApi } from '@/api';
 import { ImagePicker } from '@/components/menu/ImagePicker';
+import {
+  FieldError,
+  FieldLabel,
+  FormInput,
+  PrimaryButton,
+  ToggleRow,
+} from '@/components/ui/FormControls';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { color, elevation, layout, press, radius, space, text, ui } from '@/theme';
 
 const DECIMAL_RE = /^\d+(\.\d{1,2})?$/;
 const INT_RE = /^\d+$/;
@@ -47,39 +52,6 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
-
-function StyledInput({
-  error,
-  ...props
-}: React.ComponentProps<typeof TextInput> & { error?: string }) {
-  const [focused, setFocused] = useState(false);
-  return (
-    <TextInput
-      {...props}
-      onFocus={(e) => {
-        setFocused(true);
-        props.onFocus?.(e);
-      }}
-      onBlur={(e) => {
-        setFocused(false);
-        props.onBlur?.(e);
-      }}
-      style={{
-        backgroundColor: '#FFF',
-        borderRadius: 12,
-        borderWidth: 1.5,
-        borderColor: error ? '#EF4444' : focused ? '#FA7938' : '#D3D6DE',
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        fontFamily: 'Urbanist',
-        fontSize: 14,
-        color: '#414158',
-        ...((props.style as object) ?? {}),
-      }}
-      placeholderTextColor="#C4C9D4"
-    />
-  );
-}
 
 export default function EditFoodScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -156,7 +128,7 @@ export default function EditFoodScreen() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <View style={{ flex: 1, backgroundColor: color.bg }}>
         <ScreenHeader title="Edit Food Item" showBack />
         <SkeletonCard height={200} />
         <SkeletonCard height={100} />
@@ -165,35 +137,26 @@ export default function EditFoodScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       <ScreenHeader title="Edit Food Item" showBack />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
+        <ScrollView contentContainerStyle={{ padding: layout.screenX, paddingBottom: space[12] }}>
           <Controller
             control={control}
             name="imageUrl"
             render={({ field }) => <ImagePicker value={field.value} onChange={field.onChange} />}
           />
 
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              style={{
-                fontFamily: 'Urbanist-SemiBold',
-                fontSize: 13,
-                color: '#9098B1',
-                marginBottom: 6,
-              }}
-            >
-              Name *
-            </Text>
+          <View style={{ marginBottom: space[4] }}>
+            <FieldLabel>Name *</FieldLabel>
             <Controller
               control={control}
               name="name"
               render={({ field }) => (
-                <StyledInput
+                <FormInput
                   value={field.value}
                   onChangeText={field.onChange}
                   placeholder="Name"
@@ -201,30 +164,15 @@ export default function EditFoodScreen() {
                 />
               )}
             />
-            {errors.name && (
-              <Text
-                style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#EF4444', marginTop: 4 }}
-              >
-                {errors.name.message}
-              </Text>
-            )}
+            <FieldError message={errors.name?.message} />
           </View>
 
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              style={{
-                fontFamily: 'Urbanist-SemiBold',
-                fontSize: 13,
-                color: '#9098B1',
-                marginBottom: 6,
-              }}
-            >
-              Category *
-            </Text>
+          <View style={{ marginBottom: space[4] }}>
+            <FieldLabel>Category *</FieldLabel>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8, paddingVertical: 4 }}
+              contentContainerStyle={{ gap: space[2], paddingVertical: space[1] }}
             >
               {categories.map((c: { id: string; name: string }) => {
                 const selected = watch('categoryId') === c.id;
@@ -232,20 +180,14 @@ export default function EditFoodScreen() {
                   <TouchableOpacity
                     key={c.id}
                     onPress={() => setValue('categoryId', c.id)}
-                    activeOpacity={0.8}
-                    style={{
-                      backgroundColor: selected ? '#FA7938' : '#F5F5FA',
-                      borderRadius: 999,
-                      paddingHorizontal: 14,
-                      paddingVertical: 8,
-                    }}
+                    activeOpacity={press.secondary}
+                    style={ui.chip(selected)}
                   >
                     <Text
-                      style={{
-                        fontFamily: 'Urbanist-SemiBold',
-                        fontSize: 13,
-                        color: selected ? '#FFF' : '#9098B1',
-                      }}
+                      style={[
+                        text.label,
+                        { color: selected ? color.onBrand : color.textSecondary },
+                      ]}
                     >
                       {c.name}
                     </Text>
@@ -255,22 +197,13 @@ export default function EditFoodScreen() {
             </ScrollView>
           </View>
 
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              style={{
-                fontFamily: 'Urbanist-SemiBold',
-                fontSize: 13,
-                color: '#9098B1',
-                marginBottom: 6,
-              }}
-            >
-              Description
-            </Text>
+          <View style={{ marginBottom: space[4] }}>
+            <FieldLabel>Description</FieldLabel>
             <Controller
               control={control}
               name="description"
               render={({ field }) => (
-                <StyledInput
+                <FormInput
                   value={field.value}
                   onChangeText={field.onChange}
                   placeholder="Description…"
@@ -282,23 +215,14 @@ export default function EditFoodScreen() {
             />
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View style={{ flex: 1, marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 13,
-                  color: '#9098B1',
-                  marginBottom: 6,
-                }}
-              >
-                Price (₹) *
-              </Text>
+          <View style={{ flexDirection: 'row', gap: space[3] }}>
+            <View style={{ flex: 1, marginBottom: space[4] }}>
+              <FieldLabel>Price (₹) *</FieldLabel>
               <Controller
                 control={control}
                 name="price"
                 render={({ field }) => (
-                  <StyledInput
+                  <FormInput
                     value={field.value}
                     onChangeText={field.onChange}
                     placeholder="0"
@@ -308,22 +232,13 @@ export default function EditFoodScreen() {
                 )}
               />
             </View>
-            <View style={{ flex: 1, marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 13,
-                  color: '#9098B1',
-                  marginBottom: 6,
-                }}
-              >
-                Discounted Price
-              </Text>
+            <View style={{ flex: 1, marginBottom: space[4] }}>
+              <FieldLabel>Discounted Price</FieldLabel>
               <Controller
                 control={control}
                 name="discountedPrice"
                 render={({ field }) => (
-                  <StyledInput
+                  <FormInput
                     value={field.value}
                     onChangeText={field.onChange}
                     placeholder="Optional"
@@ -334,23 +249,14 @@ export default function EditFoodScreen() {
             </View>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View style={{ flex: 1, marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 13,
-                  color: '#9098B1',
-                  marginBottom: 6,
-                }}
-              >
-                Prep Time (min) *
-              </Text>
+          <View style={{ flexDirection: 'row', gap: space[3] }}>
+            <View style={{ flex: 1, marginBottom: space[4] }}>
+              <FieldLabel>Prep Time (min) *</FieldLabel>
               <Controller
                 control={control}
                 name="preparationTime"
                 render={({ field }) => (
-                  <StyledInput
+                  <FormInput
                     value={field.value}
                     onChangeText={field.onChange}
                     placeholder="15"
@@ -360,22 +266,13 @@ export default function EditFoodScreen() {
                 )}
               />
             </View>
-            <View style={{ flex: 1, marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 13,
-                  color: '#9098B1',
-                  marginBottom: 6,
-                }}
-              >
-                Sort Order
-              </Text>
+            <View style={{ flex: 1, marginBottom: space[4] }}>
+              <FieldLabel>Sort Order</FieldLabel>
               <Controller
                 control={control}
                 name="sortOrder"
                 render={({ field }) => (
-                  <StyledInput
+                  <FormInput
                     value={field.value}
                     onChangeText={field.onChange}
                     placeholder="0"
@@ -387,82 +284,43 @@ export default function EditFoodScreen() {
           </View>
 
           <View
-            style={{
-              backgroundColor: '#FFF',
-              borderRadius: 16,
-              padding: 16,
-              marginBottom: 16,
-              gap: 14,
-              shadowColor: '#000',
-              shadowOpacity: 0.04,
-              shadowRadius: 8,
-              elevation: 1,
-            }}
+            style={[
+              {
+                backgroundColor: color.surface,
+                borderRadius: radius.card,
+                padding: space[4],
+                marginBottom: space[4],
+                gap: space[3.5],
+              },
+              elevation.sm,
+            ]}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text
-                style={{ flex: 1, fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158' }}
-              >
-                Vegetarian
-              </Text>
-              <Controller
-                control={control}
-                name="isVeg"
-                render={({ field }) => (
-                  <Switch
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    trackColor={{ false: '#E0E0EA', true: '#10B981' }}
-                    thumbColor="#FFF"
-                  />
-                )}
-              />
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text
-                style={{ flex: 1, fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158' }}
-              >
-                Available
-              </Text>
-              <Controller
-                control={control}
-                name="isAvailable"
-                render={({ field }) => (
-                  <Switch
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    trackColor={{ false: '#E0E0EA', true: '#FA7938' }}
-                    thumbColor="#FFF"
-                  />
-                )}
-              />
-            </View>
+            <Controller
+              control={control}
+              name="isVeg"
+              render={({ field }) => (
+                <ToggleRow
+                  label="Vegetarian"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  tone={color.success}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="isAvailable"
+              render={({ field }) => (
+                <ToggleRow label="Available" value={field.value} onValueChange={field.onChange} />
+              )}
+            />
           </View>
 
-          <TouchableOpacity
+          <PrimaryButton
+            label="Save Changes"
             onPress={handleSubmit((data) => mutation.mutate(data))}
-            disabled={mutation.isPending}
-            activeOpacity={0.85}
-            style={{
-              backgroundColor: '#FA7938',
-              borderRadius: 14,
-              paddingVertical: 16,
-              alignItems: 'center',
-              shadowColor: '#FA7938',
-              shadowOpacity: 0.3,
-              shadowRadius: 10,
-              shadowOffset: { width: 0, height: 4 },
-              elevation: 4,
-            }}
-          >
-            {mutation.isPending ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 16, color: '#FFF' }}>
-                Save Changes
-              </Text>
-            )}
-          </TouchableOpacity>
+            loading={mutation.isPending}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

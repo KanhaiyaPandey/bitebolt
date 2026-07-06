@@ -19,6 +19,7 @@ import Toast from 'react-native-toast-message';
 
 import { authApi } from '@/api';
 import { useAdminAuthStore } from '@/store/auth.store';
+import { color, elevation, font, motion, opacity, press, radius, space, text } from '@/theme';
 
 export default function OtpScreen() {
   const { phone, devOtp } = useLocalSearchParams<{ phone: string; devOtp?: string }>();
@@ -122,68 +123,73 @@ export default function OtpScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FA7938' }}>
+    <View style={{ flex: 1, backgroundColor: color.brand }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {/* Header Area */}
-          <View style={{ paddingHorizontal: 24, paddingVertical: 20, alignItems: 'flex-start' }}>
-            <Animated.View entering={FadeInDown.duration(500)}>
+          <View
+            style={{
+              paddingHorizontal: space[6],
+              paddingVertical: space[5],
+              alignItems: 'flex-start',
+            }}
+          >
+            <Animated.View entering={FadeInDown.duration(motion.press + 250)}>
               <TouchableOpacity
                 onPress={() => router.back()}
                 style={{
                   width: 44,
                   height: 44,
-                  borderRadius: 22,
-                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  borderRadius: radius.full,
+                  backgroundColor: `rgba(255,255,255,${opacity.overlay})`,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: 24,
+                  marginBottom: space[6],
                 }}
               >
-                <Ionicons name="arrow-back" size={24} color="#FFF" />
+                <Ionicons name="arrow-back" size={24} color={color.onBrand} />
               </TouchableOpacity>
 
-              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 32, color: '#FFF' }}>
-                Enter OTP
-              </Text>
+              <Text style={[text.display, { color: color.onBrand }]}>Enter OTP</Text>
               <Text
-                style={{
-                  fontFamily: 'Urbanist-Medium',
-                  fontSize: 16,
-                  color: 'rgba(255,255,255,0.9)',
-                  marginTop: 8,
-                  lineHeight: 24,
-                }}
+                style={[
+                  text.bodyLg,
+                  { color: color.onBrandMuted, marginTop: space[2], lineHeight: 24 },
+                ]}
               >
                 We've sent a 6-digit verification code to{'\n'}
-                <Text style={{ fontFamily: 'Urbanist-Bold', color: '#FFF' }}>+91 {phone}</Text>
+                <Text style={[text.bodyLg, { fontFamily: font.bold, color: color.onBrand }]}>
+                  +91 {phone}
+                </Text>
               </Text>
             </Animated.View>
           </View>
 
           {/* Bottom Card Area */}
           <Animated.View
-            entering={FadeInUp.delay(200).duration(600).springify()}
-            style={{
-              flex: 1,
-              backgroundColor: '#FAFBFC',
-              borderTopLeftRadius: 32,
-              borderTopRightRadius: 32,
-              paddingHorizontal: 28,
-              paddingTop: 48,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -8 },
-              shadowOpacity: 0.05,
-              shadowRadius: 20,
-              elevation: 10,
-            }}
+            entering={FadeInUp.delay(200).duration(motion.slow).springify()}
+            style={[
+              {
+                flex: 1,
+                backgroundColor: color.bg,
+                borderTopLeftRadius: radius.hero,
+                borderTopRightRadius: radius.hero,
+                paddingHorizontal: space[7],
+                paddingTop: space[12],
+              },
+              elevation.sheetTop,
+            ]}
           >
             {/* OTP boxes */}
             <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 }}
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: space[6],
+              }}
             >
               {otp.map((digit, i) => {
                 const isFocused = focusedIndex === i;
@@ -191,15 +197,10 @@ export default function OtpScreen() {
                 return (
                   <View
                     key={i}
-                    style={{
-                      shadowColor: isFocused ? '#FA7938' : '#000',
-                      shadowOffset: { width: 0, height: isFocused ? 4 : 2 },
-                      shadowOpacity: isFocused ? 0.2 : 0.04,
-                      shadowRadius: isFocused ? 8 : 4,
-                      elevation: isFocused ? 4 : 1,
-                      backgroundColor: '#FFF',
-                      borderRadius: 14,
-                    }}
+                    style={[
+                      { backgroundColor: color.surface, borderRadius: radius.button },
+                      isFocused ? elevation.brandSm : elevation.sm,
+                    ]}
                   >
                     <TextInput
                       ref={(ref) => {
@@ -212,21 +213,22 @@ export default function OtpScreen() {
                       onBlur={() => setFocusedIndex(-1)}
                       keyboardType="number-pad"
                       maxLength={1}
-                      style={{
-                        width: 48,
-                        height: 56,
-                        borderWidth: 2,
-                        borderColor: isFocused
-                          ? '#FA7938'
-                          : hasValue
-                            ? 'rgba(250, 121, 56, 0.4)'
-                            : 'transparent',
-                        borderRadius: 14,
-                        textAlign: 'center',
-                        fontSize: 24,
-                        fontFamily: 'Urbanist-Bold',
-                        color: '#1A1A2E',
-                      }}
+                      style={[
+                        text.h1,
+                        {
+                          width: 48,
+                          height: 56,
+                          borderWidth: 2,
+                          borderColor: isFocused
+                            ? color.brand
+                            : hasValue
+                              ? color.brand + '66'
+                              : 'transparent',
+                          borderRadius: radius.button,
+                          textAlign: 'center',
+                          color: color.textHeading,
+                        },
+                      ]}
                       autoFocus={i === 0}
                     />
                   </View>
@@ -234,21 +236,22 @@ export default function OtpScreen() {
               })}
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
-              <Text style={{ fontFamily: 'Urbanist-Medium', fontSize: 15, color: '#9098B1' }}>
+            <View
+              style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: space[8] }}
+            >
+              <Text style={[text.buttonSm, { color: color.textSecondary }]}>
                 Didn't receive the code?{' '}
               </Text>
               <TouchableOpacity
-                activeOpacity={0.7}
+                activeOpacity={press.subtle}
                 onPress={handleResend}
                 disabled={resending || cooldown > 0}
               >
                 <Text
-                  style={{
-                    fontFamily: 'Urbanist-Bold',
-                    fontSize: 15,
-                    color: resending || cooldown > 0 ? '#C4C9D4' : '#FA7938',
-                  }}
+                  style={[
+                    text.emphasis,
+                    { color: resending || cooldown > 0 ? color.textMuted : color.brand },
+                  ]}
                 >
                   {cooldown > 0 ? `Resend in ${cooldown}s` : resending ? 'Sending…' : 'Resend'}
                 </Text>
@@ -260,7 +263,7 @@ export default function OtpScreen() {
             <RNAnimated.View
               style={{
                 transform: [{ scale: scaleAnim }],
-                paddingBottom: Platform.OS === 'ios' ? 24 : 32,
+                paddingBottom: Platform.OS === 'ios' ? space[6] : space[8],
               }}
             >
               <TouchableOpacity
@@ -268,26 +271,22 @@ export default function OtpScreen() {
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 disabled={!isComplete || loading}
-                activeOpacity={0.9}
-                style={{
-                  backgroundColor: isComplete ? '#FA7938' : '#D3D6DE',
-                  borderRadius: 16,
-                  height: 60,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  shadowColor: '#FA7938',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: isComplete ? 0.25 : 0,
-                  shadowRadius: 16,
-                  elevation: isComplete ? 8 : 0,
-                }}
+                activeOpacity={press.primary}
+                style={[
+                  {
+                    backgroundColor: isComplete ? color.brand : color.disabled,
+                    borderRadius: radius.field,
+                    height: 60,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  },
+                  isComplete ? elevation.brandLg : elevation.none,
+                ]}
               >
                 {loading ? (
-                  <ActivityIndicator color="#FFF" size="small" />
+                  <ActivityIndicator color={color.onBrand} size="small" />
                 ) : (
-                  <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 18, color: '#FFF' }}>
-                    Verify & Login
-                  </Text>
+                  <Text style={[text.button, { color: color.onBrand }]}>Verify & Login</Text>
                 )}
               </TouchableOpacity>
             </RNAnimated.View>

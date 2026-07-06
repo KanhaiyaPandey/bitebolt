@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Text, TouchableOpacity, View } from 'react-native';
 
+import { color, font, press, radius, space, text, ui } from '@/theme';
+
 interface ErrorStateProps {
   title?: string;
   subtitle?: string;
@@ -18,64 +20,55 @@ export function ErrorState({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 60,
-        paddingHorizontal: 32,
+        paddingVertical: space[14],
+        paddingHorizontal: space[8],
       }}
     >
-      <View
-        style={{
-          width: 80,
-          height: 80,
-          borderRadius: 40,
-          backgroundColor: 'rgba(239,68,68,0.12)',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 20,
-        }}
-      >
-        <Ionicons name="cloud-offline-outline" size={40} color="#EF4444" />
+      <View style={[ui.iconTile(80, color.error + '1F'), { marginBottom: space[5] }]}>
+        <Ionicons name="cloud-offline-outline" size={40} color={color.error} />
       </View>
       <Text
-        style={{
-          fontFamily: 'Urbanist-SemiBold',
-          fontSize: 18,
-          color: '#414158',
-          textAlign: 'center',
-          marginBottom: 8,
-        }}
+        style={[
+          text.h3,
+          {
+            fontFamily: font.semibold,
+            color: color.textPrimary,
+            textAlign: 'center',
+            marginBottom: space[2],
+          },
+        ]}
       >
         {title}
       </Text>
       <Text
-        style={{
-          fontFamily: 'Urbanist',
-          fontSize: 14,
-          color: '#9098B1',
-          textAlign: 'center',
-          maxWidth: 260,
-          marginBottom: onRetry ? 20 : 0,
-        }}
+        style={[
+          text.body,
+          {
+            color: color.textSecondary,
+            textAlign: 'center',
+            maxWidth: 260,
+            marginBottom: onRetry ? space[5] : 0,
+          },
+        ]}
       >
         {subtitle}
       </Text>
       {onRetry && (
         <TouchableOpacity
           onPress={onRetry}
-          activeOpacity={0.85}
+          activeOpacity={press.card}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 8,
-            backgroundColor: '#FA7938',
-            borderRadius: 14,
-            paddingHorizontal: 24,
-            paddingVertical: 12,
+            gap: space[2],
+            backgroundColor: color.brand,
+            borderRadius: radius.button,
+            paddingHorizontal: space[6],
+            paddingVertical: space[3],
           }}
         >
-          <Ionicons name="refresh" size={18} color="#FFF" />
-          <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 15, color: '#FFF' }}>
-            Retry
-          </Text>
+          <Ionicons name="refresh" size={18} color={color.onBrand} />
+          <Text style={[text.buttonSm, { color: color.onBrand }]}>Retry</Text>
         </TouchableOpacity>
       )}
     </View>

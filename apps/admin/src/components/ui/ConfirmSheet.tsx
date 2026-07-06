@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef } from 'react';
 import { ActivityIndicator, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { color, press, radius, space, text } from '@/theme';
+
 interface ConfirmSheetProps {
   title: string;
   message: string;
@@ -58,58 +60,50 @@ export function ConfirmSheet({
       enablePanDownToClose
       onClose={onClose}
       backdropComponent={renderBackdrop}
-      handleIndicatorStyle={{ backgroundColor: '#D3D6DE', width: 32, height: 4 }}
+      handleIndicatorStyle={{ backgroundColor: color.disabled, width: space[8], height: space[1] }}
       backgroundStyle={{
-        backgroundColor: '#FFFFFF',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        backgroundColor: color.surface,
+        borderTopLeftRadius: radius.panel,
+        borderTopRightRadius: radius.panel,
       }}
     >
-      <BottomSheetView style={{ padding: 24 }}>
-        <Text
-          style={{ fontFamily: 'Urbanist-Bold', fontSize: 18, color: '#414158', marginBottom: 8 }}
-        >
-          {title}
-        </Text>
-        <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', marginBottom: 24 }}>
+      <BottomSheetView style={{ padding: space[6] }}>
+        <Text style={[text.h3, { color: color.textPrimary, marginBottom: space[2] }]}>{title}</Text>
+        <Text style={[text.body, { color: color.textSecondary, marginBottom: space[6] }]}>
           {message}
         </Text>
 
-        <View style={{ flexDirection: 'row', gap: 12 }}>
+        <View style={{ flexDirection: 'row', gap: space[3] }}>
           <TouchableOpacity
             onPress={onClose}
-            activeOpacity={0.8}
+            activeOpacity={press.secondary}
             style={{
               flex: 1,
-              backgroundColor: '#F5F5FA',
-              borderRadius: 14,
-              paddingVertical: 14,
+              backgroundColor: color.surfaceSubtle,
+              borderRadius: radius.button,
+              paddingVertical: space[3.5],
               alignItems: 'center',
             }}
           >
-            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 15, color: '#414158' }}>
-              Cancel
-            </Text>
+            <Text style={[text.buttonSm, { color: color.textPrimary }]}>Cancel</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleConfirm}
             disabled={loading}
-            activeOpacity={0.8}
+            activeOpacity={press.secondary}
             style={{
               flex: 1,
-              backgroundColor: '#EF4444',
-              borderRadius: 14,
-              paddingVertical: 14,
+              backgroundColor: color.error,
+              borderRadius: radius.button,
+              paddingVertical: space[3.5],
               alignItems: 'center',
             }}
           >
             {loading ? (
-              <ActivityIndicator color="#FFF" />
+              <ActivityIndicator color={color.onBrand} />
             ) : (
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 15, color: '#FFF' }}>
-                {confirmLabel}
-              </Text>
+              <Text style={[text.buttonSm, { color: color.onBrand }]}>{confirmLabel}</Text>
             )}
           </TouchableOpacity>
         </View>

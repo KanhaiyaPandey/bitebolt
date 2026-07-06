@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { color, radius, space, text } from '@/theme';
+
 interface SectionHeaderProps {
   title: string;
 }
@@ -10,22 +12,20 @@ export function SectionHeader({ title }: SectionHeaderProps) {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: space[4],
+        paddingVertical: space[3],
       }}
     >
       <View
         style={{
           width: 3,
           height: 18,
-          backgroundColor: '#FA7938',
-          borderRadius: 2,
-          marginRight: 10,
+          backgroundColor: color.brand,
+          borderRadius: radius.none + 2,
+          marginRight: space[2.5],
         }}
       />
-      <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 16, color: '#414158' }}>
-        {title}
-      </Text>
+      <Text style={[text.titleMd, { color: color.textPrimary }]}>{title}</Text>
     </View>
   );
 }

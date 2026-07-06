@@ -10,6 +10,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { color, elevation, font, fontSize, layout, motion, radius, space } from '@/theme';
+
 const TABS = [
   {
     name: 'index',
@@ -50,15 +52,15 @@ function TabBarIcon({ name, label, focused }: { name: string; label: string; foc
 
   useEffect(() => {
     scale.value = withTiming(focused ? 1.15 : 1, {
-      duration: 300,
+      duration: motion.base,
       easing: Easing.out(Easing.back(1.5)),
     });
-    translateY.value = withTiming(focused ? -4 : 0, {
-      duration: 300,
+    translateY.value = withTiming(focused ? -space[1] : 0, {
+      duration: motion.base,
       easing: Easing.out(Easing.back(1.5)),
     });
     dotScale.value = withTiming(focused ? 1 : 0, {
-      duration: 300,
+      duration: motion.base,
       easing: Easing.out(Easing.back(2)),
     });
   }, [focused, scale, translateY, dotScale]);
@@ -81,15 +83,15 @@ function TabBarIcon({ name, label, focused }: { name: string; label: string; foc
         <Ionicons
           name={focused ? tab.iconActive : tab.icon}
           size={22}
-          color={focused ? '#FA7938' : '#A0AABF'}
+          color={focused ? color.brand : color.navInactive}
         />
         <Text
           numberOfLines={1}
           style={{
-            fontFamily: focused ? 'Urbanist-Bold' : 'Urbanist-Medium',
-            fontSize: 10,
-            color: focused ? '#FA7938' : '#A0AABF',
-            marginTop: 3,
+            fontFamily: focused ? font.bold : font.medium,
+            fontSize: fontSize.tiny,
+            color: focused ? color.brand : color.navInactive,
+            marginTop: space[0.5] + 1,
           }}
         >
           {label}
@@ -99,11 +101,11 @@ function TabBarIcon({ name, label, focused }: { name: string; label: string; foc
         style={[
           {
             position: 'absolute',
-            bottom: -4,
-            width: 4,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: '#FA7938',
+            bottom: -space[1],
+            width: space[1],
+            height: space[1],
+            borderRadius: space[0.5],
+            backgroundColor: color.brand,
           },
           dotStyle,
         ]}
@@ -118,29 +120,25 @@ export default function TabLayout() {
   const tabBarHeight = 68 + bottomPad;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAFBFC' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
             position: 'absolute',
             bottom: 0,
-            left: 16,
-            right: 16,
-            backgroundColor: '#FFFFFF',
-            borderRadius: 24,
-            height: tabBarHeight - 10,
+            left: layout.screenX,
+            right: layout.screenX,
+            backgroundColor: color.surface,
+            borderRadius: radius.panel,
+            height: tabBarHeight - space[2.5],
             borderTopWidth: 0,
-            elevation: 14,
-            shadowColor: '#1A1A24',
-            shadowOpacity: 0.1,
-            shadowRadius: 20,
-            shadowOffset: { width: 0, height: -2 },
             paddingBottom: bottomPad,
             paddingTop: 0,
+            ...elevation.navBar,
           },
           tabBarItemStyle: {
-            paddingTop: 25,
+            paddingTop: space[6] + 1,
           },
           tabBarShowLabel: false,
         }}

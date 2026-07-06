@@ -120,6 +120,17 @@ export class AuthService {
     let [user] = await this.db.db.select().from(users).where(eq(users.phone, phone));
     const isNewUser = !user;
 
+    // Admin clients must map to a pre-existing admin account — never auto-provision
+    // a customer (and wallet) for a number that is being denied admin access.
+    if (isAdminClient && (!user || user.role !== 'ADMIN')) {
+      this.logger.warn(
+        `[AuthService] Admin login denied — role is ${user?.role ?? 'none'} for phone ${phone}`,
+      );
+      throw new ForbiddenException(
+        'Admin access only. This account does not have admin privileges.',
+      );
+    }
+
     if (!user) {
       [user] = await this.db.db.insert(users).values({ phone }).returning();
 
@@ -128,15 +139,6 @@ export class AuthService {
 
     if (!user.isActive) {
       throw new UnauthorizedException('Your account has been suspended. Contact support.');
-    }
-
-    if (isAdminClient && user.role !== 'ADMIN') {
-      this.logger.warn(
-        `[AuthService] Admin login denied — role is ${user.role} for phone ${phone}`,
-      );
-      throw new ForbiddenException(
-        'Admin access only. This account does not have admin privileges.',
-      );
     }
 
     const tokens = this.generateTokens(user.id, user.phone, user.role);

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { customersApi } from '@/api';
 import { CustomerRow } from '@/components/customers/CustomerRow';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -16,7 +17,7 @@ export default function CustomersScreen() {
   const debouncedSearch = useDebounce(search, 350);
   const insets = useSafeAreaInsets();
 
-  const { data, isLoading, refetch, isRefetching } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['admin-customers', { search: debouncedSearch }],
     queryFn: () => {
       console.debug('[AdminCustomers] Fetching customers', { search: debouncedSearch });
@@ -80,6 +81,12 @@ export default function CustomersScreen() {
             <SkeletonCard key={i} height={72} />
           ))}
         </View>
+      ) : isError ? (
+        <ErrorState
+          title="Couldn't load customers"
+          subtitle="Check your connection and try again."
+          onRetry={refetch}
+        />
       ) : (
         <FlatList
           data={customers}

@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import Razorpay from 'razorpay';
 
 import { DbService } from '../../db/db.service';
@@ -92,6 +92,9 @@ export class PaymentsService {
   // ── Verify Payment ───────────────────────────────────────────────────────────
 
   async verifyPayment(userId: string, dto: VerifyPaymentDto) {
+    // Ensures Razorpay (and therefore keySecret) is configured before verifying.
+    this.getRazorpay();
+
     const body = `${dto.razorpayOrderId}|${dto.razorpayPaymentId}`;
     const expectedSignature = crypto
       .createHmac('sha256', this.configService.get<string>('razorpay.keySecret')!)
@@ -186,9 +189,14 @@ export class PaymentsService {
       },
     });
 
+    const countConditions = [];
+    if (status) countConditions.push(eq(payments.status, status as any));
+    if (method) countConditions.push(eq(payments.method, method as any));
+
     const [{ total }] = await this.db.db
       .select({ total: sql<number>`count(*)::int` })
-      .from(payments);
+      .from(payments)
+      .where(countConditions.length > 0 ? and(...countConditions) : undefined);
 
     return {
       payments: rows,

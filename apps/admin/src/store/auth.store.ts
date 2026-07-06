@@ -39,7 +39,16 @@ export const useAdminAuthStore = create<AdminAuthState>((set) => ({
       }
     } catch (e) {
       console.error('[AdminAuth] Session restore error', e);
-      set({ isLoading: false });
+      // Clear any partial/stale auth so the client can't keep authenticating
+      // with a token the store no longer trusts.
+      try {
+        await SecureStore.deleteItemAsync('adminAccessToken');
+        await SecureStore.deleteItemAsync('adminRefreshToken');
+        await SecureStore.deleteItemAsync('adminUser');
+      } catch (cleanupError) {
+        console.error('[AdminAuth] Session cleanup error', cleanupError);
+      }
+      set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },
 
@@ -53,9 +62,12 @@ export const useAdminAuthStore = create<AdminAuthState>((set) => ({
 
   logout: async () => {
     console.debug('[AdminAuth] Logout');
-    await SecureStore.deleteItemAsync('adminAccessToken');
-    await SecureStore.deleteItemAsync('adminRefreshToken');
-    await SecureStore.deleteItemAsync('adminUser');
-    set({ user: null, isAuthenticated: false });
+    try {
+      await SecureStore.deleteItemAsync('adminAccessToken');
+      await SecureStore.deleteItemAsync('adminRefreshToken');
+      await SecureStore.deleteItemAsync('adminUser');
+    } finally {
+      set({ user: null, isAuthenticated: false });
+    }
   },
 }));

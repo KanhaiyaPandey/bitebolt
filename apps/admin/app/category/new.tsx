@@ -20,11 +20,16 @@ import { categoriesApi } from '@/api';
 import { ImagePicker } from '@/components/menu/ImagePicker';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
+const INT_RE = /^\d+$/;
+
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
-  sortOrder: z.string().optional(),
+  sortOrder: z
+    .string()
+    .optional()
+    .refine((v) => !v || INT_RE.test(v), 'Enter a valid number'),
   isActive: z.boolean(),
 });
 

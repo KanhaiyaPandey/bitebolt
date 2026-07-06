@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { ScrollView } from 'react-native';
 import Svg, { G, Rect, Text as SvgText } from 'react-native-svg';
 
 interface DaySale {
@@ -28,15 +28,16 @@ const BAR_SPACING = 16;
 export function SalesChart({ data }: SalesChartProps) {
   const max = Math.max(...data.map((d) => d.revenue), 1);
   const chartWidth = data.length * (BAR_WIDTH + BAR_SPACING) + BAR_SPACING;
+  const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       <Svg width={chartWidth} height={CHART_HEIGHT + 36}>
         {data.map((item, i) => {
           const barH = Math.max((item.revenue / max) * CHART_HEIGHT, 4);
           const x = BAR_SPACING / 2 + i * (BAR_WIDTH + BAR_SPACING);
           const y = CHART_HEIGHT - barH;
-          const isToday = i === data.length - 1;
+          const isToday = item.date === todayStr;
 
           return (
             <G key={item.date}>
@@ -74,6 +75,6 @@ export function SalesChart({ data }: SalesChartProps) {
           );
         })}
       </Svg>
-    </View>
+    </ScrollView>
   );
 }

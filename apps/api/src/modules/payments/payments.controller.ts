@@ -41,6 +41,8 @@ export class PaymentsController {
     @Query('status') status?: string,
     @Query('method') method?: string,
   ) {
-    return this.paymentsService.getAllPayments(+page, +limit, status, method);
+    const safePage = Math.max(1, Math.floor(Number(page)) || 1);
+    const safeLimit = Math.min(100, Math.max(1, Math.floor(Number(limit)) || 20));
+    return this.paymentsService.getAllPayments(safePage, safeLimit, status, method);
   }
 }

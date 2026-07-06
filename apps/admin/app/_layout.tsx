@@ -57,7 +57,11 @@ function AuthGuard() {
     }
   }, [isAuthenticated, isLoading, segments, router]);
 
-  return null;
+  // Hold the route tree until the auth decision is made so protected screens
+  // never mount before the guard redirects.
+  if (isLoading) return null;
+
+  return <Slot />;
 }
 
 export default function RootLayout() {
@@ -84,7 +88,6 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <AuthGuard />
-        <Slot />
         <Toast />
       </QueryClientProvider>
     </GestureHandlerRootView>

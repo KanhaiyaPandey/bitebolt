@@ -50,7 +50,7 @@ export default function OrderDetailScreen() {
   const statusMutation = useMutation({
     mutationFn: ({ status, notes }: { status: string; notes?: string }) => {
       console.debug('[AdminOrders] Update status', { orderId: id, newStatus: status });
-      return ordersApi.updateStatus(id!, { status, rejectionReason: notes });
+      return ordersApi.updateStatus(id!, { status, rejectionReason: notes, notes });
     },
     onSuccess: (_, vars) => {
       console.debug('[AdminOrders] Status updated successfully', {

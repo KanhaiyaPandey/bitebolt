@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
 import { walletTransactions, wallets } from '../../db/schema';
@@ -99,9 +99,33 @@ export class WalletService {
     this.logger.debug('[WalletService] getAllTransactions', { page, limit, userId, type });
     const offset = (page - 1) * limit;
 
+    // Transactions are keyed by wallet, so resolve the user's wallet to filter by userId.
+    let walletId: string | undefined;
+    if (userId) {
+      const wallet = await this.db.db.query.wallets.findFirst({
+        where: (t, { eq: eqFn }) => eqFn(t.userId, userId),
+        columns: { id: true },
+      });
+      if (!wallet) {
+        return {
+          transactions: [],
+          meta: {
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPreviousPage: page > 1,
+          },
+        };
+      }
+      walletId = wallet.id;
+    }
+
     const rows = await this.db.db.query.walletTransactions.findMany({
       where: (t, { and: andFn, eq: eqFn }) => {
         const conditions = [];
+        if (walletId) conditions.push(eqFn(t.walletId, walletId));
         if (type) conditions.push(eqFn(t.type, type as 'CREDIT' | 'DEBIT'));
         return conditions.length > 0 ? andFn(...(conditions as [any, ...any[]])) : undefined;
       },
@@ -111,9 +135,14 @@ export class WalletService {
       with: { wallet: { with: { user: { columns: { id: true, name: true, phone: true } } } } },
     });
 
+    const countConditions = [];
+    if (walletId) countConditions.push(eq(walletTransactions.walletId, walletId));
+    if (type) countConditions.push(eq(walletTransactions.type, type as 'CREDIT' | 'DEBIT'));
+
     const [{ total }] = await this.db.db
       .select({ total: sql<number>`count(*)::int` })
-      .from(walletTransactions);
+      .from(walletTransactions)
+      .where(countConditions.length > 0 ? and(...countConditions) : undefined);
 
     const mapped = rows.map((tx) => ({
       id: tx.id,

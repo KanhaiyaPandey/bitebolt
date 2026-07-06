@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ExpoImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 
 import { uploadApi } from '@/api';
 
@@ -37,6 +37,11 @@ export function ImagePicker({ value, onChange, label = 'Food Image' }: ImagePick
     try {
       const url = await uploadApi.uploadImage(asset.uri, mimeType);
       console.debug('[AdminMenu] Image uploaded', { url });
+      if (!url) {
+        console.error('[AdminMenu] Image upload returned no URL');
+        Alert.alert('Upload failed', 'The image could not be uploaded. Please try again.');
+        return;
+      }
       onChange(url);
     } catch (err) {
       console.error('[AdminMenu] Image upload failed', err);

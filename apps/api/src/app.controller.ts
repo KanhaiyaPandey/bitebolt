@@ -14,7 +14,7 @@ export class AppController {
     try {
       await this.db.db.execute(sql`select 1`);
       return { status: 'ok', timestamp: new Date().toISOString() };
-    } catch (error) {
+    } catch {
       throw new HttpException(
         { status: 'error', message: 'Database unreachable' },
         HttpStatus.SERVICE_UNAVAILABLE,

@@ -20,17 +20,29 @@ import { categoriesApi, foodsApi } from '@/api';
 import { ImagePicker } from '@/components/menu/ImagePicker';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
+const DECIMAL_RE = /^\d+(\.\d{1,2})?$/;
+const INT_RE = /^\d+$/;
+
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   categoryId: z.string().min(1, 'Category is required'),
-  price: z.string().min(1, 'Price is required'),
-  discountedPrice: z.string().optional(),
+  price: z.string().min(1, 'Price is required').regex(DECIMAL_RE, 'Enter a valid price'),
+  discountedPrice: z
+    .string()
+    .optional()
+    .refine((v) => !v || DECIMAL_RE.test(v), 'Enter a valid price'),
   imageUrl: z.string().optional(),
   isVeg: z.boolean(),
   isAvailable: z.boolean(),
-  preparationTime: z.string().min(1, 'Prep time is required'),
-  sortOrder: z.string().optional(),
+  preparationTime: z
+    .string()
+    .min(1, 'Prep time is required')
+    .regex(INT_RE, 'Enter a valid time in minutes'),
+  sortOrder: z
+    .string()
+    .optional()
+    .refine((v) => !v || INT_RE.test(v), 'Enter a valid number'),
 });
 
 type FormData = z.infer<typeof schema>;

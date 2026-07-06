@@ -21,7 +21,7 @@ client.interceptors.request.use(async (config) => {
 
 // Auto-refresh on 401
 let isRefreshing = false;
-let refreshQueue: ((token: string) => void)[] = [];
+let refreshQueue: { resolve: (token: string) => void; reject: (error: unknown) => void }[] = [];
 
 client.interceptors.response.use(
   (response) => {
@@ -38,10 +38,13 @@ client.interceptors.response.use(
       originalRequest._retry = true;
 
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          refreshQueue.push((token: string) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(client(originalRequest));
+        return new Promise((resolve, reject) => {
+          refreshQueue.push({
+            resolve: (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(client(originalRequest));
+            },
+            reject,
           });
         });
       }
@@ -54,14 +57,14 @@ client.interceptors.response.use(
         const res = await axios.post(
           `${API_URL}/auth/refresh`,
           { refreshToken },
-          { headers: { 'X-Client': 'admin' } },
+          { headers: { 'X-Client': 'admin' }, timeout: 15000 },
         );
         const { accessToken } = res.data.data ?? res.data;
 
         await SecureStore.setItemAsync('adminAccessToken', accessToken);
         console.debug('[AdminAPI] Token refreshed');
 
-        refreshQueue.forEach((cb) => cb(accessToken));
+        refreshQueue.forEach((waiter) => waiter.resolve(accessToken));
         refreshQueue = [];
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -70,6 +73,7 @@ client.interceptors.response.use(
         console.error('[AdminAPI] Token refresh failed — logging out');
         await SecureStore.deleteItemAsync('adminAccessToken');
         await SecureStore.deleteItemAsync('adminRefreshToken');
+        refreshQueue.forEach((waiter) => waiter.reject(error));
         refreshQueue = [];
         return Promise.reject(error);
       } finally {

@@ -187,7 +187,7 @@ export class UsersService {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
+        totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
         hasNextPage: page * limit < total,
         hasPreviousPage: page > 1,
       },
@@ -200,7 +200,7 @@ export class UsersService {
     this.logger.debug('[UsersService] getCustomerById', { id });
 
     const customer = await this.db.db.query.users.findFirst({
-      where: (t, { eq: eqFn }) => eqFn(t.id, id),
+      where: (t, { and: andFn, eq: eqFn }) => andFn(eqFn(t.id, id), eqFn(t.role, 'CUSTOMER')),
       with: {
         addresses: { orderBy: (a, { desc: descFn }) => [descFn(a.isDefault)] },
         wallet: { columns: { balance: true } },

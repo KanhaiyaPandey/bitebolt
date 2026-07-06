@@ -9,6 +9,7 @@ import { MetricCard } from '@/components/analytics/MetricCard';
 import { PopularItems } from '@/components/analytics/PopularItems';
 import { SalesChart } from '@/components/analytics/SalesChart';
 import { STATUS_STYLES } from '@/components/orders/StatusBadge';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useAdminAuthStore } from '@/store/auth.store';
@@ -54,7 +55,12 @@ export default function DashboardScreen() {
     ]);
   };
 
-  const { data: overview, isLoading: loadingOverview } = useQuery({
+  const {
+    data: overview,
+    isLoading: loadingOverview,
+    isError: overviewError,
+    refetch: refetchOverview,
+  } = useQuery({
     queryKey: ['admin-analytics-overview'],
     queryFn: analyticsApi.getOverview,
     refetchInterval: 60_000,
@@ -187,6 +193,12 @@ export default function DashboardScreen() {
               <SkeletonCard height={140} width={160} />
               <SkeletonCard height={140} width={160} />
             </ScrollView>
+          ) : overviewError ? (
+            <ErrorState
+              title="Couldn't load overview"
+              subtitle="Today's metrics are unavailable right now."
+              onRetry={refetchOverview}
+            />
           ) : (
             <ScrollView
               horizontal

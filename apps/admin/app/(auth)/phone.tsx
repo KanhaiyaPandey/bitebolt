@@ -51,10 +51,10 @@ export default function PhoneScreen() {
       return;
     }
     setLoading(true);
-    console.debug('[AdminAuth] Sending OTP', { phone });
+    console.debug('[AdminAuth] Sending OTP');
     try {
       const res = (await authApi.sendOtp(phone)) as { devOtp?: string } | undefined;
-      console.debug('[AdminAuth] OTP sent', { phone });
+      console.debug('[AdminAuth] OTP sent');
       // Dev-only: backend returns devOtp so we can auto-fill and skip Twilio.
       const devOtp = __DEV__ ? res?.devOtp : undefined;
       router.push({ pathname: '/(auth)/otp', params: { phone, ...(devOtp ? { devOtp } : {}) } });

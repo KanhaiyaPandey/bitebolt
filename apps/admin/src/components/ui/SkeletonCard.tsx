@@ -8,7 +8,15 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-export function SkeletonCard({ height = 80, width }: { height?: number; width?: number }) {
+export function SkeletonCard({
+  height = 80,
+  width,
+  flex,
+}: {
+  height?: number;
+  width?: number;
+  flex?: number;
+}) {
   const opacity = useSharedValue(1);
 
   useEffect(() => {
@@ -28,7 +36,8 @@ export function SkeletonCard({ height = 80, width }: { height?: number; width?: 
           borderRadius: 16,
           height,
           width,
-          marginHorizontal: width ? 0 : 16,
+          flex,
+          marginHorizontal: width || flex ? 0 : 16,
           marginBottom: 12,
         },
         animStyle,
@@ -40,8 +49,8 @@ export function SkeletonCard({ height = 80, width }: { height?: number; width?: 
 export function SkeletonRow() {
   return (
     <View style={{ flexDirection: 'row', gap: 12, marginHorizontal: 16, marginBottom: 12 }}>
-      <SkeletonCard height={48} />
-      <SkeletonCard height={48} />
+      <SkeletonCard height={48} flex={1} />
+      <SkeletonCard height={48} flex={1} />
     </View>
   );
 }

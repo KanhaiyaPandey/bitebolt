@@ -282,7 +282,7 @@ export default function CustomerDetailScreen() {
                   marginRight: 10,
                 }}
               >
-                ₹{Number(order.total).toFixed(0)}
+                ₹{Number(order.total).toFixed(2)}
               </Text>
               <StatusBadge status={order.status} size="sm" />
               <Ionicons

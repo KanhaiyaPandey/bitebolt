@@ -39,9 +39,9 @@ async function seedOrders() {
   if (categoriesData.length === 0) {
     console.log('Creating categories...');
     categoriesData = await db.insert(schema.categories).values([
-      { name: 'Burgers', imageUrl: 'https://cdn.bitebolt.in/burgers.jpg' },
-      { name: 'Pizzas', imageUrl: 'https://cdn.bitebolt.in/pizzas.jpg' },
-      { name: 'Drinks', imageUrl: 'https://cdn.bitebolt.in/drinks.jpg' },
+      { name: 'Burgers', slug: 'burgers', imageUrl: 'https://cdn.bitebolt.in/burgers.jpg' },
+      { name: 'Pizzas', slug: 'pizzas', imageUrl: 'https://cdn.bitebolt.in/pizzas.jpg' },
+      { name: 'Drinks', slug: 'drinks', imageUrl: 'https://cdn.bitebolt.in/drinks.jpg' },
     ]).returning();
   }
 
@@ -50,11 +50,11 @@ async function seedOrders() {
   if (foods.length === 0) {
     console.log('Creating food items...');
     foods = await db.insert(foodItems).values([
-      { categoryId: categoriesData[0].id, name: 'Classic Burger', description: 'Juicy beef patty', price: '199', imageUrl: 'https://cdn.bitebolt.in/burger1.jpg' },
-      { categoryId: categoriesData[0].id, name: 'Cheese Burger', description: 'Extra cheese', price: '249', imageUrl: 'https://cdn.bitebolt.in/burger2.jpg' },
-      { categoryId: categoriesData[1].id, name: 'Margherita', description: 'Classic cheese pizza', price: '299', imageUrl: 'https://cdn.bitebolt.in/pizza1.jpg' },
-      { categoryId: categoriesData[1].id, name: 'Pepperoni', description: 'Spicy pepperoni', price: '399', imageUrl: 'https://cdn.bitebolt.in/pizza2.jpg' },
-      { categoryId: categoriesData[2].id, name: 'Coke', description: 'Chilled beverage', price: '60', imageUrl: 'https://cdn.bitebolt.in/coke.jpg' },
+      { categoryId: categoriesData[0].id, name: 'Classic Burger', slug: 'classic-burger', description: 'Juicy beef patty', price: '199', imageUrl: 'https://cdn.bitebolt.in/burger1.jpg' },
+      { categoryId: categoriesData[0].id, name: 'Cheese Burger', slug: 'cheese-burger', description: 'Extra cheese', price: '249', imageUrl: 'https://cdn.bitebolt.in/burger2.jpg' },
+      { categoryId: categoriesData[1].id, name: 'Margherita', slug: 'margherita', description: 'Classic cheese pizza', price: '299', imageUrl: 'https://cdn.bitebolt.in/pizza1.jpg' },
+      { categoryId: categoriesData[1].id, name: 'Pepperoni', slug: 'pepperoni', description: 'Spicy pepperoni', price: '399', imageUrl: 'https://cdn.bitebolt.in/pizza2.jpg' },
+      { categoryId: categoriesData[2].id, name: 'Coke', slug: 'coke', description: 'Chilled beverage', price: '60', imageUrl: 'https://cdn.bitebolt.in/coke.jpg' },
     ]).returning();
   }
 
@@ -105,7 +105,7 @@ async function seedOrders() {
         subtotal: totalStr,
         deliveryFee: '40',
         taxes: '20',
-        total: totalStr,
+        total: (Number(totalStr) + 40 + 20).toFixed(2),
         createdAt: orderDate,
       })
       .returning();
@@ -125,7 +125,7 @@ async function seedOrders() {
     await db.insert(payments).values({
       orderId: order.id,
       userId: client.id,
-      amount: totalStr,
+      amount: (Number(totalStr) + 40 + 20).toFixed(2),
       method: i % 2 === 0 ? 'UPI' : 'CARD',
       status: 'CAPTURED',
       createdAt: orderDate,

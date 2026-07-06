@@ -4,7 +4,8 @@ services:
     runtime: node
     plan: starter
     region: singapore
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @bitebolt/api build
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @bitebolt/api... build
+    preDeployCommand: pnpm --filter @bitebolt/api db:migrate
     startCommand: node apps/api/dist/main.js
     healthCheckPath: /api/v1/health
     envVars:

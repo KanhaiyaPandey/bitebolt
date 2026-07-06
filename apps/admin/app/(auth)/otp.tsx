@@ -2,7 +2,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -30,8 +30,16 @@ export default function OtpScreen() {
     __DEV__ && devOtp && devOtp.length === 6 ? devOtp.split('') : ['', '', '', '', '', ''];
   const [otp, setOtp] = useState(initialOtp);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
   const inputRefs = useRef<(TextInput | null)[]>([]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   const scaleAnim = useRef(new RNAnimated.Value(1)).current;
 
@@ -69,10 +77,33 @@ export default function OtpScreen() {
     }
   };
 
+  const handleResend = async () => {
+    if (resending || cooldown > 0) return;
+    setResending(true);
+    console.debug('[AdminAuth] Resending OTP');
+    try {
+      const res = (await authApi.sendOtp(phone)) as { devOtp?: string } | undefined;
+      console.debug('[AdminAuth] OTP resent');
+      // Dev-only: backend returns devOtp so we can auto-fill and skip Twilio.
+      const newDevOtp = __DEV__ ? res?.devOtp : undefined;
+      if (newDevOtp && newDevOtp.length === 6) {
+        setOtp(newDevOtp.split(''));
+      }
+      Toast.show({ type: 'success', text1: 'OTP sent again' });
+      setCooldown(30);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to resend OTP';
+      console.error('[AdminAuth] Resend OTP failed', msg);
+      Toast.show({ type: 'error', text1: msg });
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleVerify = async () => {
     if (!isComplete) return;
     setLoading(true);
-    console.debug('[AdminAuth] Verifying OTP', { phone });
+    console.debug('[AdminAuth] Verifying OTP');
     try {
       const result = await authApi.verifyOtp(phone, otpValue);
       console.debug('[AdminAuth] OTP verified, role check', { role: result.user?.role });
@@ -207,9 +238,19 @@ export default function OtpScreen() {
               <Text style={{ fontFamily: 'Urbanist-Medium', fontSize: 15, color: '#9098B1' }}>
                 Didn't receive the code?{' '}
               </Text>
-              <TouchableOpacity activeOpacity={0.7}>
-                <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 15, color: '#FA7938' }}>
-                  Resend
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleResend}
+                disabled={resending || cooldown > 0}
+              >
+                <Text
+                  style={{
+                    fontFamily: 'Urbanist-Bold',
+                    fontSize: 15,
+                    color: resending || cooldown > 0 ? '#C4C9D4' : '#FA7938',
+                  }}
+                >
+                  {cooldown > 0 ? `Resend in ${cooldown}s` : resending ? 'Sending…' : 'Resend'}
                 </Text>
               </TouchableOpacity>
             </View>

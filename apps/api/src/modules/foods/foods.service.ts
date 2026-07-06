@@ -273,6 +273,10 @@ export class FoodsService {
     if (dto.tags !== undefined) updates.tags = dto.tags;
     if (dto.sortOrder !== undefined) updates.sortOrder = dto.sortOrder;
 
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestException('No fields provided to update.');
+    }
+
     const [updated] = await this.db.db
       .update(foodItems)
       .set(updates)

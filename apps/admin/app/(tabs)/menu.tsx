@@ -170,9 +170,15 @@ export default function MenuScreen() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const foods: any[] = Array.isArray(foodsData) ? foodsData : ((foodsData as any)?.items ?? []);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const categories: any[] = Array.isArray(categoriesData)
+  const allCategories: any[] = Array.isArray(categoriesData)
     ? categoriesData
     : ((categoriesData as any)?.items ?? categoriesData ?? []);
+  // categoriesApi.getAll ignores the search term, so filter client-side.
+  const categories = debouncedSearch
+    ? allCategories.filter((c) =>
+        (c.name ?? '').toLowerCase().includes(debouncedSearch.toLowerCase()),
+      )
+    : allCategories;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>

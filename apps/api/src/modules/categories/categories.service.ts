@@ -64,6 +64,12 @@ export class CategoriesService {
     });
     if (existing) throw new BadRequestException('A category with this slug already exists.');
 
+    const existingName = await this.db.db.query.categories.findFirst({
+      where: (t, { eq: eqFn }) => eqFn(t.name, dto.name),
+      columns: { id: true },
+    });
+    if (existingName) throw new BadRequestException('A category with this name already exists.');
+
     const [created] = await this.db.db
       .insert(categories)
       .values({
@@ -88,6 +94,24 @@ export class CategoriesService {
     });
     if (!existing) throw new NotFoundException('Category not found.');
 
+    if (dto.name !== undefined) {
+      const nameClash = await this.db.db.query.categories.findFirst({
+        where: (t, { and: andFn, eq: eqFn, ne: neFn }) =>
+          andFn(eqFn(t.name, dto.name!), neFn(t.id, id)),
+        columns: { id: true },
+      });
+      if (nameClash) throw new BadRequestException('A category with this name already exists.');
+    }
+
+    if (dto.slug !== undefined) {
+      const slugClash = await this.db.db.query.categories.findFirst({
+        where: (t, { and: andFn, eq: eqFn, ne: neFn }) =>
+          andFn(eqFn(t.slug, dto.slug!), neFn(t.id, id)),
+        columns: { id: true },
+      });
+      if (slugClash) throw new BadRequestException('A category with this slug already exists.');
+    }
+
     const updates: Record<string, unknown> = {};
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.slug !== undefined) updates.slug = dto.slug;
@@ -95,6 +119,10 @@ export class CategoriesService {
     if (dto.imageUrl !== undefined) updates.imageUrl = dto.imageUrl;
     if (dto.isActive !== undefined) updates.isActive = dto.isActive;
     if (dto.sortOrder !== undefined) updates.sortOrder = dto.sortOrder;
+
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestException('No fields provided to update.');
+    }
 
     const [updated] = await this.db.db
       .update(categories)

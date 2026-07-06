@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "BiteBolt Admin",
+    "slug": "bitebolt-admin",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "bitebolt-admin",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FA7938"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "in.bitebolt.admin",
+      "buildNumber": "1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#FA7938"
+      },
+      "package": "in.bitebolt.admin",
+      "versionCode": 1
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow BiteBolt Admin to access your photos to upload food images.",
+          "cameraPermission": "Allow BiteBolt Admin to use your camera to take food photos."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,14 +1,20 @@
 # BiteBolt
 
-A food delivery platform built as a Turborepo monorepo — NestJS API, Expo mobile app, and Next.js admin dashboard sharing types and validation logic.
+A food delivery platform built as a Turborepo monorepo — NestJS API, and two Expo + React Native
+apps (customer mobile app and admin app) sharing types and validation logic.
 
 ```
-apps/api      → NestJS + Prisma + PostgreSQL + Redis   (port 3001)
-apps/admin    → Next.js 14 admin dashboard             (port 3000)
-apps/mobile   → Expo + React Native (iOS & Android)
+apps/api      → NestJS + Drizzle ORM + PostgreSQL + Redis   (port 3001)
+apps/admin    → Expo + React Native admin app (17 features — see ADMIN.md)
+apps/mobile   → Expo + React Native customer app (iOS & Android)
 packages/types     → Shared TypeScript interfaces & enums
 packages/utils     → Shared Zod schemas & utilities
 ```
+
+> `apps/admin` was originally a minimal Next.js page and has since been replaced with a full
+> React Native admin app (same stack as `apps/mobile`) — it runs via Expo, not a web port. See
+> `ADMIN.md` for its architecture and feature list, `DEMO_SCRIPT.md` for a walkthrough of every
+> feature, and `NOT_WORKING.md` for known limitations.
 
 ---
 
@@ -100,19 +106,34 @@ pnpm dev
 
 This starts all three apps in parallel via Turborepo:
 
-| App    | URL                                    |
-| ------ | -------------------------------------- |
-| API    | http://localhost:3001/api/v1           |
-| Admin  | http://localhost:3000                  |
-| Mobile | Expo dev server (scan QR with Expo Go) |
+| App    | How it runs                                                                 |
+| ------ | ---------------------------------------------------------------------------- |
+| API    | http://localhost:3001/api/v1 (or `0.0.0.0:3001`)                             |
+| Admin  | Expo dev server — scan the QR with Expo Go, or press `i`/`a` for a simulator |
+| Mobile | Expo dev server — same as above                                             |
 
 To run apps individually:
 
 ```bash
 pnpm dev:api      # API only
-pnpm dev:admin    # Admin only
+pnpm dev:admin    # Admin only (or cd apps/admin && npx expo start)
 pnpm dev:mobile   # Mobile only (or cd apps/mobile && npx expo start)
 ```
+
+### 6. Seed demo data for the admin app (optional)
+
+To get a full demo dataset (an admin account, sample categories/food items, customers with
+addresses, orders in every status, payments, and wallet transactions) instead of the minimal
+`pnpm db:seed` set:
+
+```bash
+cd apps/api
+pnpm db:seed:demo
+```
+
+This seeds admin phone `9653158855` — see [Onboarding a New Admin](#onboarding-a-new-admin) below
+for how OTP login works in development, and `DEMO_SCRIPT.md` for a full feature walkthrough using
+this data.
 
 ---
 
@@ -244,6 +265,59 @@ For production:
 ```bash
 cd apps/api && pnpm db:migrate   # drizzle-kit migrate — runs pending migrations safely
 ```
+
+---
+
+## Onboarding a New Admin
+
+Admin accounts are **not** self-service — anyone can log into the admin app with a phone number
+and OTP, but the backend only lets a request through if that phone's `role` is `ADMIN`
+(everyone else gets a 403 "Admin access only"). There is no in-app sign-up or invite flow by
+design — promoting someone to admin is an operator action, not something the app exposes. There
+are three ways to do it, in order of convenience:
+
+### Option 1 — CLI script (recommended)
+
+From `apps/api`, with `DATABASE_URL` pointing at the target database:
+
+```bash
+cd apps/api
+pnpm admin:promote <phone>
+# e.g. pnpm admin:promote 9876543210
+```
+
+This is idempotent and upserts: if the phone number doesn't have an account yet, it creates one
+with `role: 'ADMIN'`; if it already exists (e.g. they signed up as a customer first), it promotes
+that existing account in place. Run it against whichever `DATABASE_URL` you want to affect —
+local, staging, or production — just make sure your `.env` (or shell env) points at the right one
+before running it.
+
+### Option 2 — Drizzle Studio (manual)
+
+```bash
+pnpm db:studio   # opens http://localhost:4983
+```
+
+Open the `users` table, find the row for the phone number, and change its `role` column from
+`CUSTOMER` to `ADMIN`. Useful for one-off changes when you don't have shell access to run scripts
+but do have a tunnel to the database.
+
+### Option 3 — Seed scripts (for local/demo environments only)
+
+- `pnpm db:seed` creates one hardcoded admin at phone `9999999999`.
+- `cd apps/api && pnpm db:seed:demo` creates admin phone `9653158855` plus a full demo dataset
+  (customers, orders in every status, payments, wallet transactions) — this is what `DEMO_SCRIPT.md`
+  assumes is loaded.
+
+### Logging in as the new admin
+
+1. Open the admin app (`pnpm dev:admin`) and enter the phone number you just promoted.
+2. Request an OTP. **In `NODE_ENV=development`, the OTP is not actually texted** — it's printed
+   to the API's terminal log as `🔐 DEV OTP for <phone>: XXXXXX`. In production, a real Twilio SMS
+   is sent (requires valid `TWILIO_*` env vars).
+3. Enter the OTP — you should land on the Dashboard tab. If you instead see "Admin access only",
+   the promotion didn't take — double check you ran the script/update against the same database
+   the API is actually connected to.
 
 ---
 
@@ -541,15 +615,33 @@ status  PENDING | ACCEPTED | REJECTED | PREPARING | OUT_FOR_DELIVERY | DELIVERED
 
 All admin routes require `Authorization: Bearer <adminToken>` where the token belongs to a user with role `ADMIN`.
 
-| Method | Path                            | What it does                                  |
-| ------ | ------------------------------- | --------------------------------------------- |
-| GET    | `/foods/admin/list`             | All food items with current combo IDs         |
-| PATCH  | `/foods/admin/discount`         | Set/clear discounted price on multiple items  |
-| PATCH  | `/foods/admin/:id/availability` | Mark a food item available or unavailable     |
-| PUT    | `/foods/admin/:id/combinations` | Set the "Goes Well With" list for a food item |
-| GET    | `/orders/admin/all`             | All orders, filter by status                  |
-| PATCH  | `/orders/admin/:id/status`      | Move order through its lifecycle              |
-| PATCH  | `/settings/delivery-fee`        | Set the delivery fee charged on every order   |
+| Method | Path                              | What it does                                        |
+| ------ | ---------------------------------- | --------------------------------------------------- |
+| GET    | `/analytics/overview`              | Today's orders/revenue, total revenue, pending      |
+| GET    | `/analytics/daily-sales?days=7`    | Revenue + order count per day                       |
+| GET    | `/analytics/popular-items?limit=`  | Most-ordered food items                             |
+| GET    | `/analytics/order-stats`           | Order counts by status and by payment method        |
+| GET    | `/foods/admin/list`                | All food items with current combo IDs               |
+| GET    | `/foods/admin/:id`                 | Single food item (full record, for edit forms)      |
+| POST   | `/foods/admin`                     | Create a food item                                  |
+| PATCH  | `/foods/admin/:id`                 | Update a food item                                  |
+| DELETE | `/foods/admin/:id`                 | Delete a food item (blocked if in existing orders)  |
+| PATCH  | `/foods/admin/discount`            | Set/clear discounted price on multiple items        |
+| PATCH  | `/foods/admin/:id/availability`    | Mark a food item available or unavailable           |
+| PUT    | `/foods/admin/:id/combinations`    | Set the "Goes Well With" list for a food item       |
+| GET    | `/categories/admin`                | All categories, including inactive                  |
+| GET    | `/categories/admin/:id`            | Single category (full record, for edit forms)       |
+| POST   | `/categories/admin`                | Create a category                                   |
+| PATCH  | `/categories/admin/:id`            | Update a category                                   |
+| DELETE | `/categories/admin/:id`            | Delete a category (blocked if it has food items)    |
+| GET    | `/orders/admin/all`                | All orders, filter by status                        |
+| GET    | `/orders/admin/:id`                | Single order, full detail incl. status history      |
+| PATCH  | `/orders/admin/:id/status`         | Move order through its lifecycle                    |
+| GET    | `/users/admin/customers`           | All customers, with order count + total spent       |
+| GET    | `/users/admin/customers/:id`       | Single customer with addresses, orders, wallet       |
+| GET    | `/payments/admin`                  | All payments, filter by status/method                |
+| GET    | `/wallet/admin/transactions`       | All wallet transactions, filter by user/type          |
+| PATCH  | `/settings/delivery-fee`           | Set the delivery fee charged on every order          |
 
 ---
 

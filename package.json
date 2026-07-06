@@ -20,7 +20,7 @@
     "db:push": "turbo run db:push --filter=@bitebolt/api",
     "db:studio": "turbo run db:studio --filter=@bitebolt/api",
     "db:seed": "turbo run db:seed --filter=@bitebolt/api",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "react": "19.1.0",

@@ -49,6 +49,12 @@ export class OrdersController {
     return this.ordersService.getAllOrders(+page, +limit, status);
   }
 
+  @Get('admin/:id')
+  @Roles(UserRole.ADMIN)
+  getOrderAdmin(@Param('id') id: string) {
+    return this.ordersService.getOrderByIdForAdmin(id);
+  }
+
   @Patch('admin/:id/status')
   @Roles(UserRole.ADMIN)
   updateOrderStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {

@@ -4,8 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { redisStore } from 'cache-manager-ioredis-yet';
 
+import { AppController } from './app.controller';
 import configuration from './config/configuration';
 import { DbModule } from './db/db.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CategoriesModule } from './modules/categories/categories.module';
@@ -72,6 +74,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
     // ── Feature Modules ─────────────────────────────────────────────────────
     DbModule,
     SettingsModule,
+    AnalyticsModule,
     AuthModule,
     UsersModule,
     CategoriesModule,
@@ -83,5 +86,6 @@ import { WalletModule } from './modules/wallet/wallet.module';
     NotificationsModule,
     UploadModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

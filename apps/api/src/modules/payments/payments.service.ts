@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import Razorpay from 'razorpay';
 
 import { DbService } from '../../db/db.service';
@@ -14,16 +14,24 @@ import type { VerifyPaymentDto } from './dto/verify-payment.dto';
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
-  private razorpay: Razorpay;
+  private razorpay: Razorpay | null = null;
 
   constructor(
     private db: DbService,
     private configService: ConfigService,
   ) {
-    this.razorpay = new Razorpay({
-      key_id: this.configService.get('razorpay.keyId'),
-      key_secret: this.configService.get('razorpay.keySecret'),
-    });
+    const keyId = this.configService.get<string>('razorpay.keyId');
+    const keySecret = this.configService.get<string>('razorpay.keySecret');
+    if (keyId && keySecret) {
+      this.razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+    } else {
+      this.logger.warn('Razorpay keys not configured — payment endpoints will be unavailable');
+    }
+  }
+
+  private getRazorpay(): Razorpay {
+    if (!this.razorpay) throw new BadRequestException('Razorpay is not configured on this server.');
+    return this.razorpay;
   }
 
   // ── Create Razorpay Order ────────────────────────────────────────────────────
@@ -44,7 +52,7 @@ export class PaymentsService {
     const amountToPay = Number(order.total) - (dto.walletAmountUsed ?? 0);
     const amountInPaise = Math.round(amountToPay * 100);
 
-    const razorpayOrder = await this.razorpay.orders.create({
+    const razorpayOrder = await this.getRazorpay().orders.create({
       amount: amountInPaise,
       currency: 'INR',
       receipt: order.orderNumber,
@@ -154,5 +162,44 @@ export class PaymentsService {
     }
 
     return { received: true };
+  }
+
+  // ── Admin: All Payments ──────────────────────────────────────────────────────
+
+  async getAllPayments(page = 1, limit = 20, status?: string, method?: string) {
+    this.logger.debug('[PaymentsService] getAllPayments', { page, limit, status, method });
+    const offset = (page - 1) * limit;
+
+    const rows = await this.db.db.query.payments.findMany({
+      where: (t, { and: andFn, eq: eqFn }) => {
+        const conditions: ReturnType<typeof eqFn>[] = [];
+        if (status) conditions.push(eqFn(t.status, status as any));
+        if (method) conditions.push(eqFn(t.method, method as any));
+        return conditions.length > 0 ? andFn(...(conditions as [any, ...any[]])) : undefined;
+      },
+      orderBy: (t, { desc: descFn }) => [descFn(t.createdAt)],
+      limit,
+      offset,
+      with: {
+        order: { columns: { id: true, orderNumber: true, total: true } },
+        user: { columns: { id: true, name: true, phone: true } },
+      },
+    });
+
+    const [{ total }] = await this.db.db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(payments);
+
+    return {
+      payments: rows,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPreviousPage: page > 1,
+      },
+    };
   }
 }

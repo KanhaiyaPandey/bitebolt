@@ -1,6 +1,7 @@
 import { generateOtp } from '@bitebolt/utils';
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -61,6 +62,7 @@ export class AuthService {
 
     const otp = generateOtp();
     const expiryMinutes = this.configService.get<number>('twilio.otpExpiryMinutes', 10);
+    const isDev = this.configService.get('nodeEnv') === 'development';
 
     await this.db.db.insert(otpVerifications).values({
       phone,
@@ -68,7 +70,7 @@ export class AuthService {
       expiresAt: new Date(Date.now() + expiryMinutes * 60 * 1000),
     });
 
-    if (this.configService.get('nodeEnv') !== 'development') {
+    if (!isDev) {
       try {
         await this.twilioClient.messages.create({
           body: `Your BiteBolt OTP is ${otp}. Valid for ${expiryMinutes} minutes. Do not share this with anyone.`,
@@ -83,12 +85,17 @@ export class AuthService {
       this.logger.log(`🔐 DEV OTP for ${phone}: ${otp}`);
     }
 
-    return { message: `OTP sent to +91${phone}`, expiresIn: expiryMinutes * 60 };
+    return {
+      message: `OTP sent to +91${phone}`,
+      expiresIn: expiryMinutes * 60,
+      // Dev-only: surface the OTP so login works without Twilio / server-log digging.
+      ...(isDev ? { devOtp: otp } : {}),
+    };
   }
 
   // ── Verify OTP & Login/Register ─────────────────────────────────────────────
 
-  async verifyOtp(dto: VerifyOtpDto) {
+  async verifyOtp(dto: VerifyOtpDto, isAdminClient = false) {
     const { phone, otp } = dto;
 
     const otpRecord = await this.db.db.query.otpVerifications.findFirst({
@@ -121,6 +128,15 @@ export class AuthService {
 
     if (!user.isActive) {
       throw new UnauthorizedException('Your account has been suspended. Contact support.');
+    }
+
+    if (isAdminClient && user.role !== 'ADMIN') {
+      this.logger.warn(
+        `[AuthService] Admin login denied — role is ${user.role} for phone ${phone}`,
+      );
+      throw new ForbiddenException(
+        'Admin access only. This account does not have admin privileges.',
+      );
     }
 
     const tokens = this.generateTokens(user.id, user.phone, user.role);

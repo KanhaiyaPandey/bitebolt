@@ -17,7 +17,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "ts-node -r dotenv/config src/db/seed.ts"
+    "db:seed": "ts-node -r dotenv/config src/db/seed.ts",
+    "db:seed:demo": "tsx scripts/seed-demo.ts",
+    "admin:promote": "tsx scripts/promote-admin.ts"
   },
   "dependencies": {
     "@bitebolt/types": "workspace:*",
@@ -74,6 +76,7 @@
     "testcontainers": "^12.0.1",
     "ts-jest": "^29.1.4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
     "typescript": "^5.4.5"
   }
 }

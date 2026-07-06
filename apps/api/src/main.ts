@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
 import helmet from 'helmet';
 
@@ -9,7 +10,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { eq, sql } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
@@ -6,6 +6,8 @@ import { walletTransactions, wallets } from '../../db/schema';
 
 @Injectable()
 export class WalletService {
+  private readonly logger = new Logger(WalletService.name);
+
   constructor(private db: DbService) {}
 
   async getWallet(userId: string) {
@@ -89,5 +91,54 @@ export class WalletService {
     });
 
     return { balance: Number(updated.balance), added: amount };
+  }
+
+  // ── Admin: All Wallet Transactions ───────────────────────────────────────────
+
+  async getAllTransactions(page = 1, limit = 20, userId?: string, type?: string) {
+    this.logger.debug('[WalletService] getAllTransactions', { page, limit, userId, type });
+    const offset = (page - 1) * limit;
+
+    const rows = await this.db.db.query.walletTransactions.findMany({
+      where: (t, { and: andFn, eq: eqFn }) => {
+        const conditions = [];
+        if (type) conditions.push(eqFn(t.type, type as 'CREDIT' | 'DEBIT'));
+        return conditions.length > 0 ? andFn(...(conditions as [any, ...any[]])) : undefined;
+      },
+      orderBy: (t, { desc: descFn }) => [descFn(t.createdAt)],
+      limit,
+      offset,
+      with: { wallet: { with: { user: { columns: { id: true, name: true, phone: true } } } } },
+    });
+
+    const [{ total }] = await this.db.db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(walletTransactions);
+
+    const mapped = rows.map((tx) => ({
+      id: tx.id,
+      type: tx.type,
+      reason: tx.reason,
+      amount: tx.amount,
+      balanceAfter: tx.balanceAfter,
+      description: tx.description,
+      orderId: tx.orderId,
+      createdAt: tx.createdAt,
+      userId: tx.wallet.userId,
+      userName: tx.wallet.user?.name ?? tx.wallet.user?.phone ?? 'Unknown',
+      userPhone: tx.wallet.user?.phone ?? '',
+    }));
+
+    return {
+      transactions: mapped,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPreviousPage: page > 1,
+      },
+    };
   }
 }

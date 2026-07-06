@@ -299,6 +299,28 @@ export class OrdersService {
     };
   }
 
+  // ── Admin: Get Order by ID ───────────────────────────────────────────────────
+
+  async getOrderByIdForAdmin(orderId: string) {
+    const order = await this.db.db.query.orders.findFirst({
+      where: (t, { eq }) => eq(t.id, orderId),
+      with: {
+        items: {
+          with: {
+            foodItem: { columns: { id: true, name: true, imageUrl: true, isVeg: true } },
+          },
+        },
+        deliveryAddress: true,
+        payment: true,
+        statusHistory: { orderBy: (t, { asc }) => [asc(t.createdAt)] },
+        user: { columns: { id: true, name: true, phone: true, email: true } },
+      },
+    });
+
+    if (!order) throw new NotFoundException('Order not found.');
+    return order;
+  }
+
   // ── Admin: Update Order Status ────────────────────────────────────────────────
 
   async updateOrderStatus(orderId: string, dto: UpdateOrderStatusDto) {

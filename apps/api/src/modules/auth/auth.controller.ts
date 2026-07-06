@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Headers, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser, Public } from '../../common/decorators';
@@ -23,8 +23,8 @@ export class AuthController {
   @Public()
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('verify-otp')
-  verifyOtp(@Body() dto: VerifyOtpDto) {
-    return this.authService.verifyOtp(dto);
+  verifyOtp(@Body() dto: VerifyOtpDto, @Headers('x-client') xClient?: string) {
+    return this.authService.verifyOtp(dto, xClient === 'admin');
   }
 
   @Post('register')

@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 import { authApi } from '@/api';
+import { color, elevation, motion, opacity, press, radius, space, text } from '@/theme';
 
 export default function PhoneScreen() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function PhoneScreen() {
   const handlePressIn = () => {
     if (isValid && !loading) {
       RNAnimated.spring(scaleAnim, {
-        toValue: 0.96,
+        toValue: press.scaleDown,
         useNativeDriver: true,
       }).start();
     }
@@ -68,54 +69,50 @@ export default function PhoneScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FA7938' }}>
+    <View style={{ flex: 1, backgroundColor: color.brand }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {/* Header Area */}
-          <View style={{ paddingHorizontal: 28, paddingVertical: 40, alignItems: 'center' }}>
-            <Animated.View entering={FadeInDown.duration(600).springify()}>
+          <View
+            style={{
+              paddingHorizontal: space[7],
+              paddingVertical: space[10],
+              alignItems: 'center',
+            }}
+          >
+            <Animated.View entering={FadeInDown.duration(motion.slow).springify()}>
               <View
-                style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 20,
-                  backgroundColor: 'rgba(255,255,255,0.15)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 20,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 16,
-                  elevation: 5,
-                }}
+                style={[
+                  {
+                    width: 64,
+                    height: 64,
+                    borderRadius: radius.field,
+                    backgroundColor: `rgba(255,255,255,${opacity.overlayStrong})`,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: space[5],
+                  },
+                  elevation.md,
+                ]}
               >
-                <Ionicons name="shield-checkmark" size={32} color="#FFF" />
+                <Ionicons name="shield-checkmark" size={32} color={color.onBrand} />
               </View>
             </Animated.View>
             <Animated.Text
-              entering={FadeInDown.delay(100).duration(600).springify()}
-              style={{
-                fontFamily: 'Urbanist-Bold',
-                fontSize: 32,
-                color: '#FFF',
-                textAlign: 'center',
-              }}
+              entering={FadeInDown.delay(100).duration(motion.slow).springify()}
+              style={[text.display, { color: color.onBrand, textAlign: 'center' }]}
             >
               BiteBolt Admin
             </Animated.Text>
             <Animated.Text
-              entering={FadeInDown.delay(150).duration(600).springify()}
-              style={{
-                fontFamily: 'Urbanist-Medium',
-                fontSize: 16,
-                color: 'rgba(255,255,255,0.85)',
-                marginTop: 8,
-                textAlign: 'center',
-              }}
+              entering={FadeInDown.delay(150).duration(motion.slow).springify()}
+              style={[
+                text.bodyLg,
+                { color: color.onBrandMuted, marginTop: space[2], textAlign: 'center' },
+              ]}
             >
               Secure Operations Panel
             </Animated.Text>
@@ -123,64 +120,50 @@ export default function PhoneScreen() {
 
           {/* Bottom Card Area */}
           <Animated.View
-            entering={FadeInUp.delay(250).duration(600).springify()}
-            style={{
-              flex: 1,
-              backgroundColor: '#FAFBFC',
-              borderTopLeftRadius: 32,
-              borderTopRightRadius: 32,
-              paddingHorizontal: 28,
-              paddingTop: 40,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -8 },
-              shadowOpacity: 0.05,
-              shadowRadius: 20,
-              elevation: 10,
-            }}
+            entering={FadeInUp.delay(250).duration(motion.slow).springify()}
+            style={[
+              {
+                flex: 1,
+                backgroundColor: color.bg,
+                borderTopLeftRadius: radius.hero,
+                borderTopRightRadius: radius.hero,
+                paddingHorizontal: space[7],
+                paddingTop: space[10],
+              },
+              elevation.sheetTop,
+            ]}
           >
-            <Text
-              style={{
-                fontFamily: 'Urbanist-SemiBold',
-                fontSize: 18,
-                color: '#1A1A2E',
-                marginBottom: 12,
-              }}
-            >
+            <Text style={[text.h3, { color: color.textHeading, marginBottom: space[3] }]}>
               Phone Number
             </Text>
 
             <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#FFFFFF',
-                borderRadius: 16,
-                borderWidth: 2,
-                borderColor: isFocused
-                  ? '#FA7938'
-                  : phone.length > 0 && isValid
-                    ? '#FA7938'
-                    : 'transparent',
-                paddingHorizontal: 20,
-                height: 60,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.04,
-                shadowRadius: 12,
-                elevation: 2,
-              }}
+              style={[
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: color.surface,
+                  borderRadius: radius.field,
+                  borderWidth: 2,
+                  borderColor:
+                    isFocused || (phone.length > 0 && isValid) ? color.brand : 'transparent',
+                  paddingHorizontal: space[5],
+                  height: 60,
+                },
+                elevation.sm,
+              ]}
             >
-              <Text
-                style={{
-                  fontFamily: 'Urbanist-Bold',
-                  fontSize: 16,
-                  color: '#9098B1',
-                  marginRight: 12,
-                }}
-              >
+              <Text style={[text.bodyLg, { color: color.textSecondary, marginRight: space[3] }]}>
                 +91
               </Text>
-              <View style={{ width: 1, height: 24, backgroundColor: '#E0E5ED', marginRight: 12 }} />
+              <View
+                style={{
+                  width: 1,
+                  height: 24,
+                  backgroundColor: color.borderMuted,
+                  marginRight: space[3],
+                }}
+              />
               <TextInput
                 value={phone}
                 onChangeText={setPhone}
@@ -189,25 +172,17 @@ export default function PhoneScreen() {
                 keyboardType="number-pad"
                 maxLength={10}
                 placeholder="Enter 10-digit number"
-                placeholderTextColor="#A0AABF"
-                style={{ flex: 1, fontFamily: 'Urbanist-Medium', fontSize: 16, color: '#1A1A2E' }}
+                placeholderTextColor={color.navInactive}
+                style={[text.bodyLg, { flex: 1, color: color.textHeading }]}
               />
               {isValid && (
-                <Animated.View entering={FadeInDown.duration(300)}>
-                  <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                <Animated.View entering={FadeInDown.duration(motion.base)}>
+                  <Ionicons name="checkmark-circle" size={24} color={color.success} />
                 </Animated.View>
               )}
             </View>
 
-            <Text
-              style={{
-                fontFamily: 'Urbanist-Medium',
-                fontSize: 14,
-                color: '#9098B1',
-                marginTop: 16,
-                lineHeight: 20,
-              }}
-            >
+            <Text style={[text.body, { color: color.textSecondary, marginTop: space[4] }]}>
               An OTP will be sent to verify your secure admin access.
             </Text>
 
@@ -216,7 +191,7 @@ export default function PhoneScreen() {
             <RNAnimated.View
               style={{
                 transform: [{ scale: scaleAnim }],
-                paddingBottom: Platform.OS === 'ios' ? 24 : 32,
+                paddingBottom: Platform.OS === 'ios' ? space[6] : space[8],
               }}
             >
               <TouchableOpacity
@@ -224,26 +199,22 @@ export default function PhoneScreen() {
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 disabled={!isValid || loading}
-                activeOpacity={0.9}
-                style={{
-                  backgroundColor: isValid ? '#FA7938' : '#D3D6DE',
-                  borderRadius: 16,
-                  height: 60,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  shadowColor: '#FA7938',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: isValid ? 0.25 : 0,
-                  shadowRadius: 16,
-                  elevation: isValid ? 8 : 0,
-                }}
+                activeOpacity={press.primary}
+                style={[
+                  {
+                    backgroundColor: isValid ? color.brand : color.disabled,
+                    borderRadius: radius.field,
+                    height: 60,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  },
+                  isValid ? elevation.brandLg : elevation.none,
+                ]}
               >
                 {loading ? (
-                  <ActivityIndicator color="#FFF" size="small" />
+                  <ActivityIndicator color={color.onBrand} size="small" />
                 ) : (
-                  <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 18, color: '#FFF' }}>
-                    Continue
-                  </Text>
+                  <Text style={[text.button, { color: color.onBrand }]}>Continue</Text>
                 )}
               </TouchableOpacity>
             </RNAnimated.View>

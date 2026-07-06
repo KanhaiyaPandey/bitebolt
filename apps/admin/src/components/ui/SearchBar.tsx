@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
+import { color, focus, motion, radius, space, text } from '@/theme';
+
 interface SearchBarProps {
   value: string;
   onChangeText: (text: string) => void;
@@ -17,30 +19,38 @@ export function SearchBar({ value, onChangeText, placeholder = 'Search…' }: Se
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
-        borderRadius: 12,
-        borderWidth: 1.5,
-        borderColor: focused ? '#FA7938' : '#E8E8F0',
-        paddingHorizontal: 14,
+        backgroundColor: color.surface,
+        borderRadius: radius.control,
+        borderWidth: focus.searchBorderWidth,
+        borderColor: focused ? color.brand : color.borderMuted,
+        paddingHorizontal: space[3.5],
         height: 46,
-        marginHorizontal: 16,
-        marginBottom: 12,
+        marginHorizontal: space[4],
+        marginBottom: space[3],
       }}
     >
-      <Ionicons name="search-outline" size={18} color="#9098B1" style={{ marginRight: 8 }} />
+      <Ionicons
+        name="search-outline"
+        size={18}
+        color={color.textSecondary}
+        style={{ marginRight: space[2] }}
+      />
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#C4C9D4"
+        placeholderTextColor={color.textMuted}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        style={{ flex: 1, fontFamily: 'Urbanist', fontSize: 14, color: '#414158' }}
+        style={[text.body, { flex: 1, color: color.textPrimary }]}
       />
       {value.length > 0 && (
-        <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)}>
+        <Animated.View
+          entering={FadeIn.duration(motion.fast)}
+          exiting={FadeOut.duration(motion.fast)}
+        >
           <TouchableOpacity onPress={() => onChangeText('')}>
-            <Ionicons name="close-circle" size={18} color="#9098B1" />
+            <Ionicons name="close-circle" size={18} color={color.textSecondary} />
           </TouchableOpacity>
         </Animated.View>
       )}

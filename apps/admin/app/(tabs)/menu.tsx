@@ -2,13 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, FlatList, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import { FlatList, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { categoriesApi, foodsApi } from '@/api';
@@ -17,81 +11,12 @@ import { FoodItemRow } from '@/components/menu/FoodItemRow';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SearchBar } from '@/components/ui/SearchBar';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useDebounce } from '@/hooks/useDebounce';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const PILL_WIDTH = (SCREEN_WIDTH - 32 - 8) / 2;
+import { color, layout, press, space, text, ui } from '@/theme';
 
 type Tab = 'foods' | 'categories';
-
-function SegmentedControl({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
-  const translateX = useSharedValue(active === 'foods' ? 0 : 1);
-
-  function press(t: Tab) {
-    translateX.value = withTiming(t === 'foods' ? 0 : 1, {
-      duration: 250,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-    });
-    onChange(t);
-  }
-
-  const pillStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value * PILL_WIDTH }],
-  }));
-
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        backgroundColor: '#EEEEF5',
-        borderRadius: 999,
-        padding: 4,
-        marginHorizontal: 16,
-        marginBottom: 12,
-        height: 44,
-      }}
-    >
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 4,
-            bottom: 4,
-            left: 4,
-            width: PILL_WIDTH,
-            backgroundColor: '#FA7938',
-            borderRadius: 999,
-            shadowColor: '#FA7938',
-            shadowOpacity: 0.25,
-            shadowRadius: 6,
-            shadowOffset: { width: 0, height: 2 },
-            elevation: 3,
-          },
-          pillStyle,
-        ]}
-      />
-      {(['foods', 'categories'] as Tab[]).map((t) => (
-        <TouchableOpacity
-          key={t}
-          onPress={() => press(t)}
-          activeOpacity={0.9}
-          style={{ flex: 1, paddingVertical: 8, alignItems: 'center' }}
-        >
-          <Text
-            style={{
-              fontFamily: 'Urbanist-SemiBold',
-              fontSize: 13,
-              color: active === t ? '#FFFFFF' : '#9098B1',
-            }}
-          >
-            {t === 'foods' ? 'Food Items' : 'Categories'}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
 
 export default function MenuScreen() {
   const insets = useSafeAreaInsets();
@@ -181,35 +106,38 @@ export default function MenuScreen() {
     : allCategories;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       {/* Header */}
       <View
         style={{
-          backgroundColor: '#FFFFFF',
-          paddingTop: insets.top + 12,
-          paddingBottom: 0,
+          backgroundColor: color.surface,
+          paddingTop: insets.top + space[3],
           borderBottomWidth: 1,
-          borderBottomColor: '#F0F0F8',
+          borderBottomColor: color.borderSubtle,
         }}
       >
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 16,
-            marginBottom: 12,
+            paddingHorizontal: layout.screenX,
+            marginBottom: space[3],
           }}
         >
           <Ionicons
             name="restaurant-outline"
             size={22}
-            color="#FA7938"
-            style={{ marginRight: 8 }}
+            color={color.brand}
+            style={{ marginRight: space[2] }}
           />
-          <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158' }}>Menu</Text>
+          <Text style={[text.h2, { color: color.textPrimary }]}>Menu</Text>
         </View>
-        <SegmentedControl
-          active={tab}
+        <SegmentedControl<Tab>
+          segments={[
+            { value: 'foods', label: 'Food Items' },
+            { value: 'categories', label: 'Categories' },
+          ]}
+          value={tab}
           onChange={(t) => {
             setTab(t);
             setSearch('');
@@ -219,7 +147,7 @@ export default function MenuScreen() {
 
       {/* Search + list */}
       <View style={{ flex: 1 }}>
-        <View style={{ paddingTop: 12 }}>
+        <View style={{ paddingTop: space[3] }}>
           <SearchBar
             value={search}
             onChangeText={setSearch}
@@ -261,8 +189,8 @@ export default function MenuScreen() {
                 <RefreshControl
                   refreshing={refetchingFoods}
                   onRefresh={refetchFoods}
-                  tintColor="#FA7938"
-                  colors={['#FA7938']}
+                  tintColor={color.brand}
+                  colors={[color.brand]}
                 />
               }
             />
@@ -298,8 +226,8 @@ export default function MenuScreen() {
               <RefreshControl
                 refreshing={refetchingCategories}
                 onRefresh={refetchCategories}
-                tintColor="#FA7938"
-                colors={['#FA7938']}
+                tintColor={color.brand}
+                colors={[color.brand]}
               />
             }
           />
@@ -309,25 +237,10 @@ export default function MenuScreen() {
       {/* FAB */}
       <TouchableOpacity
         onPress={() => router.push(tab === 'foods' ? '/food/new' : '/category/new')}
-        activeOpacity={0.85}
-        style={{
-          position: 'absolute',
-          bottom: 110,
-          right: 24,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: '#FA7938',
-          alignItems: 'center',
-          justifyContent: 'center',
-          shadowColor: '#FA7938',
-          shadowOpacity: 0.4,
-          shadowRadius: 12,
-          shadowOffset: { width: 0, height: 6 },
-          elevation: 8,
-        }}
+        activeOpacity={press.card}
+        style={ui.fab}
       >
-        <Ionicons name="add" size={28} color="#FFF" />
+        <Ionicons name="add" size={28} color={color.onBrand} />
       </TouchableOpacity>
 
       {/* Confirm delete sheet */}

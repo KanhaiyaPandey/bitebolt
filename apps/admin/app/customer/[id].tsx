@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/orders/StatusBadge';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { color, elevation, layout, press, radius, space, text, ui } from '@/theme';
 
 function formatDate(dt: string | Date) {
   return new Date(dt).toLocaleDateString('en-IN', {
@@ -16,6 +17,38 @@ function formatDate(dt: string | Date) {
     year: 'numeric',
   });
 }
+
+// Small metadata row (icon + muted label) inside the profile card.
+function MetaRow({
+  icon,
+  children,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space[1.5] }}>
+      <Ionicons
+        name={icon}
+        size={15}
+        color={color.textSecondary}
+        style={{ marginRight: space[2] }}
+      />
+      <Text style={[text.label, { color: color.textSecondary }]}>{children}</Text>
+    </View>
+  );
+}
+
+const miniCard = [
+  {
+    backgroundColor: color.surface,
+    marginHorizontal: layout.screenX,
+    borderRadius: radius.button,
+    padding: space[3],
+    marginBottom: space[2],
+  },
+  elevation.sm,
+];
 
 export default function CustomerDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,7 +69,7 @@ export default function CustomerDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <View style={{ flex: 1, backgroundColor: color.bg }}>
         <ScreenHeader title="Customer" showBack />
         <SkeletonCard height={120} />
         <SkeletonCard height={100} />
@@ -47,10 +80,10 @@ export default function CustomerDetailScreen() {
 
   if (!customer) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <View style={{ flex: 1, backgroundColor: color.bg }}>
         <ScreenHeader title="Customer" showBack />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontFamily: 'Urbanist', color: '#9098B1' }}>Customer not found</Text>
+          <Text style={[text.body, { color: color.textSecondary }]}>Customer not found</Text>
         </View>
       </View>
     );
@@ -60,106 +93,53 @@ export default function CustomerDetailScreen() {
   const addresses = customer.addresses ?? [];
   const orders = customer.orders ?? [];
   const wallet = customer.wallet;
+  const activeTone = customer.isActive
+    ? { bg: color.success + '22', text: color.success }
+    : { bg: color.error + '22', text: color.error };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       <ScreenHeader title="Customer Detail" showBack />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: space[8] }}>
         {/* Profile card */}
         <View
-          style={{
-            backgroundColor: '#FFFFFF',
-            marginHorizontal: 16,
-            marginTop: 16,
-            borderRadius: 16,
-            padding: 16,
-            shadowColor: '#000',
-            shadowOpacity: 0.06,
-            shadowRadius: 12,
-            shadowOffset: { width: 0, height: 4 },
-            elevation: 2,
-          }}
+          style={[
+            {
+              backgroundColor: color.surface,
+              marginHorizontal: layout.screenX,
+              marginTop: space[4],
+              borderRadius: radius.card,
+              padding: space[4],
+            },
+            elevation.sm,
+          ]}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <View
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: 28,
-                backgroundColor: '#FFF4EE',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: 14,
-              }}
-            >
-              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#FA7938' }}>
-                {initials}
-              </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space[3] }}>
+            <View style={[ui.iconTile(56, color.brandSubtle), { marginRight: space[3.5] }]}>
+              <Text style={[text.h2, { color: color.brand }]}>{initials}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 16, color: '#414158' }}>
+              <Text style={[text.titleMd, { color: color.textPrimary }]}>
                 {customer.name ?? '—'}
               </Text>
-              <Text
-                style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1', marginTop: 2 }}
-              >
+              <Text style={[text.label, { color: color.textSecondary, marginTop: space[0.5] }]}>
                 {customer.phone}
               </Text>
             </View>
-            <View
-              style={{
-                backgroundColor: customer.isActive ? '#D1FAE5' : '#FEE2E2',
-                borderRadius: 999,
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-              }}
-            >
-              <Text
-                style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 12,
-                  color: customer.isActive ? '#065F46' : '#7F1D1D',
-                }}
-              >
+            <View style={ui.badge(activeTone.bg)}>
+              <Text style={[text.captionStrong, { color: activeTone.text }]}>
                 {customer.isActive ? 'Active' : 'Inactive'}
               </Text>
             </View>
           </View>
 
-          {customer.email && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-              <Ionicons name="mail-outline" size={15} color="#9098B1" style={{ marginRight: 8 }} />
-              <Text style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1' }}>
-                {customer.email}
-              </Text>
-            </View>
-          )}
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-            <Ionicons
-              name="calendar-outline"
-              size={15}
-              color="#9098B1"
-              style={{ marginRight: 8 }}
-            />
-            <Text style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1' }}>
-              Joined {formatDate(customer.createdAt)}
-            </Text>
-          </View>
-
+          {customer.email && <MetaRow icon="mail-outline">{customer.email}</MetaRow>}
+          <MetaRow icon="calendar-outline">Joined {formatDate(customer.createdAt)}</MetaRow>
           {wallet && (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons
-                name="wallet-outline"
-                size={15}
-                color="#9098B1"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1' }}>
-                Wallet: ₹{Number(wallet.balance ?? 0).toFixed(2)}
-              </Text>
-            </View>
+            <MetaRow icon="wallet-outline">
+              Wallet: ₹{Number(wallet.balance ?? 0).toFixed(2)}
+            </MetaRow>
           )}
         </View>
 
@@ -169,57 +149,26 @@ export default function CustomerDetailScreen() {
             <SectionHeader title={`Saved Addresses (${addresses.length})`} />
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {addresses.map((addr: any) => (
-              <View
-                key={addr.id}
-                style={{
-                  backgroundColor: '#FFF',
-                  marginHorizontal: 16,
-                  borderRadius: 14,
-                  padding: 12,
-                  marginBottom: 8,
-                  shadowColor: '#000',
-                  shadowOpacity: 0.04,
-                  shadowRadius: 8,
-                  elevation: 1,
-                }}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+              <View key={addr.id} style={miniCard}>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space[1] }}
+                >
                   <Ionicons
                     name="location-outline"
                     size={14}
-                    color="#FA7938"
-                    style={{ marginRight: 6 }}
+                    color={color.brand}
+                    style={{ marginRight: space[1.5] }}
                   />
-                  <Text
-                    style={{
-                      fontFamily: 'Urbanist-SemiBold',
-                      fontSize: 13,
-                      color: '#414158',
-                      flex: 1,
-                    }}
-                  >
+                  <Text style={[text.label, { color: color.textPrimary, flex: 1 }]}>
                     {addr.label ?? 'Address'}
                   </Text>
                   {addr.isDefault && (
-                    <View
-                      style={{
-                        backgroundColor: '#FFF4EE',
-                        borderRadius: 999,
-                        paddingHorizontal: 8,
-                        paddingVertical: 2,
-                      }}
-                    >
-                      <Text
-                        style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 10, color: '#FA7938' }}
-                      >
-                        Default
-                      </Text>
+                    <View style={[ui.badge(color.brandSubtle), { paddingVertical: space[0.5] }]}>
+                      <Text style={[text.tiny, { color: color.brand }]}>Default</Text>
                     </View>
                   )}
                 </View>
-                <Text
-                  style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1', lineHeight: 18 }}
-                >
+                <Text style={[text.caption, { color: color.textSecondary, lineHeight: 18 }]}>
                   {addr.addressLine1}
                   {addr.addressLine2 ? `, ${addr.addressLine2}` : ''}
                   {`, ${addr.city}, ${addr.state} - ${addr.pincode}`}
@@ -233,13 +182,10 @@ export default function CustomerDetailScreen() {
         <SectionHeader title={`Order History (${orders.length})`} />
         {orders.length === 0 ? (
           <Text
-            style={{
-              fontFamily: 'Urbanist',
-              fontSize: 14,
-              color: '#9098B1',
-              textAlign: 'center',
-              paddingVertical: 16,
-            }}
+            style={[
+              text.body,
+              { color: color.textSecondary, textAlign: 'center', paddingVertical: space[4] },
+            ]}
           >
             No orders yet
           </Text>
@@ -249,47 +195,24 @@ export default function CustomerDetailScreen() {
             <TouchableOpacity
               key={order.id}
               onPress={() => router.push(`/order/${order.id}`)}
-              activeOpacity={0.85}
-              style={{
-                backgroundColor: '#FFF',
-                marginHorizontal: 16,
-                borderRadius: 14,
-                padding: 12,
-                marginBottom: 8,
-                flexDirection: 'row',
-                alignItems: 'center',
-                shadowColor: '#000',
-                shadowOpacity: 0.04,
-                shadowRadius: 8,
-                elevation: 1,
-              }}
+              activeOpacity={press.card}
+              style={[miniCard, { flexDirection: 'row', alignItems: 'center' }]}
             >
               <View style={{ flex: 1 }}>
-                <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#414158' }}>
-                  #{order.orderNumber}
-                </Text>
-                <Text
-                  style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1', marginTop: 2 }}
-                >
+                <Text style={[text.label, { color: color.textPrimary }]}>#{order.orderNumber}</Text>
+                <Text style={[text.caption, { color: color.textSecondary, marginTop: space[0.5] }]}>
                   {formatDate(order.createdAt)}
                 </Text>
               </View>
-              <Text
-                style={{
-                  fontFamily: 'Urbanist-Bold',
-                  fontSize: 14,
-                  color: '#FA7938',
-                  marginRight: 10,
-                }}
-              >
+              <Text style={[text.bodyStrong, { color: color.brand, marginRight: space[2.5] }]}>
                 ₹{Number(order.total).toFixed(2)}
               </Text>
               <StatusBadge status={order.status} size="sm" />
               <Ionicons
                 name="chevron-forward"
                 size={14}
-                color="#C4C9D4"
-                style={{ marginLeft: 8 }}
+                color={color.textMuted}
+                style={{ marginLeft: space[2] }}
               />
             </TouchableOpacity>
           ))

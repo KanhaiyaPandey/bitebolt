@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
 
+import { color, font, space, text, ui } from '@/theme';
+
 interface EmptyStateProps {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
@@ -14,43 +16,27 @@ export function EmptyState({ icon, title, subtitle }: EmptyStateProps) {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 60,
-        paddingHorizontal: 32,
+        paddingVertical: space[14],
+        paddingHorizontal: space[8],
       }}
     >
-      <View
-        style={{
-          width: 80,
-          height: 80,
-          borderRadius: 40,
-          backgroundColor: 'rgba(250,121,56,0.12)',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 20,
-        }}
-      >
-        <Ionicons name={icon} size={40} color="#FA7938" />
+      <View style={[ui.iconTile(80, color.brand + '1F'), { marginBottom: space[5] }]}>
+        <Ionicons name={icon} size={40} color={color.brand} />
       </View>
       <Text
-        style={{
-          fontFamily: 'Urbanist-SemiBold',
-          fontSize: 18,
-          color: '#414158',
-          textAlign: 'center',
-          marginBottom: 8,
-        }}
+        style={[
+          text.h3,
+          {
+            fontFamily: font.semibold,
+            color: color.textPrimary,
+            textAlign: 'center',
+            marginBottom: space[2],
+          },
+        ]}
       >
         {title}
       </Text>
-      <Text
-        style={{
-          fontFamily: 'Urbanist',
-          fontSize: 14,
-          color: '#9098B1',
-          textAlign: 'center',
-          maxWidth: 260,
-        }}
-      >
+      <Text style={[text.body, { color: color.textSecondary, textAlign: 'center', maxWidth: 260 }]}>
         {subtitle}
       </Text>
     </View>

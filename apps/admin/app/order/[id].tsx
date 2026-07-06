@@ -16,6 +16,7 @@ import { StatusTimeline } from '@/components/orders/StatusTimeline';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { color, elevation, layout, press, radius, space, text } from '@/theme';
 
 const NEXT_STATUS: Record<string, string | null> = {
   PENDING: 'ACCEPTED',
@@ -33,6 +34,56 @@ const STATUS_ACTION_LABELS: Record<string, string> = {
   OUT_FOR_DELIVERY: 'Out for Delivery',
   DELIVERED: 'Mark Delivered',
 };
+
+// Shared section card (white panel used for every detail block).
+const sectionCard = [
+  {
+    backgroundColor: color.surface,
+    marginHorizontal: layout.screenX,
+    borderRadius: radius.card,
+    padding: space[3.5],
+    marginBottom: space[3],
+  },
+  elevation.sm,
+];
+
+// Full-width status action button (green / red / brand).
+function ActionButton({
+  label,
+  tone,
+  onPress,
+  loading,
+  disabled,
+  flex,
+}: {
+  label: string;
+  tone: string;
+  onPress: () => void;
+  loading?: boolean;
+  disabled?: boolean;
+  flex?: boolean;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled || loading}
+      activeOpacity={press.card}
+      style={{
+        flex: flex ? 1 : undefined,
+        backgroundColor: tone,
+        borderRadius: radius.button,
+        paddingVertical: space[3.5],
+        alignItems: 'center',
+      }}
+    >
+      {loading ? (
+        <ActivityIndicator color={color.onBrand} />
+      ) : (
+        <Text style={[text.buttonSm, { color: color.onBrand }]}>{label}</Text>
+      )}
+    </TouchableOpacity>
+  );
+}
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -80,7 +131,7 @@ export default function OrderDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <View style={{ flex: 1, backgroundColor: color.bg }}>
         <ScreenHeader title="Order Detail" showBack />
         <SkeletonCard height={200} />
         <SkeletonCard height={150} />
@@ -91,124 +142,88 @@ export default function OrderDetailScreen() {
 
   if (!order) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <View style={{ flex: 1, backgroundColor: color.bg }}>
         <ScreenHeader title="Order Detail" showBack />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontFamily: 'Urbanist', color: '#9098B1' }}>Order not found</Text>
+          <Text style={[text.body, { color: color.textSecondary }]}>Order not found</Text>
         </View>
       </View>
     );
   }
 
   const nextStatus = NEXT_STATUS[order.status];
+  const rejectEnabled = !!rejectReason.trim();
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       <ScreenHeader
         title={`#${order.orderNumber}`}
         showBack
         rightElement={<StatusBadge status={order.status} />}
       />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: space[8] }}>
         {/* Status actions */}
         {order.status === 'PENDING' && (
-          <View style={{ flexDirection: 'row', gap: 12, padding: 16 }}>
-            <TouchableOpacity
+          <View style={{ flexDirection: 'row', gap: space[3], padding: layout.screenX }}>
+            <ActionButton
+              label="Accept Order"
+              tone={color.success}
+              flex
+              loading={statusMutation.isPending}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 statusMutation.mutate({ status: 'ACCEPTED' });
               }}
-              disabled={statusMutation.isPending}
-              activeOpacity={0.85}
-              style={{
-                flex: 1,
-                backgroundColor: '#10B981',
-                borderRadius: 14,
-                paddingVertical: 14,
-                alignItems: 'center',
-              }}
-            >
-              {statusMutation.isPending ? (
-                <ActivityIndicator color="#FFF" />
-              ) : (
-                <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 15, color: '#FFF' }}>
-                  Accept Order
-                </Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
+            />
+            <ActionButton
+              label="Reject"
+              tone={color.error}
+              flex
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 rejectSheetRef.current?.expand();
               }}
-              activeOpacity={0.85}
-              style={{
-                flex: 1,
-                backgroundColor: '#EF4444',
-                borderRadius: 14,
-                paddingVertical: 14,
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 15, color: '#FFF' }}>
-                Reject
-              </Text>
-            </TouchableOpacity>
+            />
           </View>
         )}
 
         {nextStatus && order.status !== 'PENDING' && (
-          <View style={{ padding: 16 }}>
-            <TouchableOpacity
+          <View style={{ padding: layout.screenX }}>
+            <ActionButton
+              label={STATUS_ACTION_LABELS[nextStatus] ?? nextStatus}
+              tone={color.brand}
+              loading={statusMutation.isPending}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 statusMutation.mutate({ status: nextStatus });
               }}
-              disabled={statusMutation.isPending}
-              activeOpacity={0.85}
-              style={{
-                backgroundColor: '#FA7938',
-                borderRadius: 14,
-                paddingVertical: 14,
-                alignItems: 'center',
-              }}
-            >
-              {statusMutation.isPending ? (
-                <ActivityIndicator color="#FFF" />
-              ) : (
-                <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 15, color: '#FFF' }}>
-                  {STATUS_ACTION_LABELS[nextStatus] ?? nextStatus}
-                </Text>
-              )}
-            </TouchableOpacity>
+            />
           </View>
         )}
 
         {/* Customer */}
         <SectionHeader title="Customer" />
-        <View
-          style={{
-            backgroundColor: '#FFF',
-            marginHorizontal: 16,
-            borderRadius: 16,
-            padding: 14,
-            marginBottom: 12,
-            shadowColor: '#000',
-            shadowOpacity: 0.06,
-            shadowRadius: 10,
-            elevation: 2,
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-            <Ionicons name="person-outline" size={16} color="#9098B1" style={{ marginRight: 8 }} />
-            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158' }}>
+        <View style={sectionCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space[1.5] }}>
+            <Ionicons
+              name="person-outline"
+              size={16}
+              color={color.textSecondary}
+              style={{ marginRight: space[2] }}
+            />
+            <Text style={[text.bodyStrong, { color: color.textPrimary }]}>
               {order.user?.name ?? '—'}
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="call-outline" size={16} color="#9098B1" style={{ marginRight: 8 }} />
-            <Text style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1' }}>
+            <Ionicons
+              name="call-outline"
+              size={16}
+              color={color.textSecondary}
+              style={{ marginRight: space[2] }}
+            />
+            <Text style={[text.body, { color: color.textSecondary }]}>
               {order.user?.phone ?? '—'}
             </Text>
           </View>
@@ -218,35 +233,15 @@ export default function OrderDetailScreen() {
         {order.deliveryAddress && (
           <>
             <SectionHeader title="Delivery Address" />
-            <View
-              style={{
-                backgroundColor: '#FFF',
-                marginHorizontal: 16,
-                borderRadius: 16,
-                padding: 14,
-                marginBottom: 12,
-                shadowColor: '#000',
-                shadowOpacity: 0.06,
-                shadowRadius: 10,
-                elevation: 2,
-              }}
-            >
+            <View style={sectionCard}>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                 <Ionicons
                   name="location-outline"
                   size={16}
-                  color="#FA7938"
-                  style={{ marginRight: 8, marginTop: 2 }}
+                  color={color.brand}
+                  style={{ marginRight: space[2], marginTop: space[0.5] }}
                 />
-                <Text
-                  style={{
-                    flex: 1,
-                    fontFamily: 'Urbanist',
-                    fontSize: 14,
-                    color: '#414158',
-                    lineHeight: 20,
-                  }}
-                >
+                <Text style={[text.body, { flex: 1, color: color.textPrimary }]}>
                   {order.deliveryAddress.addressLine1}
                   {order.deliveryAddress.addressLine2
                     ? `, ${order.deliveryAddress.addressLine2}`
@@ -260,19 +255,7 @@ export default function OrderDetailScreen() {
 
         {/* Items */}
         <SectionHeader title="Items" />
-        <View
-          style={{
-            backgroundColor: '#FFF',
-            marginHorizontal: 16,
-            borderRadius: 16,
-            padding: 14,
-            marginBottom: 12,
-            shadowColor: '#000',
-            shadowOpacity: 0.06,
-            shadowRadius: 10,
-            elevation: 2,
-          }}
-        >
+        <View style={sectionCard}>
           {order.items?.map(
             (item: {
               id: string;
@@ -285,27 +268,18 @@ export default function OrderDetailScreen() {
                 key={item.id}
                 style={{
                   flexDirection: 'row',
-                  paddingVertical: 8,
+                  paddingVertical: space[2],
                   borderBottomWidth: 1,
-                  borderBottomColor: '#F5F5FA',
+                  borderBottomColor: color.surfaceSubtle,
                 }}
               >
-                <Text
-                  style={{ flex: 1, fontFamily: 'Urbanist-Medium', fontSize: 14, color: '#414158' }}
-                >
+                <Text style={[text.bodyLg, { flex: 1, fontSize: 14, color: color.textPrimary }]}>
                   {item.name}
                 </Text>
-                <Text
-                  style={{
-                    fontFamily: 'Urbanist',
-                    fontSize: 13,
-                    color: '#9098B1',
-                    marginRight: 16,
-                  }}
-                >
+                <Text style={[text.label, { color: color.textSecondary, marginRight: space[4] }]}>
                   ×{item.quantity}
                 </Text>
-                <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158' }}>
+                <Text style={[text.bodyStrong, { color: color.textPrimary }]}>
                   ₹{Number(item.subtotal).toFixed(2)}
                 </Text>
               </View>
@@ -313,7 +287,7 @@ export default function OrderDetailScreen() {
           )}
 
           {/* Bill summary */}
-          <View style={{ marginTop: 12, gap: 6 }}>
+          <View style={{ marginTop: space[3], gap: space[1.5] }}>
             {[
               { label: 'Subtotal', value: order.subtotal },
               { label: 'Delivery Fee', value: order.deliveryFee },
@@ -323,10 +297,10 @@ export default function OrderDetailScreen() {
               .filter(Boolean)
               .map((row) => (
                 <View key={(row as { label: string }).label} style={{ flexDirection: 'row' }}>
-                  <Text style={{ flex: 1, fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1' }}>
+                  <Text style={[text.label, { flex: 1, color: color.textSecondary }]}>
                     {(row as { label: string }).label}
                   </Text>
-                  <Text style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#414158' }}>
+                  <Text style={[text.label, { color: color.textPrimary }]}>
                     ₹{Math.abs(Number((row as { value: number }).value)).toFixed(2)}
                   </Text>
                 </View>
@@ -335,17 +309,13 @@ export default function OrderDetailScreen() {
               style={{
                 flexDirection: 'row',
                 borderTopWidth: 1,
-                borderTopColor: '#F0F0F8',
-                paddingTop: 8,
-                marginTop: 4,
+                borderTopColor: color.borderSubtle,
+                paddingTop: space[2],
+                marginTop: space[1],
               }}
             >
-              <Text
-                style={{ flex: 1, fontFamily: 'Urbanist-Bold', fontSize: 15, color: '#414158' }}
-              >
-                Total
-              </Text>
-              <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 15, color: '#FA7938' }}>
+              <Text style={[text.emphasis, { flex: 1, color: color.textPrimary }]}>Total</Text>
+              <Text style={[text.emphasis, { color: color.brand }]}>
                 ₹{Number(order.total).toFixed(2)}
               </Text>
             </View>
@@ -356,20 +326,7 @@ export default function OrderDetailScreen() {
         {order.payment && (
           <>
             <SectionHeader title="Payment" />
-            <View
-              style={{
-                backgroundColor: '#FFF',
-                marginHorizontal: 16,
-                borderRadius: 16,
-                padding: 14,
-                marginBottom: 12,
-                shadowColor: '#000',
-                shadowOpacity: 0.06,
-                shadowRadius: 10,
-                elevation: 2,
-                gap: 6,
-              }}
-            >
+            <View style={[sectionCard, { gap: space[1.5] }]}>
               {[
                 { label: 'Method', value: order.payment.method },
                 { label: 'Status', value: order.payment.status },
@@ -386,19 +343,14 @@ export default function OrderDetailScreen() {
                 .filter(Boolean)
                 .map((row) => (
                   <View key={(row as { label: string }).label} style={{ flexDirection: 'row' }}>
-                    <Text
-                      style={{ flex: 1, fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1' }}
-                    >
+                    <Text style={[text.label, { flex: 1, color: color.textSecondary }]}>
                       {(row as { label: string }).label}
                     </Text>
                     <Text
-                      style={{
-                        fontFamily: 'Urbanist-Medium',
-                        fontSize: 13,
-                        color: '#414158',
-                        flex: 1,
-                        textAlign: 'right',
-                      }}
+                      style={[
+                        text.labelMuted,
+                        { color: color.textPrimary, flex: 1, textAlign: 'right' },
+                      ]}
                       numberOfLines={1}
                     >
                       {(row as { value: string }).value}
@@ -413,19 +365,7 @@ export default function OrderDetailScreen() {
         {order.statusHistory && order.statusHistory.length > 0 && (
           <>
             <SectionHeader title="Status Timeline" />
-            <View
-              style={{
-                backgroundColor: '#FFF',
-                marginHorizontal: 16,
-                borderRadius: 16,
-                padding: 14,
-                marginBottom: 12,
-                shadowColor: '#000',
-                shadowOpacity: 0.06,
-                shadowRadius: 10,
-                elevation: 2,
-              }}
-            >
+            <View style={sectionCard}>
               <StatusTimeline history={order.statusHistory} />
             </View>
           </>
@@ -435,22 +375,8 @@ export default function OrderDetailScreen() {
         {order.specialInstructions && (
           <>
             <SectionHeader title="Special Instructions" />
-            <View
-              style={{
-                backgroundColor: '#FFF',
-                marginHorizontal: 16,
-                borderRadius: 16,
-                padding: 14,
-                marginBottom: 12,
-                shadowColor: '#000',
-                shadowOpacity: 0.06,
-                shadowRadius: 10,
-                elevation: 2,
-              }}
-            >
-              <Text
-                style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#414158', lineHeight: 20 }}
-              >
+            <View style={sectionCard}>
+              <Text style={[text.body, { color: color.textPrimary }]}>
                 {order.specialInstructions}
               </Text>
             </View>
@@ -465,63 +391,63 @@ export default function OrderDetailScreen() {
         snapPoints={['40%']}
         enablePanDownToClose
         backdropComponent={renderBackdrop}
-        handleIndicatorStyle={{ backgroundColor: '#D3D6DE', width: 32, height: 4 }}
+        handleIndicatorStyle={{
+          backgroundColor: color.disabled,
+          width: space[8],
+          height: space[1],
+        }}
         backgroundStyle={{
-          backgroundColor: '#FFF',
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          backgroundColor: color.surface,
+          borderTopLeftRadius: radius.panel,
+          borderTopRightRadius: radius.panel,
         }}
       >
-        <BottomSheetView style={{ padding: 24 }}>
-          <Text
-            style={{ fontFamily: 'Urbanist-Bold', fontSize: 18, color: '#414158', marginBottom: 8 }}
-          >
+        <BottomSheetView style={{ padding: space[6] }}>
+          <Text style={[text.h3, { color: color.textPrimary, marginBottom: space[2] }]}>
             Reject Order
           </Text>
-          <Text
-            style={{ fontFamily: 'Urbanist', fontSize: 14, color: '#9098B1', marginBottom: 16 }}
-          >
+          <Text style={[text.body, { color: color.textSecondary, marginBottom: space[4] }]}>
             Please provide a reason for the customer.
           </Text>
           <BottomSheetTextInput
             value={rejectReason}
             onChangeText={setRejectReason}
             placeholder="e.g. Item unavailable, kitchen closed…"
-            placeholderTextColor="#C4C9D4"
+            placeholderTextColor={color.textMuted}
             multiline
             numberOfLines={3}
-            style={{
-              backgroundColor: '#F5F5FA',
-              borderRadius: 12,
-              padding: 14,
-              fontFamily: 'Urbanist',
-              fontSize: 14,
-              color: '#414158',
-              minHeight: 80,
-              marginBottom: 16,
-              textAlignVertical: 'top',
-            }}
+            style={[
+              text.body,
+              {
+                backgroundColor: color.surfaceSubtle,
+                borderRadius: radius.control,
+                padding: space[3.5],
+                color: color.textPrimary,
+                minHeight: 80,
+                marginBottom: space[4],
+                textAlignVertical: 'top',
+              },
+            ]}
           />
           <TouchableOpacity
             onPress={() => statusMutation.mutate({ status: 'REJECTED', notes: rejectReason })}
-            disabled={statusMutation.isPending || !rejectReason.trim()}
-            activeOpacity={0.85}
+            disabled={statusMutation.isPending || !rejectEnabled}
+            activeOpacity={press.card}
             style={{
-              backgroundColor: rejectReason.trim() ? '#EF4444' : '#E0E0EA',
-              borderRadius: 14,
-              paddingVertical: 14,
+              backgroundColor: rejectEnabled ? color.error : color.borderStrong,
+              borderRadius: radius.button,
+              paddingVertical: space[3.5],
               alignItems: 'center',
             }}
           >
             {statusMutation.isPending ? (
-              <ActivityIndicator color="#FFF" />
+              <ActivityIndicator color={color.onBrand} />
             ) : (
               <Text
-                style={{
-                  fontFamily: 'Urbanist-SemiBold',
-                  fontSize: 15,
-                  color: rejectReason.trim() ? '#FFF' : '#9098B1',
-                }}
+                style={[
+                  text.buttonSm,
+                  { color: rejectEnabled ? color.onBrand : color.textSecondary },
+                ]}
               >
                 Confirm Rejection
               </Text>

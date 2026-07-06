@@ -11,6 +11,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useDebounce } from '@/hooks/useDebounce';
+import { color, layout, space, text, ui } from '@/theme';
 
 export default function CustomersScreen() {
   const [search, setSearch] = useState('');
@@ -30,48 +31,40 @@ export default function CustomersScreen() {
   const customers: any[] = Array.isArray(data) ? data : ((data as any)?.customers ?? []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       {/* Header */}
       <View
         style={{
-          backgroundColor: '#FFFFFF',
-          paddingTop: insets.top + 12,
-          paddingBottom: 0,
+          backgroundColor: color.surface,
+          paddingTop: insets.top + space[3],
           borderBottomWidth: 1,
-          borderBottomColor: '#F0F0F8',
+          borderBottomColor: color.borderSubtle,
         }}
       >
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 16,
-            marginBottom: 12,
+            paddingHorizontal: layout.screenX,
+            marginBottom: space[3],
           }}
         >
-          <Ionicons name="people-outline" size={22} color="#FA7938" style={{ marginRight: 8 }} />
-          <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158' }}>
-            Customers
-          </Text>
+          <Ionicons
+            name="people-outline"
+            size={22}
+            color={color.brand}
+            style={{ marginRight: space[2] }}
+          />
+          <Text style={[text.h2, { color: color.textPrimary }]}>Customers</Text>
           {customers.length > 0 && (
-            <View
-              style={{
-                marginLeft: 8,
-                backgroundColor: '#FFF4EE',
-                borderRadius: 999,
-                paddingHorizontal: 8,
-                paddingVertical: 3,
-              }}
-            >
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 12, color: '#FA7938' }}>
-                {customers.length}
-              </Text>
+            <View style={[ui.badge(color.brandSubtle), { marginLeft: space[2] }]}>
+              <Text style={[text.captionStrong, { color: color.brand }]}>{customers.length}</Text>
             </View>
           )}
         </View>
       </View>
 
-      <View style={{ paddingTop: 12 }}>
+      <View style={{ paddingTop: space[3] }}>
         <SearchBar value={search} onChangeText={setSearch} placeholder="Search by name or phone…" />
       </View>
 
@@ -93,7 +86,7 @@ export default function CustomersScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => <CustomerRow item={item} index={index} />}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 4, paddingBottom: 110 }}
+          contentContainerStyle={{ paddingTop: space[1], paddingBottom: layout.listBottomInset }}
           ListEmptyComponent={
             <EmptyState
               icon="people-outline"
@@ -109,8 +102,8 @@ export default function CustomersScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#FA7938"
-              colors={['#FA7938']}
+              tintColor={color.brand}
+              colors={[color.brand]}
             />
           }
         />

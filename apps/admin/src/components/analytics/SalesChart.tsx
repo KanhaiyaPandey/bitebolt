@@ -1,6 +1,8 @@
 import { ScrollView } from 'react-native';
 import Svg, { G, Rect, Text as SvgText } from 'react-native-svg';
 
+import { color, font } from '@/theme';
+
 interface DaySale {
   date: string;
   orderCount: number;
@@ -47,15 +49,15 @@ export function SalesChart({ data }: SalesChartProps) {
                 width={BAR_WIDTH}
                 height={barH}
                 rx={BAR_RADIUS}
-                fill={isToday ? '#FA7938' : '#FA793826'}
+                fill={isToday ? color.brand : color.brand + '26'}
               />
               <SvgText
                 x={x + BAR_WIDTH / 2}
                 y={CHART_HEIGHT + 16}
                 textAnchor="middle"
                 fontSize={10}
-                fontFamily="Urbanist"
-                fill="#9098B1"
+                fontFamily={font.regular}
+                fill={color.textSecondary}
               >
                 {formatDay(item.date)}
               </SvgText>
@@ -65,8 +67,8 @@ export function SalesChart({ data }: SalesChartProps) {
                   y={y - 4}
                   textAnchor="middle"
                   fontSize={9}
-                  fontFamily="Urbanist-SemiBold"
-                  fill={isToday ? '#FA7938' : '#9098B1'}
+                  fontFamily={font.semibold}
+                  fill={isToday ? color.brand : color.textSecondary}
                 >
                   {formatRevenue(item.revenue)}
                 </SvgText>

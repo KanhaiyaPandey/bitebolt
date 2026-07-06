@@ -1,5 +1,7 @@
 import { Image, Text, View } from 'react-native';
 
+import { color, elevation, palette, radius, space, text, ui } from '@/theme';
+
 interface PopularItem {
   foodItemId: string;
   name: string;
@@ -12,49 +14,35 @@ interface PopularItemsProps {
   items: PopularItem[];
 }
 
-const RANK_COLORS = ['#FA7938', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
+const RANK_COLORS = [color.brand, color.warning, color.success, color.info, palette.violet500];
 
 export function PopularItems({ items }: PopularItemsProps) {
   return (
-    <View style={{ gap: 10 }}>
+    <View style={{ gap: space[2.5] }}>
       {items.slice(0, 5).map((item, i) => (
         <View
           key={item.foodItemId}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#FFFFFF',
-            borderRadius: 12,
-            padding: 12,
-            shadowColor: '#000',
-            shadowOpacity: 0.04,
-            shadowRadius: 8,
-            shadowOffset: { width: 0, height: 2 },
-            elevation: 1,
-          }}
+          style={[
+            {
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: color.surface,
+              borderRadius: radius.control,
+              padding: space[3],
+            },
+            elevation.sm,
+          ]}
         >
           {/* Rank */}
-          <View
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 14,
-              backgroundColor: RANK_COLORS[i] + '22',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 10,
-            }}
-          >
-            <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 12, color: RANK_COLORS[i] }}>
-              {i + 1}
-            </Text>
+          <View style={[ui.iconTile(28, RANK_COLORS[i] + '22'), { marginRight: space[2.5] }]}>
+            <Text style={[text.captionStrong, { color: RANK_COLORS[i] }]}>{i + 1}</Text>
           </View>
 
           {/* Image */}
           {item.imageUrl ? (
             <Image
               source={{ uri: item.imageUrl }}
-              style={{ width: 40, height: 40, borderRadius: 8, marginRight: 10 }}
+              style={{ width: 40, height: 40, borderRadius: space[2], marginRight: space[2.5] }}
               resizeMode="cover"
             />
           ) : (
@@ -62,31 +50,21 @@ export function PopularItems({ items }: PopularItemsProps) {
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 8,
-                backgroundColor: '#EEEEF5',
-                marginRight: 10,
+                borderRadius: space[2],
+                backgroundColor: color.track,
+                marginRight: space[2.5],
               }}
             />
           )}
 
           {/* Name */}
-          <Text
-            style={{ flex: 1, fontFamily: 'Urbanist-SemiBold', fontSize: 13, color: '#414158' }}
-            numberOfLines={1}
-          >
+          <Text style={[text.label, { flex: 1, color: color.textPrimary }]} numberOfLines={1}>
             {item.name}
           </Text>
 
           {/* Count badge */}
-          <View
-            style={{
-              backgroundColor: '#FFF4EE',
-              borderRadius: 999,
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-            }}
-          >
-            <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 12, color: '#FA7938' }}>
+          <View style={[ui.badge(color.brandSubtle), { paddingHorizontal: space[2.5] }]}>
+            <Text style={[text.captionStrong, { color: color.brand }]}>
               {item.orderCount} orders
             </Text>
           </View>

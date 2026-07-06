@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
+import { color, motion, space, text, ui, walletTone } from '@/theme';
+
 interface WalletTx {
   id: string;
   type: 'CREDIT' | 'DEBIT';
@@ -19,13 +21,6 @@ interface WalletTxRowProps {
   index: number;
 }
 
-const REASON_STYLES: Record<string, { bg: string; text: string }> = {
-  ORDER_PAYMENT: { bg: '#FEE2E2', text: '#7F1D1D' },
-  ORDER_REFUND: { bg: '#D1FAE5', text: '#065F46' },
-  TOP_UP: { bg: '#DBEAFE', text: '#1E3A5F' },
-  CASHBACK: { bg: '#EDE9FE', text: '#4C1D95' },
-};
-
 function formatTime(dt: string | Date) {
   return new Date(dt).toLocaleDateString('en-IN', {
     day: '2-digit',
@@ -38,63 +33,38 @@ function formatTime(dt: string | Date) {
 
 export function WalletTxRow({ item, index }: WalletTxRowProps) {
   const isCredit = item.type === 'CREDIT';
-  const reasonStyle = REASON_STYLES[item.reason] ?? { bg: '#F3F4F6', text: '#374151' };
+  const reasonTone = walletTone(item.reason);
+  // Credit/debit share the green/red tones of refund/payment.
+  const flowTone = isCredit ? walletTone('ORDER_REFUND') : walletTone('ORDER_PAYMENT');
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(index * 50)
-        .duration(300)
+      entering={FadeInDown.delay(index * motion.stagger)
+        .duration(motion.base)
         .springify()}
     >
-      <View
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderRadius: 16,
-          marginHorizontal: 16,
-          marginBottom: 10,
-          padding: 14,
-          flexDirection: 'row',
-          alignItems: 'center',
-          shadowColor: '#000',
-          shadowOpacity: 0.05,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 2,
-        }}
-      >
+      <View style={[ui.card, { flexDirection: 'row', alignItems: 'center' }]}>
         {/* Type icon */}
-        <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: isCredit ? '#D1FAE5' : '#FEE2E2',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 12,
-          }}
-        >
+        <View style={[ui.iconTile(40, flowTone.bg), { marginRight: space[3] }]}>
           <Ionicons
             name={isCredit ? 'arrow-down-outline' : 'arrow-up-outline'}
             size={18}
-            color={isCredit ? '#065F46' : '#7F1D1D'}
+            color={flowTone.text}
           />
         </View>
 
         {/* Info */}
         <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-            <View
-              style={{
-                backgroundColor: reasonStyle.bg,
-                borderRadius: 999,
-                paddingHorizontal: 7,
-                paddingVertical: 2,
-              }}
-            >
-              <Text
-                style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 10, color: reasonStyle.text }}
-              >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: space[1.5],
+              marginBottom: space[0.5] + 1,
+            }}
+          >
+            <View style={[ui.badge(reasonTone.bg), { paddingHorizontal: space[2] - 1 }]}>
+              <Text style={[text.tiny, { color: reasonTone.text }]}>
                 {item.reason.replace(/_/g, ' ')}
               </Text>
             </View>
@@ -102,31 +72,25 @@ export function WalletTxRow({ item, index }: WalletTxRowProps) {
 
           {item.description && (
             <Text
-              style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1', marginBottom: 2 }}
+              style={[text.caption, { color: color.textSecondary, marginBottom: space[0.5] }]}
               numberOfLines={1}
             >
               {item.description}
             </Text>
           )}
 
-          <Text style={{ fontFamily: 'Urbanist', fontSize: 11, color: '#9098B1' }}>
+          <Text style={[text.overline, { color: color.textSecondary }]}>
             {item.userName ?? item.userPhone ?? '—'} · {formatTime(item.createdAt)}
           </Text>
         </View>
 
         {/* Amount + balance */}
         <View style={{ alignItems: 'flex-end' }}>
-          <Text
-            style={{
-              fontFamily: 'Urbanist-Bold',
-              fontSize: 15,
-              color: isCredit ? '#065F46' : '#EF4444',
-            }}
-          >
+          <Text style={[text.emphasis, { color: isCredit ? flowTone.text : color.error }]}>
             {isCredit ? '+' : '−'}₹{Number(item.amount).toFixed(2)}
           </Text>
           {item.balanceAfter != null && (
-            <Text style={{ fontFamily: 'Urbanist', fontSize: 11, color: '#C4C9D4', marginTop: 2 }}>
+            <Text style={[text.overline, { color: color.textMuted, marginTop: space[0.5] }]}>
               Bal: ₹{Number(item.balanceAfter).toFixed(2)}
             </Text>
           )}

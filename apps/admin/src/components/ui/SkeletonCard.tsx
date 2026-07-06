@@ -8,6 +8,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { color, motion, radius, space } from '@/theme';
+
 export function SkeletonCard({
   height = 80,
   width,
@@ -21,7 +23,10 @@ export function SkeletonCard({
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withSequence(withTiming(0.35, { duration: 700 }), withTiming(1, { duration: 700 })),
+      withSequence(
+        withTiming(0.35, { duration: motion.skeleton }),
+        withTiming(1, { duration: motion.skeleton }),
+      ),
       -1,
     );
   }, [opacity]);
@@ -32,13 +37,13 @@ export function SkeletonCard({
     <Animated.View
       style={[
         {
-          backgroundColor: '#E0E0EA',
-          borderRadius: 16,
+          backgroundColor: color.borderStrong,
+          borderRadius: radius.card,
           height,
           width,
           flex,
-          marginHorizontal: width || flex ? 0 : 16,
-          marginBottom: 12,
+          marginHorizontal: width || flex ? 0 : space[4],
+          marginBottom: space[3],
         },
         animStyle,
       ]}
@@ -48,7 +53,14 @@ export function SkeletonCard({
 
 export function SkeletonRow() {
   return (
-    <View style={{ flexDirection: 'row', gap: 12, marginHorizontal: 16, marginBottom: 12 }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        gap: space[3],
+        marginHorizontal: space[4],
+        marginBottom: space[3],
+      }}
+    >
       <SkeletonCard height={48} flex={1} />
       <SkeletonCard height={48} flex={1} />
     </View>

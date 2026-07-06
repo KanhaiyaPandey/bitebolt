@@ -8,6 +8,7 @@ import { ordersApi } from '@/api';
 import { OrderCard } from '@/components/orders/OrderCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { color, layout, press, space, text, ui } from '@/theme';
 
 const STATUS_FILTERS = [
   { label: 'All', value: '' },
@@ -47,30 +48,32 @@ export default function OrdersScreen() {
   const orders: any[] = Array.isArray(data) ? data : ((data as any)?.orders ?? []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       {/* Header */}
       <View
         style={{
-          backgroundColor: '#FFFFFF',
-          paddingTop: insets.top + 12,
-          paddingHorizontal: 16,
-          paddingBottom: 0,
+          backgroundColor: color.surface,
+          paddingTop: insets.top + space[3],
+          paddingHorizontal: layout.screenX,
           borderBottomWidth: 1,
-          borderBottomColor: '#F0F0F8',
+          borderBottomColor: color.borderSubtle,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Ionicons name="receipt-outline" size={22} color="#FA7938" style={{ marginRight: 8 }} />
-          <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158' }}>
-            Orders
-          </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space[3] }}>
+          <Ionicons
+            name="receipt-outline"
+            size={22}
+            color={color.brand}
+            style={{ marginRight: space[2] }}
+          />
+          <Text style={[text.h2, { color: color.textPrimary }]}>Orders</Text>
         </View>
 
         {/* Status filter chips */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 12, gap: 8 }}
+          contentContainerStyle={{ paddingBottom: space[3], gap: space[2] }}
         >
           {STATUS_FILTERS.map((f) => {
             const active = activeStatus === f.value;
@@ -78,21 +81,10 @@ export default function OrdersScreen() {
               <TouchableOpacity
                 key={f.value}
                 onPress={() => setActiveStatus(f.value)}
-                activeOpacity={0.8}
-                style={{
-                  backgroundColor: active ? '#FA7938' : '#F5F5FA',
-                  borderRadius: 999,
-                  paddingHorizontal: 14,
-                  paddingVertical: 7,
-                }}
+                activeOpacity={press.secondary}
+                style={ui.chip(active)}
               >
-                <Text
-                  style={{
-                    fontFamily: 'Urbanist-SemiBold',
-                    fontSize: 13,
-                    color: active ? '#FFFFFF' : '#9098B1',
-                  }}
-                >
+                <Text style={[text.label, { color: active ? color.onBrand : color.textSecondary }]}>
                   {f.label}
                 </Text>
               </TouchableOpacity>
@@ -102,7 +94,7 @@ export default function OrdersScreen() {
       </View>
 
       {isLoading ? (
-        <View style={{ paddingTop: 16 }}>
+        <View style={{ paddingTop: space[4] }}>
           {[0, 1, 2, 3].map((i) => (
             <SkeletonCard key={i} height={110} />
           ))}
@@ -114,7 +106,7 @@ export default function OrdersScreen() {
           renderItem={({ item, index }) => (
             <OrderCard order={item} index={index} onAccept={(id) => acceptMutation.mutate(id)} />
           )}
-          contentContainerStyle={{ paddingTop: 12, paddingBottom: 110 }}
+          contentContainerStyle={{ paddingTop: space[3], paddingBottom: layout.listBottomInset }}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <EmptyState
@@ -127,8 +119,8 @@ export default function OrdersScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#FA7938"
-              colors={['#FA7938']}
+              tintColor={color.brand}
+              colors={[color.brand]}
             />
           }
         />

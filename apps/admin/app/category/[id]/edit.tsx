@@ -1,25 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { z } from 'zod';
 
 import { categoriesApi } from '@/api';
 import { ImagePicker } from '@/components/menu/ImagePicker';
+import {
+  FieldError,
+  FieldLabel,
+  FormInput,
+  PrimaryButton,
+  ToggleRow,
+} from '@/components/ui/FormControls';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { color, elevation, layout, radius, space } from '@/theme';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -30,39 +28,6 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
-
-function StyledInput({
-  error,
-  ...props
-}: React.ComponentProps<typeof TextInput> & { error?: string }) {
-  const [focused, setFocused] = useState(false);
-  return (
-    <TextInput
-      {...props}
-      onFocus={(e) => {
-        setFocused(true);
-        props.onFocus?.(e);
-      }}
-      onBlur={(e) => {
-        setFocused(false);
-        props.onBlur?.(e);
-      }}
-      style={{
-        backgroundColor: '#FFF',
-        borderRadius: 12,
-        borderWidth: 1.5,
-        borderColor: error ? '#EF4444' : focused ? '#FA7938' : '#D3D6DE',
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        fontFamily: 'Urbanist',
-        fontSize: 14,
-        color: '#414158',
-        ...((props.style as object) ?? {}),
-      }}
-      placeholderTextColor="#C4C9D4"
-    />
-  );
-}
 
 export default function EditCategoryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -118,7 +83,7 @@ export default function EditCategoryScreen() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+      <View style={{ flex: 1, backgroundColor: color.bg }}>
         <ScreenHeader title="Edit Category" showBack />
         <SkeletonCard height={200} />
         <SkeletonCard height={100} />
@@ -127,13 +92,13 @@ export default function EditCategoryScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EEEEF5' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       <ScreenHeader title="Edit Category" showBack />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
+        <ScrollView contentContainerStyle={{ padding: layout.screenX, paddingBottom: space[12] }}>
           <Controller
             control={control}
             name="imageUrl"
@@ -142,22 +107,13 @@ export default function EditCategoryScreen() {
             )}
           />
 
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              style={{
-                fontFamily: 'Urbanist-SemiBold',
-                fontSize: 13,
-                color: '#9098B1',
-                marginBottom: 6,
-              }}
-            >
-              Name *
-            </Text>
+          <View style={{ marginBottom: space[4] }}>
+            <FieldLabel>Name *</FieldLabel>
             <Controller
               control={control}
               name="name"
               render={({ field }) => (
-                <StyledInput
+                <FormInput
                   value={field.value}
                   onChangeText={field.onChange}
                   placeholder="e.g. Starters"
@@ -165,31 +121,16 @@ export default function EditCategoryScreen() {
                 />
               )}
             />
-            {errors.name && (
-              <Text
-                style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#EF4444', marginTop: 4 }}
-              >
-                {errors.name.message}
-              </Text>
-            )}
+            <FieldError message={errors.name?.message} />
           </View>
 
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              style={{
-                fontFamily: 'Urbanist-SemiBold',
-                fontSize: 13,
-                color: '#9098B1',
-                marginBottom: 6,
-              }}
-            >
-              Description
-            </Text>
+          <View style={{ marginBottom: space[4] }}>
+            <FieldLabel>Description</FieldLabel>
             <Controller
               control={control}
               name="description"
               render={({ field }) => (
-                <StyledInput
+                <FormInput
                   value={field.value}
                   onChangeText={field.onChange}
                   placeholder="Brief description…"
@@ -201,22 +142,13 @@ export default function EditCategoryScreen() {
             />
           </View>
 
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              style={{
-                fontFamily: 'Urbanist-SemiBold',
-                fontSize: 13,
-                color: '#9098B1',
-                marginBottom: 6,
-              }}
-            >
-              Sort Order
-            </Text>
+          <View style={{ marginBottom: space[4] }}>
+            <FieldLabel>Sort Order</FieldLabel>
             <Controller
               control={control}
               name="sortOrder"
               render={({ field }) => (
-                <StyledInput
+                <FormInput
                   value={field.value}
                   onChangeText={field.onChange}
                   placeholder="0"
@@ -227,53 +159,30 @@ export default function EditCategoryScreen() {
           </View>
 
           <View
-            style={{ backgroundColor: '#FFF', borderRadius: 16, padding: 16, marginBottom: 16 }}
+            style={[
+              {
+                backgroundColor: color.surface,
+                borderRadius: radius.card,
+                padding: space[4],
+                marginBottom: space[4],
+              },
+              elevation.sm,
+            ]}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text
-                style={{ flex: 1, fontFamily: 'Urbanist-SemiBold', fontSize: 14, color: '#414158' }}
-              >
-                Active
-              </Text>
-              <Controller
-                control={control}
-                name="isActive"
-                render={({ field }) => (
-                  <Switch
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    trackColor={{ false: '#E0E0EA', true: '#FA7938' }}
-                    thumbColor="#FFF"
-                  />
-                )}
-              />
-            </View>
+            <Controller
+              control={control}
+              name="isActive"
+              render={({ field }) => (
+                <ToggleRow label="Active" value={field.value} onValueChange={field.onChange} />
+              )}
+            />
           </View>
 
-          <TouchableOpacity
+          <PrimaryButton
+            label="Save Changes"
             onPress={handleSubmit((data) => mutation.mutate(data))}
-            disabled={mutation.isPending}
-            activeOpacity={0.85}
-            style={{
-              backgroundColor: '#FA7938',
-              borderRadius: 14,
-              paddingVertical: 16,
-              alignItems: 'center',
-              shadowColor: '#FA7938',
-              shadowOpacity: 0.3,
-              shadowRadius: 10,
-              shadowOffset: { width: 0, height: 4 },
-              elevation: 4,
-            }}
-          >
-            {mutation.isPending ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 16, color: '#FFF' }}>
-                Save Changes
-              </Text>
-            )}
-          </TouchableOpacity>
+            loading={mutation.isPending}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

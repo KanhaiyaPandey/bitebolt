@@ -1,14 +1,6 @@
 import { Text, View } from 'react-native';
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING: { bg: '#FEF3C7', text: '#92400E', label: 'Pending' },
-  ACCEPTED: { bg: '#DBEAFE', text: '#1E3A5F', label: 'Accepted' },
-  PREPARING: { bg: '#EDE9FE', text: '#4C1D95', label: 'Preparing' },
-  OUT_FOR_DELIVERY: { bg: '#FFEDD5', text: '#9A3412', label: 'Out for Delivery' },
-  DELIVERED: { bg: '#D1FAE5', text: '#065F46', label: 'Delivered' },
-  REJECTED: { bg: '#FEE2E2', text: '#7F1D1D', label: 'Rejected' },
-  CANCELLED: { bg: '#F3F4F6', text: '#374151', label: 'Cancelled' },
-};
+import { orderTone, space, text, ui } from '@/theme';
 
 interface StatusBadgeProps {
   status: string;
@@ -16,28 +8,18 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
-  const style = STATUS_STYLES[status] ?? { bg: '#F3F4F6', text: '#374151', label: status };
+  const tone = orderTone(status);
 
   return (
     <View
-      style={{
-        backgroundColor: style.bg,
-        borderRadius: 999,
-        paddingHorizontal: size === 'sm' ? 8 : 12,
-        paddingVertical: size === 'sm' ? 3 : 5,
-      }}
+      style={[
+        ui.badge(tone.bg),
+        size === 'md' && { paddingHorizontal: space[3], paddingVertical: space[1] + 1 },
+      ]}
     >
-      <Text
-        style={{
-          fontFamily: 'Urbanist-SemiBold',
-          fontSize: size === 'sm' ? 11 : 12,
-          color: style.text,
-        }}
-      >
-        {style.label}
+      <Text style={[size === 'sm' ? text.overline : text.captionStrong, { color: tone.text }]}>
+        {tone.label}
       </Text>
     </View>
   );
 }
-
-export { STATUS_STYLES };

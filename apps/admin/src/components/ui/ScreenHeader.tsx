@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { color, press, space, text, ui } from '@/theme';
+
 interface ScreenHeaderProps {
   title: string;
   showBack?: boolean;
@@ -15,30 +17,22 @@ export function ScreenHeader({ title, showBack = false, rightElement }: ScreenHe
 
   return (
     <View
-      style={{
-        backgroundColor: '#FFFFFF',
-        paddingTop: insets.top + 8,
-        paddingBottom: 12,
-        paddingHorizontal: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F8',
-      }}
+      style={[
+        ui.screenHeader(insets.top - space[1]),
+        { flexDirection: 'row', alignItems: 'center' },
+      ]}
     >
       {showBack && (
         <TouchableOpacity
           onPress={() => router.back()}
-          activeOpacity={0.7}
-          style={{ marginRight: 12, padding: 4 }}
+          activeOpacity={press.subtle}
+          style={{ marginRight: space[3], padding: space[1] }}
         >
-          <Ionicons name="arrow-back" size={22} color="#414158" />
+          <Ionicons name="arrow-back" size={22} color={color.textPrimary} />
         </TouchableOpacity>
       )}
 
-      <Text style={{ flex: 1, fontFamily: 'Urbanist-Bold', fontSize: 20, color: '#414158' }}>
-        {title}
-      </Text>
+      <Text style={[text.h2, { flex: 1, color: color.textPrimary }]}>{title}</Text>
 
       {rightElement && <View>{rightElement}</View>}
     </View>

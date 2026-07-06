@@ -8,11 +8,23 @@ import { analyticsApi } from '@/api';
 import { MetricCard } from '@/components/analytics/MetricCard';
 import { PopularItems } from '@/components/analytics/PopularItems';
 import { SalesChart } from '@/components/analytics/SalesChart';
-import { STATUS_STYLES } from '@/components/orders/StatusBadge';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useAdminAuthStore } from '@/store/auth.store';
+import {
+  chartColors,
+  color,
+  elevation,
+  layout,
+  motion,
+  opacity,
+  orderTone,
+  press,
+  radius,
+  space,
+  text,
+} from '@/theme';
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   UPI: 'UPI',
@@ -42,6 +54,15 @@ function getDateString() {
     month: 'short',
   });
 }
+
+const panelStyle = {
+  backgroundColor: color.surface,
+  marginHorizontal: layout.screenX,
+  borderRadius: radius.panel,
+  padding: space[5],
+  marginBottom: space[4],
+  ...elevation.md,
+};
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
@@ -85,109 +106,103 @@ export default function DashboardScreen() {
   });
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAFBFC' }}>
+    <View style={{ flex: 1, backgroundColor: color.bg }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 110 }}
+        contentContainerStyle={{ paddingBottom: layout.listBottomInset }}
       >
-        {/* Modern Header Area */}
+        {/* Header */}
         <View
-          style={{
-            paddingTop: insets.top + 16,
-            paddingBottom: 24,
-            paddingHorizontal: 15,
-            backgroundColor: '#FA7938',
-            borderBottomLeftRadius: 32,
-            borderBottomRightRadius: 32,
-            shadowColor: '#FA7938',
-            shadowOpacity: 0.15,
-            shadowRadius: 24,
-            shadowOffset: { width: 0, height: 12 },
-            elevation: 8,
-            marginBottom: 24,
-          }}
+          style={[
+            {
+              paddingTop: insets.top + space[4],
+              paddingBottom: space[6],
+              paddingHorizontal: layout.screenX,
+              backgroundColor: color.brand,
+              borderBottomLeftRadius: radius.hero,
+              borderBottomRightRadius: radius.hero,
+              marginBottom: space[6],
+            },
+            elevation.brandHero,
+          ]}
         >
           <View
             style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
           >
             <Animated.View
-              entering={FadeInDown.duration(600).springify()}
+              entering={FadeInDown.duration(motion.slow).springify()}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 12,
+                gap: space[3],
                 flex: 1,
-                marginRight: 12,
+                marginRight: space[3],
               }}
             >
               <Image
                 source={require('../../assets/images/logo.jpg')}
-                style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFF' }}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: radius.full,
+                  backgroundColor: color.surface,
+                }}
               />
               <View>
                 <Text
-                  style={{
-                    fontFamily: 'Urbanist-SemiBold',
-                    fontSize: 14,
-                    color: 'rgba(255,255,255,0.85)',
-                    marginBottom: 2,
-                  }}
+                  style={[text.bodyStrong, { color: color.onBrandMuted, marginBottom: space[0.5] }]}
                 >
                   {getGreeting()},
                 </Text>
-                <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 24, color: '#FFFFFF' }}>
-                  {user?.name ?? 'Admin'}
-                </Text>
+                <Text style={[text.h1, { color: color.onBrand }]}>{user?.name ?? 'Admin'}</Text>
               </View>
             </Animated.View>
 
             <Animated.View
-              entering={FadeInDown.delay(100).duration(600).springify()}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+              entering={FadeInDown.delay(100).duration(motion.slow).springify()}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: space[2.5] }}
             >
               <View
                 style={{
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  borderRadius: 16,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
+                  backgroundColor: `rgba(255,255,255,${opacity.overlay})`,
+                  borderRadius: radius.field,
+                  paddingHorizontal: space[4],
+                  paddingVertical: space[2.5],
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 6,
+                  gap: space[1.5],
                 }}
               >
-                <Ionicons name="calendar-clear-outline" size={16} color="#FFF" />
-                <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 14, color: '#FFFFFF' }}>
-                  {getDateString()}
-                </Text>
+                <Ionicons name="calendar-clear-outline" size={16} color={color.onBrand} />
+                <Text style={[text.bodyStrong, { color: color.onBrand }]}>{getDateString()}</Text>
               </View>
               <TouchableOpacity
                 onPress={handleLogout}
-                activeOpacity={0.8}
+                activeOpacity={press.secondary}
                 style={{
                   width: 40,
                   height: 40,
-                  borderRadius: 20,
-                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  borderRadius: radius.full,
+                  backgroundColor: `rgba(255,255,255,${opacity.overlayStrong})`,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="log-out-outline" size={22} color="#FFF" />
+                <Ionicons name="log-out-outline" size={22} color={color.onBrand} />
               </TouchableOpacity>
             </Animated.View>
           </View>
         </View>
 
         {/* Overview metrics */}
-        <Animated.View entering={FadeInDown.delay(200).duration(600).springify()}>
+        <Animated.View entering={FadeInDown.delay(200).duration(motion.slow).springify()}>
           <SectionHeader title="Today's Overview" />
 
           {loadingOverview ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 24, gap: 16 }}
+              contentContainerStyle={{ paddingHorizontal: layout.screenX, gap: space[4] }}
             >
               <SkeletonCard height={140} width={160} />
               <SkeletonCard height={140} width={160} />
@@ -203,53 +218,44 @@ export default function DashboardScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 16, paddingTop: 4 }}
+              contentContainerStyle={{
+                paddingHorizontal: layout.screenX,
+                paddingBottom: space[4],
+                paddingTop: space[1],
+              }}
             >
               <MetricCard
                 label="Orders Today"
                 value={String(overview?.ordersToday ?? 0)}
                 icon="receipt-outline"
-                color="#FA7938"
+                accent={chartColors[0]}
               />
               <MetricCard
                 label="Revenue Today"
                 value={formatCurrency(overview?.revenueToday ?? 0)}
                 icon="cash-outline"
-                color="#10B981"
+                accent={chartColors[1]}
               />
               <MetricCard
                 label="Total Revenue"
                 value={formatCurrency(overview?.totalRevenue ?? 0)}
                 icon="trending-up-outline"
-                color="#808AFF"
+                accent={chartColors[2]}
               />
               <MetricCard
                 label="Pending Orders"
                 value={String(overview?.pendingOrders ?? 0)}
                 icon="time-outline"
-                color="#F59E0B"
+                accent={chartColors[3]}
               />
             </ScrollView>
           )}
         </Animated.View>
 
         {/* Daily Sales Chart */}
-        <Animated.View entering={FadeInDown.delay(300).duration(600).springify()}>
+        <Animated.View entering={FadeInDown.delay(300).duration(motion.slow).springify()}>
           <SectionHeader title="Revenue Insights" />
-          <View
-            style={{
-              backgroundColor: '#FFFFFF',
-              marginHorizontal: 24,
-              borderRadius: 24,
-              padding: 20,
-              shadowColor: '#000',
-              shadowOpacity: 0.04,
-              shadowRadius: 16,
-              shadowOffset: { width: 0, height: 6 },
-              elevation: 2,
-              marginBottom: 16,
-            }}
-          >
+          <View style={panelStyle}>
             {loadingSales || !dailySales ? (
               <SkeletonCard height={160} />
             ) : (
@@ -261,9 +267,9 @@ export default function DashboardScreen() {
         </Animated.View>
 
         {/* Popular Items */}
-        <Animated.View entering={FadeInDown.delay(400).duration(600).springify()}>
+        <Animated.View entering={FadeInDown.delay(400).duration(motion.slow).springify()}>
           <SectionHeader title="Trending Items" />
-          <View style={{ paddingHorizontal: 24 }}>
+          <View style={{ paddingHorizontal: layout.screenX }}>
             {loadingPopular ? (
               <>
                 <SkeletonCard height={72} />
@@ -276,25 +282,18 @@ export default function DashboardScreen() {
               <View
                 style={{
                   alignItems: 'center',
-                  paddingVertical: 40,
-                  backgroundColor: '#FFF',
-                  borderRadius: 24,
+                  paddingVertical: space[10],
+                  backgroundColor: color.surface,
+                  borderRadius: radius.panel,
                 }}
               >
                 <Ionicons
                   name="fast-food-outline"
                   size={48}
-                  color="#D3D6DE"
-                  style={{ marginBottom: 16 }}
+                  color={color.disabled}
+                  style={{ marginBottom: space[4] }}
                 />
-                <Text
-                  style={{
-                    fontFamily: 'Urbanist-Medium',
-                    fontSize: 16,
-                    color: '#9098B1',
-                    textAlign: 'center',
-                  }}
-                >
+                <Text style={[text.bodyLg, { color: color.textSecondary, textAlign: 'center' }]}>
                   No trending items yet
                 </Text>
               </View>
@@ -303,43 +302,21 @@ export default function DashboardScreen() {
         </Animated.View>
 
         {/* Order Statistics */}
-        <Animated.View entering={FadeInDown.delay(500).duration(600).springify()}>
+        <Animated.View entering={FadeInDown.delay(500).duration(motion.slow).springify()}>
           <SectionHeader title="Order Statistics" />
-          <View
-            style={{
-              backgroundColor: '#FFFFFF',
-              marginHorizontal: 24,
-              borderRadius: 24,
-              padding: 20,
-              shadowColor: '#000',
-              shadowOpacity: 0.04,
-              shadowRadius: 16,
-              shadowOffset: { width: 0, height: 6 },
-              elevation: 2,
-              marginBottom: 16,
-            }}
-          >
+          <View style={panelStyle}>
             {loadingOrderStats || !orderStats ? (
               <SkeletonCard height={120} />
             ) : (
               <>
                 <Text
-                  style={{
-                    fontFamily: 'Urbanist-SemiBold',
-                    fontSize: 13,
-                    color: '#9098B1',
-                    marginBottom: 10,
-                  }}
+                  style={[text.label, { color: color.textSecondary, marginBottom: space[2.5] }]}
                 >
                   By Status
                 </Text>
-                <View style={{ gap: 8, marginBottom: 16 }}>
+                <View style={{ gap: space[2], marginBottom: space[4] }}>
                   {Object.entries(orderStats.byStatus ?? {}).map(([status, count]) => {
-                    const style = STATUS_STYLES[status] ?? {
-                      bg: '#F3F4F6',
-                      text: '#374151',
-                      label: status,
-                    };
+                    const tone = orderTone(status);
                     return (
                       <View
                         key={status}
@@ -351,25 +328,17 @@ export default function DashboardScreen() {
                       >
                         <View
                           style={{
-                            backgroundColor: style.bg,
-                            borderRadius: 999,
-                            paddingHorizontal: 10,
-                            paddingVertical: 4,
+                            backgroundColor: tone.bg,
+                            borderRadius: radius.full,
+                            paddingHorizontal: space[2.5],
+                            paddingVertical: space[1],
                           }}
                         >
-                          <Text
-                            style={{
-                              fontFamily: 'Urbanist-SemiBold',
-                              fontSize: 12,
-                              color: style.text,
-                            }}
-                          >
-                            {style.label}
+                          <Text style={[text.captionStrong, { color: tone.text }]}>
+                            {tone.label}
                           </Text>
                         </View>
-                        <Text
-                          style={{ fontFamily: 'Urbanist-Bold', fontSize: 14, color: '#414158' }}
-                        >
+                        <Text style={[text.bodyStrong, { color: color.textPrimary }]}>
                           {String(count)}
                         </Text>
                       </View>
@@ -378,16 +347,11 @@ export default function DashboardScreen() {
                 </View>
 
                 <Text
-                  style={{
-                    fontFamily: 'Urbanist-SemiBold',
-                    fontSize: 13,
-                    color: '#9098B1',
-                    marginBottom: 10,
-                  }}
+                  style={[text.label, { color: color.textSecondary, marginBottom: space[2.5] }]}
                 >
                   By Payment Method
                 </Text>
-                <View style={{ gap: 8 }}>
+                <View style={{ gap: space[2] }}>
                   {Object.entries(orderStats.byPaymentMethod ?? {}).map(([method, count]) => (
                     <View
                       key={method}
@@ -397,12 +361,10 @@ export default function DashboardScreen() {
                         justifyContent: 'space-between',
                       }}
                     >
-                      <Text
-                        style={{ fontFamily: 'Urbanist-Medium', fontSize: 13, color: '#414158' }}
-                      >
+                      <Text style={[text.labelMuted, { color: color.textPrimary }]}>
                         {PAYMENT_METHOD_LABELS[method] ?? method}
                       </Text>
-                      <Text style={{ fontFamily: 'Urbanist-Bold', fontSize: 14, color: '#414158' }}>
+                      <Text style={[text.bodyStrong, { color: color.textPrimary }]}>
                         {String(count)}
                       </Text>
                     </View>

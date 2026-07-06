@@ -7,6 +7,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { StatusBadge } from './StatusBadge';
 
+import { color, motion, press, radius, space, text, ui } from '@/theme';
+
 interface Order {
   id: string;
   orderNumber: string;
@@ -37,21 +39,19 @@ function renderRightActions(onAccept: () => void) {
   return (
     <TouchableOpacity
       onPress={onAccept}
-      activeOpacity={0.85}
+      activeOpacity={press.card}
       style={{
-        backgroundColor: '#10B981',
+        backgroundColor: color.success,
         justifyContent: 'center',
         alignItems: 'center',
         width: 80,
-        borderRadius: 16,
-        marginBottom: 12,
-        marginLeft: 8,
+        borderRadius: radius.card,
+        marginBottom: space[3],
+        marginLeft: space[2],
       }}
     >
-      <Ionicons name="checkmark-circle" size={28} color="#FFF" />
-      <Text style={{ fontFamily: 'Urbanist-SemiBold', fontSize: 11, color: '#FFF', marginTop: 2 }}>
-        Accept
-      </Text>
+      <Ionicons name="checkmark-circle" size={28} color={color.onBrand} />
+      <Text style={[text.overline, { color: color.onBrand, marginTop: space[0.5] }]}>Accept</Text>
     </TouchableOpacity>
   );
 }
@@ -72,38 +72,32 @@ export function OrderCard({ order, index, onAccept }: OrderCardProps) {
 
   const cardContent = (
     <Animated.View
-      entering={FadeInDown.delay(index * 60)
-        .duration(350)
+      entering={FadeInDown.delay(index * motion.stagger)
+        .duration(motion.base)
         .springify()}
     >
       <TouchableOpacity
-        activeOpacity={0.85}
+        activeOpacity={press.card}
         onPress={() => router.push(`/order/${order.id}`)}
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderRadius: 16,
-          padding: 14,
-          marginHorizontal: 16,
-          marginBottom: 12,
-          shadowColor: '#000',
-          shadowOpacity: 0.06,
-          shadowRadius: 12,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 2,
-        }}
+        style={[ui.card, { marginBottom: space[3] }]}
       >
         {/* Top row */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-          <Text style={{ flex: 1, fontFamily: 'Urbanist-Bold', fontSize: 15, color: '#414158' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space[1.5] }}>
+          <Text style={[text.emphasis, { flex: 1, color: color.textPrimary }]}>
             #{order.orderNumber}
           </Text>
           <StatusBadge status={order.status} size="sm" />
         </View>
 
         {/* Customer name */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-          <Ionicons name="person-outline" size={13} color="#9098B1" style={{ marginRight: 5 }} />
-          <Text style={{ fontFamily: 'Urbanist', fontSize: 13, color: '#9098B1' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space[1] }}>
+          <Ionicons
+            name="person-outline"
+            size={13}
+            color={color.textSecondary}
+            style={{ marginRight: space[1] + 1 }}
+          />
+          <Text style={[text.label, { color: color.textSecondary }]}>
             {order.user?.name ?? order.user?.phone ?? 'Unknown'}
           </Text>
         </View>
@@ -112,7 +106,7 @@ export function OrderCard({ order, index, onAccept }: OrderCardProps) {
         {itemsPreview && (
           <Text
             numberOfLines={1}
-            style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#C4C9D4', marginBottom: 8 }}
+            style={[text.caption, { color: color.textMuted, marginBottom: space[2] }]}
           >
             {itemsPreview}
           </Text>
@@ -120,10 +114,10 @@ export function OrderCard({ order, index, onAccept }: OrderCardProps) {
 
         {/* Bottom row */}
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ flex: 1, fontFamily: 'Urbanist-Bold', fontSize: 15, color: '#FA7938' }}>
+          <Text style={[text.emphasis, { flex: 1, color: color.brand }]}>
             ₹{Number(order.total).toFixed(2)}
           </Text>
-          <Text style={{ fontFamily: 'Urbanist', fontSize: 12, color: '#9098B1' }}>
+          <Text style={[text.caption, { color: color.textSecondary }]}>
             {timeAgo(order.createdAt)}
           </Text>
         </View>

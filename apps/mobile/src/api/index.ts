@@ -91,6 +91,7 @@ export const usersApi = {
   addAddress: (data: object) => apiClient.post('/users/me/addresses', data),
   updateAddress: (id: string, data: object) => apiClient.patch(`/users/me/addresses/${id}`, data),
   deleteAddress: (id: string) => apiClient.delete(`/users/me/addresses/${id}`),
+  registerPushToken: (token: string | null) => apiClient.patch('/users/me/push-token', { token }),
 };
 
 // ── Notifications ─────────────────────────────────────────────────────────────

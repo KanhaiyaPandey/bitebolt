@@ -20,6 +20,11 @@ export class UsersService {
     return user;
   }
 
+  async updatePushToken(userId: string, token: string | null) {
+    await this.db.db.update(users).set({ fcmToken: token }).where(eq(users.id, userId));
+    return { success: true };
+  }
+
   async updateProfile(userId: string, data: { name?: string; email?: string }) {
     if (data.email) {
       const [exists] = await this.db.db

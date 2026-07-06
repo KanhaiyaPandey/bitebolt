@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { and, eq, sql } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
-import { notifications } from '../../db/schema';
+import { notifications, users } from '../../db/schema';
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(private db: DbService) {}
 
   async createNotification(
@@ -27,7 +29,45 @@ export class NotificationsService {
         data: data.data ?? {},
       })
       .returning();
+
+    this.sendPush(userId, data.title, data.body, data.data).catch((err) =>
+      this.logger.warn(`Push send failed for user ${userId}: ${err.message}`),
+    );
+
     return created;
+  }
+
+  private async sendPush(
+    userId: string,
+    title: string,
+    body: string,
+    data?: Record<string, unknown>,
+  ) {
+    const [user] = await this.db.db
+      .select({ fcmToken: users.fcmToken })
+      .from(users)
+      .where(eq(users.id, userId));
+
+    if (!user?.fcmToken?.startsWith('ExponentPushToken')) return;
+
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: user.fcmToken,
+        title,
+        body,
+        data: data ?? {},
+        sound: 'default',
+      }),
+    });
+
+    if (!response.ok) {
+      this.logger.warn(`Expo push responded with ${response.status} for user ${userId}`);
+    }
   }
 
   async getUserNotifications(userId: string, page = 1, limit = 20) {

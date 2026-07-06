@@ -1,20 +1,23 @@
 import '../src/styles/global.css';
-import { useEffect, useState } from 'react';
-import { SplashScreen, Stack } from 'expo-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   Inter_400Regular,
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import Toast from 'react-native-toast-message';
+import * as Notifications from 'expo-notifications';
+import { SplashScreen, Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
+import Toast from 'react-native-toast-message';
 
+import { usersApi } from '../src/api';
+import AnimatedSplash from '../src/components/AnimatedSplash';
+import { registerForPushNotificationsAsync } from '../src/notifications/push';
 import { useAuthStore } from '../src/store/auth.store';
 import { useGuestCartStore } from '../src/store/guest-cart.store';
-import AnimatedSplash from '../src/components/AnimatedSplash';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,10 +34,38 @@ const queryClient = new QueryClient({
 function InitAuth() {
   const initialize = useAuthStore((s) => s.initialize);
   const hydrateGuestCart = useGuestCartStore((s) => s.hydrate);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   useEffect(() => {
     initialize();
     hydrateGuestCart();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    registerForPushNotificationsAsync().then((token) => {
+      if (token) usersApi.registerPushToken(token).catch(() => {});
+    });
+  }, [isAuthenticated]);
+
+  return null;
+}
+
+function PushNotificationListener() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data as { orderId?: string };
+      if (data?.orderId) {
+        router.push(`/order/${data.orderId}`);
+      } else {
+        router.push('/notifications');
+      }
+    });
+    return () => subscription.remove();
+  }, [router]);
+
   return null;
 }
 
@@ -68,6 +99,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <StatusBar style={splashDone ? 'dark' : 'light'} />
       <InitAuth />
+      <PushNotificationListener />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

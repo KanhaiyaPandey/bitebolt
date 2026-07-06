@@ -69,6 +69,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    try {
+      const { usersApi } = await import('../api');
+      await usersApi.registerPushToken(null);
+    } catch {
+      // Non-critical — stale token gets overwritten on next login anyway
+    }
+
     await Promise.all([
       SecureStore.deleteItemAsync('accessToken'),
       SecureStore.deleteItemAsync('refreshToken'),

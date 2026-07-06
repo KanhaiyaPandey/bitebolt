@@ -21,6 +21,11 @@ export class UsersController {
     return this.usersService.updateProfile(user.id, body);
   }
 
+  @Patch('me/push-token')
+  updatePushToken(@CurrentUser() user: { id: string }, @Body() body: { token: string | null }) {
+    return this.usersService.updatePushToken(user.id, body.token);
+  }
+
   @Get('me/addresses')
   getAddresses(@CurrentUser() user: { id: string }) {
     return this.usersService.getAddresses(user.id);

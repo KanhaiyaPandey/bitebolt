@@ -15,6 +15,7 @@ module.exports = {
   ios: {
     supportsTablet: false,
     bundleIdentifier: process.env.APP_BUNDLE_ID ?? 'in.bitebolt.customer',
+    buildNumber: '1',
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         'BiteBolt needs your location to deliver food to your address.',
@@ -27,6 +28,7 @@ module.exports = {
       backgroundColor: '#FF5722',
     },
     package: process.env.APP_BUNDLE_ID ?? 'in.bitebolt.customer',
+    versionCode: 1,
     permissions: [
       'ACCESS_FINE_LOCATION',
       'CAMERA',

@@ -1,6 +1,7 @@
-import { Body, Controller, Headers, Post, RawBodyRequest, Req } from '@nestjs/common';
+import { UserRole } from '@bitebolt/types';
+import { Body, Controller, Get, Headers, Post, Query, RawBodyRequest, Req } from '@nestjs/common';
 
-import { Public, CurrentUser } from '../../common/decorators';
+import { CurrentUser, Public, Roles } from '../../common/decorators';
 
 import { CreateRazorpayOrderDto } from './dto/create-razorpay-order.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
@@ -28,5 +29,20 @@ export class PaymentsController {
   ) {
     const payload = req.rawBody?.toString() ?? '';
     return this.paymentsService.handleWebhook(payload, signature);
+  }
+
+  // ── Admin Route ──────────────────────────────────────────────────────────────
+
+  @Get('admin')
+  @Roles(UserRole.ADMIN)
+  getAllPayments(
+    @Query('page') page = '1',
+    @Query('limit') limit = '20',
+    @Query('status') status?: string,
+    @Query('method') method?: string,
+  ) {
+    const safePage = Math.max(1, Math.floor(Number(page)) || 1);
+    const safeLimit = Math.min(100, Math.max(1, Math.floor(Number(limit)) || 20));
+    return this.paymentsService.getAllPayments(safePage, safeLimit, status, method);
   }
 }

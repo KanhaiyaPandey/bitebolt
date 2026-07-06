@@ -1,13 +1,18 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { and, eq, ilike, or, sql } from 'drizzle-orm';
 
 import { DbService } from '../../db/db.service';
-import { foodItemCombinations, foodItems } from '../../db/schema';
+import { foodItemCombinations, foodItems, orderItems } from '../../db/schema';
+
+import type { CreateFoodDto } from './dto/create-food.dto';
+import type { UpdateFoodDto } from './dto/update-food.dto';
 
 @Injectable()
 export class FoodsService {
+  private readonly logger = new Logger(FoodsService.name);
+
   constructor(
     private db: DbService,
     @Inject(CACHE_MANAGER) private cache: Cache,
@@ -120,8 +125,10 @@ export class FoodsService {
     return items;
   }
 
-  async findAllForAdmin() {
+  async findAllForAdmin(search?: string, page = 1, limit = 100) {
+    const offset = (page - 1) * limit;
     return this.db.db.query.foodItems.findMany({
+      where: search ? (t) => ilike(t.name, `%${search}%`) : undefined,
       columns: {
         id: true,
         name: true,
@@ -129,15 +136,26 @@ export class FoodsService {
         imageUrl: true,
         isAvailable: true,
         price: true,
+        discountedPrice: true,
         isVeg: true,
+        categoryId: true,
       },
       with: {
-        combinationLinks: {
-          columns: { combinationId: true },
-        },
+        category: { columns: { id: true, name: true } },
       },
       orderBy: (t, { asc }) => [asc(t.name)],
+      limit,
+      offset,
     });
+  }
+
+  async findOneForAdmin(id: string) {
+    const item = await this.db.db.query.foodItems.findFirst({
+      where: (t, { eq: eqFn }) => eqFn(t.id, id),
+      with: { category: { columns: { id: true, name: true } } },
+    });
+    if (!item) throw new NotFoundException('Food item not found.');
+    return item;
   }
 
   async setBulkDiscount(items: { id: string; discountedPrice: number | null }[]) {
@@ -188,5 +206,116 @@ export class FoodsService {
     if (item) await this.cache.del(`food:${item.slug}`);
 
     return { success: true, count: combinationIds.length };
+  }
+
+  // ── Admin: Create Food Item ───────────────────────────────────────────────────
+
+  async createFood(dto: CreateFoodDto) {
+    this.logger.debug('[FoodsService] createFood', { name: dto.name, categoryId: dto.categoryId });
+
+    const slug = dto.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    const existing = await this.db.db.query.foodItems.findFirst({
+      where: (t, { eq: eqFn }) => eqFn(t.slug, slug),
+      columns: { id: true },
+    });
+    const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
+
+    const [created] = await this.db.db
+      .insert(foodItems)
+      .values({
+        name: dto.name,
+        slug: finalSlug,
+        categoryId: dto.categoryId,
+        description: dto.description,
+        price: String(dto.price),
+        discountedPrice: dto.discountedPrice != null ? String(dto.discountedPrice) : null,
+        imageUrl: dto.imageUrl,
+        images: dto.images ?? [],
+        isVeg: dto.isVeg,
+        isAvailable: dto.isAvailable ?? true,
+        preparationTime: dto.preparationTime,
+        tags: dto.tags ?? [],
+        sortOrder: dto.sortOrder ?? 0,
+      })
+      .returning();
+
+    await this.cache.del('foods:featured');
+    this.logger.debug('[FoodsService] createFood success', { id: created.id });
+    return created;
+  }
+
+  // ── Admin: Update Food Item ───────────────────────────────────────────────────
+
+  async updateFood(id: string, dto: UpdateFoodDto) {
+    this.logger.debug('[FoodsService] updateFood', { id });
+
+    const existing = await this.db.db.query.foodItems.findFirst({
+      where: (t, { eq: eqFn }) => eqFn(t.id, id),
+    });
+    if (!existing) throw new NotFoundException('Food item not found.');
+
+    const updates: Record<string, unknown> = {};
+    if (dto.name !== undefined) updates.name = dto.name;
+    if (dto.categoryId !== undefined) updates.categoryId = dto.categoryId;
+    if (dto.description !== undefined) updates.description = dto.description;
+    if (dto.price !== undefined) updates.price = String(dto.price);
+    if (dto.discountedPrice !== undefined)
+      updates.discountedPrice = dto.discountedPrice !== null ? String(dto.discountedPrice) : null;
+    if (dto.imageUrl !== undefined) updates.imageUrl = dto.imageUrl;
+    if (dto.images !== undefined) updates.images = dto.images;
+    if (dto.isVeg !== undefined) updates.isVeg = dto.isVeg;
+    if (dto.isAvailable !== undefined) updates.isAvailable = dto.isAvailable;
+    if (dto.preparationTime !== undefined) updates.preparationTime = dto.preparationTime;
+    if (dto.tags !== undefined) updates.tags = dto.tags;
+    if (dto.sortOrder !== undefined) updates.sortOrder = dto.sortOrder;
+
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestException('No fields provided to update.');
+    }
+
+    const [updated] = await this.db.db
+      .update(foodItems)
+      .set(updates)
+      .where(eq(foodItems.id, id))
+      .returning();
+
+    await this.cache.del(`food:${existing.slug}`);
+    await this.cache.del('foods:featured');
+    this.logger.debug('[FoodsService] updateFood success', { id });
+    return updated;
+  }
+
+  // ── Admin: Delete Food Item ───────────────────────────────────────────────────
+
+  async deleteFood(id: string) {
+    this.logger.debug('[FoodsService] deleteFood', { id });
+
+    const existing = await this.db.db.query.foodItems.findFirst({
+      where: (t, { eq: eqFn }) => eqFn(t.id, id),
+    });
+    if (!existing) throw new NotFoundException('Food item not found.');
+
+    // Block deletion if item appears in active (non-terminal) orders
+    const activeOrderItem = await this.db.db
+      .select({ id: orderItems.id })
+      .from(orderItems)
+      .where(eq(orderItems.foodItemId, id))
+      .limit(1);
+
+    if (activeOrderItem.length > 0) {
+      throw new BadRequestException(
+        'Cannot delete this food item — it appears in existing orders. Disable availability instead.',
+      );
+    }
+
+    await this.db.db.delete(foodItems).where(eq(foodItems.id, id));
+    await this.cache.del(`food:${existing.slug}`);
+    await this.cache.del('foods:featured');
+    this.logger.debug('[FoodsService] deleteFood success', { id });
+    return { deleted: true };
   }
 }

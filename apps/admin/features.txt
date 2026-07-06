@@ -1,0 +1,32 @@
+Admin App / Panel — Features to Build
+1. Order Management
+
+Receive incoming orders in real time
+Accept or reject orders
+Update order status: Received → Preparing → Out for Delivery → Delivered / Cancelled
+
+2. Food Management
+
+Add, edit, and delete food items
+Category management
+Price management
+Availability / stock management
+
+3. Analytics Dashboard
+
+Total food orders per day
+Daily sales reports
+Total revenue tracking
+Most ordered food items
+Order statistics and sales insights
+
+4. Customer Details
+
+View customer information
+Customer-wise order history
+Saved address details
+
+5. Payment Management
+
+Razorpay payment tracking
+Wallet transaction tracking

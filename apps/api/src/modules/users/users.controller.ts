@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { UserRole } from '@bitebolt/types';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
-import { CurrentUser } from '../../common/decorators';
+import { CurrentUser, Roles } from '../../common/decorators';
 
 import { UsersService } from './users.service';
 
@@ -44,5 +45,23 @@ export class UsersController {
   @Delete('me/addresses/:id')
   deleteAddress(@CurrentUser() user: { id: string }, @Param('id') id: string) {
     return this.usersService.deleteAddress(user.id, id);
+  }
+
+  // ── Admin Routes ─────────────────────────────────────────────────────────────
+
+  @Get('admin/customers')
+  @Roles(UserRole.ADMIN)
+  getCustomers(
+    @Query('page') page = '1',
+    @Query('limit') limit = '20',
+    @Query('search') search?: string,
+  ) {
+    return this.usersService.getCustomers(+page, +limit, search);
+  }
+
+  @Get('admin/customers/:id')
+  @Roles(UserRole.ADMIN)
+  getCustomerById(@Param('id') id: string) {
+    return this.usersService.getCustomerById(id);
   }
 }

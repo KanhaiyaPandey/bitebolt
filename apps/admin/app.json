@@ -2,6 +2,7 @@
   "expo": {
     "name": "BiteBolt Admin",
     "slug": "bitebolt-admin",
+    "owner": "kannhaiya",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -24,7 +25,10 @@
         "backgroundColor": "#FA7938"
       },
       "package": "in.bitebolt.admin",
-      "versionCode": 1
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -45,6 +49,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bb48db42-b157-4ab3-9f0e-58c2ef95cf74"
+      }
     }
   }
 }
